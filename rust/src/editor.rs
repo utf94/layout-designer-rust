@@ -1,5 +1,3 @@
-use std::{cell::RefCell, rc::Rc};
-
 use wasm_bindgen::prelude::*;
 
 mod workspace;
@@ -13,25 +11,11 @@ use crate::{
     elements::component::EditorComponentSource,
 };
 
-#[derive(Clone, Copy)]
-pub enum LayoutMode {
-    Flex,
-    Grid,
-}
-
-impl Default for LayoutMode {
-    fn default() -> Self {
-        Self::Grid
-    }
-}
-
 #[wasm_bindgen]
 #[derive(Clone)]
 pub struct EditorState {
     workspace: Workspace,
     parameters_panel: ParametersPanel,
-
-    layout_mode: Rc<RefCell<LayoutMode>>,
 }
 
 impl EditorState {
@@ -40,7 +24,6 @@ impl EditorState {
         Self {
             parameters_panel,
             workspace: Workspace::new(),
-            layout_mode: Default::default(),
         }
     }
 
@@ -67,14 +50,6 @@ impl EditorState {
 
         self.parameters_panel
             .update_components_tree(&self.workspace);
-    }
-
-    pub fn layout_mode(&self) -> LayoutMode {
-        *self.layout_mode.borrow()
-    }
-
-    pub fn set_layout_mode(&mut self, layout_mode: LayoutMode) {
-        *self.layout_mode.borrow_mut() = layout_mode;
     }
 }
 
