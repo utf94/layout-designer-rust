@@ -26,7 +26,7 @@ export async function run() {
       open_preview();
     });
 
-  await init("./rust/dist/web_bg.wasm");
+  await init("./dist/web_bg.wasm");
   const editor = new Editor();
   // editor.register_component({
   //   tag_name: "mat-button",
