@@ -76,4 +76,9 @@ export async function run() {
       italic: Type.Boolean,
     },
   });
+
+  editor.register_component({
+    tag_name: "launch-table",
+    parameters: {},
+  });
 }

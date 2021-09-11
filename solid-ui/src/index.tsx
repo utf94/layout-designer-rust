@@ -70,3 +70,50 @@ customElement(
     );
   }
 );
+
+// declare type TableProps<Record> = {
+//   class?: string;
+//   block?: boolean;
+//   columns: Column<Record>[];
+//   data: Record[];
+//   rowSelection?: RowSelection<Record>;
+//   loading?: boolean;
+// };
+
+customElement("launch-table", {}, (props, _other) => {
+  return (
+    <SolidUI.Table
+      columns={[
+        {
+          title: "Name",
+          key: "name",
+          dataIndex: "name",
+        },
+        {
+          title: "Age",
+          key: "age",
+          dataIndex: "age",
+        },
+        {
+          title: "Origin",
+          key: "origin",
+          dataIndex: "origin",
+        },
+      ]}
+      data={[
+        {
+          key: "first",
+          name: "XYZ",
+          age: 21,
+          origin: "Australia",
+        },
+        {
+          key: "second",
+          name: "XYZ",
+          age: 27,
+          origin: "Vancouver",
+        },
+      ]}
+    ></SolidUI.Table>
+  );
+});

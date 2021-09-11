@@ -24,8 +24,8 @@ export function open_preview() {
       const style = ch.getAttribute("style");
       new_element.setAttribute("style", style);
 
-      // @ts-ignore
-      new_element.classList = ch.classList;
+      const classes = ch.getAttribute("class");
+      new_element.setAttribute("class", classes);
 
       [...ch.children]
         .filter((ch) => ch.classList.contains("component"))
