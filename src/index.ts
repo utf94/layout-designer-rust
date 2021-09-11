@@ -7,6 +7,7 @@ const Type = {
   Color: "color",
   Text: "text",
   Number: "number",
+  Boolean: "boolean",
   LayoutStyle: "layout_style",
 };
 
@@ -54,14 +55,25 @@ export async function run() {
       type: Type.Text,
       size: Type.Text,
       shape: Type.Text,
-      disabled: Type.Text,
+      disabled: Type.Boolean,
     },
   });
   editor.register_component({
     tag_name: "launch-checkbox",
     parameters: {
-      disabled: Type.Text,
-      indeterminate: Type.Text,
+      disabled: Type.Boolean,
+      indeterminate: Type.Boolean,
+    },
+  });
+
+  editor.register_component({
+    tag_name: "launch-text",
+    parameters: {
+      text: Type.Text,
+      type: Type.Text,
+      weight: Type.Text,
+      underline: Type.Boolean,
+      italic: Type.Boolean,
     },
   });
 }

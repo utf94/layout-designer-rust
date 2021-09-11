@@ -52,3 +52,21 @@ customElement(
     return <SolidUI.Checkbox {...(props as any)}>Test</SolidUI.Checkbox>;
   }
 );
+
+customElement(
+  "launch-text",
+  {
+    text: "text",
+    type: "normal",
+    weight: "normal",
+    underline: "",
+    italic: "",
+  },
+  (props, _other) => {
+    return (
+      <SolidUI.Text {...(props as any)}>
+        <slot>{props.text}</slot>
+      </SolidUI.Text>
+    );
+  }
+);

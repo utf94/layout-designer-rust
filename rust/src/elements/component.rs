@@ -9,6 +9,7 @@ pub enum ComponentPropertie {
     Text = "text",
     Number = "number",
     LayoutStyle = "layout_style",
+    Boolean = "boolean",
 }
 
 #[wasm_bindgen(module = "/src/elements/component.js")]

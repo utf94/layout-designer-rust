@@ -209,6 +209,60 @@ impl ParametersPanel {
 
                         properties_div.append_child(&div).unwrap();
                     }
+                    ComponentPropertie::Boolean => {
+                        let div = document.create_element("div").unwrap();
+                        let div: HtmlElement = div.dyn_into().unwrap();
+                        div.style().set_property("display", "flex").unwrap();
+                        div.style().set_property("align-items", "center").unwrap();
+
+                        {
+                            let label = document.create_element("div").unwrap();
+                            let label: HtmlElement = label.dyn_into().unwrap();
+                            label.style().set_property("margin-right", "2px").unwrap();
+
+                            label.set_inner_text(&key);
+
+                            div.append_child(&label).unwrap();
+                        }
+
+                        {
+                            let input = document.create_element("input").unwrap();
+                            let input: HtmlInputElement = input.dyn_into().unwrap();
+
+                            input.set_class_name("text-picker");
+                            input.set_type("checkbox");
+
+                            let value = comp.element().get_attribute(&key);
+
+                            input.set_checked(
+                                if value.unwrap_or_else(|| "false".into()) == "true" {
+                                    true
+                                } else {
+                                    false
+                                },
+                            );
+
+                            let cb = utils::new_listener(
+                                (comp.element().clone(), key.clone()),
+                                |(element, key), e: web_sys::InputEvent| {
+                                    let input: HtmlInputElement =
+                                        e.target().unwrap().dyn_into().unwrap();
+                                    element
+                                        .set_attribute(
+                                            key,
+                                            if input.checked() { "true" } else { "false" },
+                                        )
+                                        .unwrap();
+                                },
+                            );
+
+                            input.set_oninput(Some(&cb));
+
+                            div.append_child(&input).unwrap();
+                        }
+
+                        properties_div.append_child(&div).unwrap();
+                    }
                     ComponentPropertie::LayoutStyle => {
                         let div = document.create_element("div").unwrap();
                         let div: HtmlElement = div.dyn_into().unwrap();
