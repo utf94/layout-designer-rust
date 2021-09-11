@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import solidPlugin from "vite-plugin-solid";
-
-const path = require("path");
+import path from "path";
 
 export default defineConfig({
   plugins: [solidPlugin()],

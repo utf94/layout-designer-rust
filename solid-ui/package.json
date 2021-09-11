@@ -15,6 +15,7 @@
     "solid-element": "^1.1.3"
   },
   "devDependencies": {
+    "@types/node": "^16.9.1",
     "vite": "^2.5.1",
     "vite-plugin-solid": "^2.0.3"
   }
