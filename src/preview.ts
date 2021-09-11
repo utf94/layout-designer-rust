@@ -15,13 +15,15 @@ export function open_preview() {
 
   const layouts = children
     .filter((ch) => ch.classList.contains("container"))
+    .map((ch) => ch as HTMLElement)
     .map((ch) => {
       const new_element = document.createElement(
         "layout-container"
       ) as HTMLElement;
 
-      // @ts-ignore
-      new_element.style = ch.style;
+      const style = ch.getAttribute("style");
+      new_element.setAttribute("style", style);
+
       // @ts-ignore
       new_element.classList = ch.classList;
 
