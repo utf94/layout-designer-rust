@@ -1,0 +1,13 @@
+{
+  "name": "editor",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "swc src -d build",
+    "pack": "npx spack"
+  },
+  "devDependencies": {
+    "@swc/cli": "^0.1.49",
+    "@swc/core": "^1.2.84"
+  }
+}

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editor</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- Solid-UI Elements -->
+    <script src="solid-ui/dist/solid-ui.umd.js"></script>
+  </head>
+  <body>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="0"
+      height="0"
+      style="position: absolute"
+    >
+      <defs>
+        <pattern
+          id="grid-id-facw9n"
+          width="76"
+          height="76"
+          patternUnits="userSpaceOnUse"
+        >
+          <rect
+            x="4"
+            y="4"
+            width="68"
+            height="68"
+            fill="rgba(0,0,0,.02)"
+            class="gridbox"
+          ></rect>
+        </pattern>
+      </defs>
+    </svg>
+
+    <editor-root id="editor">
+      <nav>
+        <img class="logo" src="./img/logo.png" />
+
+        <svg
+          id="preview-open-trigger"
+          class="icon-btn"
+          xmlns="http://www.w3.org/2000/svg"
+          height="24px"
+          viewBox="0 0 24 24"
+          width="24px"
+          fill="#000000"
+        >
+          <path d="M0 0h24v24H0V0z" fill="none" />
+          <path
+            d="M12 6.5c3.79 0 7.17 2.13 8.82 5.5-1.65 3.37-5.02 5.5-8.82 5.5S4.83 15.37 3.18 12C4.83 8.63 8.21 6.5 12 6.5m0-2C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 5c1.38 0 2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5-2.5-1.12-2.5-2.5 1.12-2.5 2.5-2.5m0-2c-2.48 0-4.5 2.02-4.5 4.5s2.02 4.5 4.5 4.5 4.5-2.02 4.5-4.5-2.02-4.5-4.5-4.5z"
+          />
+        </svg>
+      </nav>
+      <aside id="picker"></aside>
+      <div id="workspace">
+        <div id="page-wrapper">
+          <div id="page">
+            <layout-container class="flex"></layout-container>
+            <layout-container class="grid" style="height: 225px">
+            </layout-container>
+            <layout-container class="flex"></layout-container>
+            <layout-container class="grid"> </layout-container>
+            <layout-container class="free"></layout-container>
+          </div>
+        </div>
+      </div>
+      <aside id="parameters">
+        <section>
+          <div class="title">Selected component</div>
+          <div id="selected-component-label">-</div>
+        </section>
+
+        <section>
+          <div class="title">Page</div>
+          <input
+            id="page-width-input"
+            type="range"
+            min="764"
+            max="1300"
+            value="764"
+          />
+          <script>
+            // TODO: Move this to more suitable location
+            document
+              .getElementById("page-width-input")
+              .addEventListener("input", (event) => {
+                document.getElementById("page-wrapper").style.width =
+                  event.target.value + "px";
+              });
+          </script>
+        </section>
+
+        <section>
+          <div class="title">Page Tree</div>
+          <ul id="component-list"></ul>
+        </section>
+      </aside>
+
+      <context-menu />
+    </editor-root>
+
+    <div id="preview-wrapper" style="visibility: hidden; opacity: 0">
+      <div id="preview-close-trigger"></div>
+      <div id="preview" style="transform: translateY(-100%) scale(0)"></div>
+    </div>
+
+    <script type="module">
+      import { run } from "./dist/web.js";
+      run();
+    </script>
+  </body>
+</html>
