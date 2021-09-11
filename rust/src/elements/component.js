@@ -82,7 +82,8 @@ export class EditorComponent extends HTMLElement {
   }
 
   into_inner() {
-    const node = this._instance.cloneNode(true);
+    const tag = this._instance.tagName;
+    const node = document.createElement(tag);
 
     [...this.attributes].forEach((a) => node.setAttribute(a.name, a.value));
 
