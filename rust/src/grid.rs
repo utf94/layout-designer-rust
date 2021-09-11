@@ -118,8 +118,7 @@ impl Grids {
 
     pub fn get_grid(&self, container: &HtmlElement) -> &Grid {
         let grid = self.grids.iter().find(|g| &g.grid == container);
-        let grid = grid.unwrap();
-        grid
+        grid.unwrap()
     }
 
     pub fn show(&mut self, container: &HtmlElement) {

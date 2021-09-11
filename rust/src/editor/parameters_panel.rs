@@ -113,7 +113,7 @@ impl ParametersPanel {
                                 |(element, key), e: web_sys::InputEvent| {
                                     let input: HtmlInputElement =
                                         e.target().unwrap().dyn_into().unwrap();
-                                    element.set_attribute(&key, &input.value()).unwrap();
+                                    element.set_attribute(key, &input.value()).unwrap();
                                 },
                             );
 
@@ -155,7 +155,7 @@ impl ParametersPanel {
                                 |(element, key), e: web_sys::InputEvent| {
                                     let input: HtmlInputElement =
                                         e.target().unwrap().dyn_into().unwrap();
-                                    element.set_attribute(&key, &input.value()).unwrap();
+                                    element.set_attribute(key, &input.value()).unwrap();
                                 },
                             );
 
@@ -198,7 +198,7 @@ impl ParametersPanel {
                                 |(element, key), e: web_sys::InputEvent| {
                                     let input: HtmlInputElement =
                                         e.target().unwrap().dyn_into().unwrap();
-                                    element.set_attribute(&key, &input.value()).unwrap();
+                                    element.set_attribute(key, &input.value()).unwrap();
                                 },
                             );
 
@@ -240,7 +240,7 @@ impl ParametersPanel {
                                 |(element, key), e: web_sys::InputEvent| {
                                     let input: HtmlTextAreaElement =
                                         e.target().unwrap().dyn_into().unwrap();
-                                    element.set_attribute(&key, &input.value()).unwrap();
+                                    element.set_attribute(key, &input.value()).unwrap();
                                 },
                             );
 
