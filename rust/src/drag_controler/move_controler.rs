@@ -1,31 +1,24 @@
 use wasm_bindgen::JsCast;
 use web_sys::{Document, HtmlElement};
 
-use crate::{
-    component::{Component, ComponentSource},
-    grid::Grids,
-};
+use crate::{component::Component, grid::Grids};
 
-mod drag_transform;
-use drag_transform::DragTransform;
+use super::drag_transform::DragTransform;
 
-mod drag_listener;
-use drag_listener::{add_drag_listener, DragEvent};
-
-struct MoveControler {
+pub struct MoveControler {
     document: Document,
     workspace: HtmlElement,
 
     page_wrapper: HtmlElement,
     _page: HtmlElement,
 
-    component: Component,
+    pub component: Component,
     drag_state: Option<DragTransform>,
     grids: Grids,
 }
 
 impl MoveControler {
-    fn new(component: Component) -> Self {
+    pub fn new(component: Component) -> Self {
         let window = web_sys::window().unwrap();
         let document = window.document().unwrap();
 
@@ -51,7 +44,7 @@ impl MoveControler {
         }
     }
 
-    fn drag_start(&mut self, event: web_sys::MouseEvent) {
+    pub fn drag_start(&mut self, event: web_sys::MouseEvent) {
         self.component
             .element()
             .style()
@@ -84,7 +77,7 @@ impl MoveControler {
         ));
     }
 
-    fn mouse_move(&mut self, event: web_sys::MouseEvent) {
+    pub fn mouse_move(&mut self, event: web_sys::MouseEvent) {
         if let Some(drag_state) = self.drag_state.as_mut() {
             drag_state.drag(event.client_x(), event.client_y());
 
@@ -130,7 +123,7 @@ impl MoveControler {
         }
     }
 
-    fn mouse_up(&mut self, _event: web_sys::MouseEvent) {
+    pub fn mouse_up(&mut self, _event: web_sys::MouseEvent) {
         self.document.set_onmousemove(None);
         self.document.set_onmouseup(None);
 
@@ -223,53 +216,4 @@ impl MoveControler {
         //     self.component.remove();
         // }
     }
-}
-
-/// Register a drag listener on a source
-pub fn add_drag_listener_from_source(component_source: &ComponentSource) {
-    let root = &component_source.root;
-    let component_source = component_source.clone();
-
-    add_drag_listener(root, move |_event| {
-        let component = component_source.new_instance();
-
-        let mut controler = MoveControler::new(component);
-
-        move |event| match event {
-            DragEvent::MouseMove(event) => {
-                controler.mouse_move(event);
-            }
-            DragEvent::MouseUp(event) => {
-                add_drag_listener_from_instance(&controler.component);
-
-                controler.mouse_up(event);
-
-                // Element was parented, stop the spawn animation
-                controler
-                    .component
-                    .element()
-                    .class_list()
-                    .remove_1("spawn-animation")
-                    .unwrap();
-            }
-        }
-    });
-}
-
-/// Register a drag listener on an instance
-fn add_drag_listener_from_instance(component: &Component) {
-    let element = component.element();
-    let component = component.clone();
-    add_drag_listener(element, move |_event| {
-        let mut controler = MoveControler::new(component.clone());
-
-        move |event| match event {
-            DragEvent::MouseMove(event) => {
-                controler.mouse_move(event);
-            }
-            DragEvent::MouseUp(event) => {
-                controler.mouse_up(event);
-            }
-        }
-    });
 }

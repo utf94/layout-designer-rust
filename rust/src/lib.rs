@@ -4,7 +4,7 @@ pub mod component;
 
 mod editor;
 mod grid;
-mod move_controler;
+mod drag_controler;
 mod utils;
 
 mod elements;
