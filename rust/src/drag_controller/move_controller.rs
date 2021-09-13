@@ -5,7 +5,7 @@ use crate::{component::Component, grid::Grids};
 
 use super::drag_transform::DragTransform;
 
-pub struct MoveControler {
+pub struct MoveController {
     document: Document,
     workspace: HtmlElement,
 
@@ -17,7 +17,7 @@ pub struct MoveControler {
     grids: Grids,
 }
 
-impl MoveControler {
+impl MoveController {
     pub fn new(component: Component) -> Self {
         let window = web_sys::window().unwrap();
         let document = window.document().unwrap();

@@ -1,5 +1,4 @@
-use wasm_bindgen::JsCast;
-use web_sys::{Document, HtmlElement};
+use web_sys::Document;
 
 use crate::{component::Component, grid::Grids};
 
@@ -8,12 +7,6 @@ struct ResizeState {
 
     last_x: i32,
     last_y: i32,
-
-    absolute_pos_x: i32,
-    absolute_pos_y: i32,
-
-    start_x: i32,
-    start_y: i32,
 }
 
 impl ResizeState {
@@ -21,20 +14,10 @@ impl ResizeState {
         let last_x = x;
         let last_y = y;
 
-        let start_x = x;
-        let start_y = y;
-
-        let absolute_pos_x = component.element().offset_left();
-        let absolute_pos_y = component.element().offset_top();
-
         Self {
             component,
             last_x,
             last_y,
-            absolute_pos_x,
-            absolute_pos_y,
-            start_x,
-            start_y,
         }
     }
 
@@ -42,56 +25,32 @@ impl ResizeState {
         let dx = self.last_x - x;
         let dy = self.last_y - y;
 
-        self.absolute_pos_x -= self.last_x - x;
-        self.absolute_pos_y -= self.last_y - y;
-
         self.last_x = x;
         self.last_y = y;
 
         let (w, h) = self.component.size();
 
-        let cx = self.component.element().offset_left();
-        let cy = self.component.element().offset_top();
-
         self.component.set_size(w - dx as f64, h - dy as f64);
-        // self.component.set_position(cx - dx, cy + dy);
     }
 
     pub fn stop(&mut self) {}
 }
 
-pub struct ResizeControler {
+pub struct ResizeController {
     document: Document,
-    workspace: HtmlElement,
-
-    page_wrapper: HtmlElement,
-    _page: HtmlElement,
 
     pub component: Component,
     drag_state: Option<ResizeState>,
     grids: Grids,
 }
 
-impl ResizeControler {
+impl ResizeController {
     pub fn new(component: Component) -> Self {
         let window = web_sys::window().unwrap();
         let document = window.document().unwrap();
 
-        let workspace = document.get_element_by_id("workspace").unwrap();
-        let workspace: HtmlElement = workspace.dyn_into().unwrap();
-
-        let page_wrapper = document.get_element_by_id("page-wrapper").unwrap();
-        let page_wrapper: HtmlElement = page_wrapper.dyn_into().unwrap();
-
-        let page = document.get_element_by_id("page").unwrap();
-        let _page: HtmlElement = page.dyn_into().unwrap();
-
         Self {
             document,
-            workspace,
-
-            page_wrapper,
-            _page,
 
             component,
             drag_state: None,

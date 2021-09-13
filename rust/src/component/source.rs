@@ -2,7 +2,7 @@ use wasm_bindgen::JsCast;
 
 use web_sys::HtmlElement;
 
-use crate::{elements::component::EditorComponentSource, drag_controler};
+use crate::{elements::component::EditorComponentSource, drag_controller};
 
 use super::Component;
 
@@ -29,7 +29,7 @@ impl ComponentSource {
 
         let source = Self { root, source };
 
-        drag_controler::add_drag_listener_from_source(&source);
+        drag_controller::add_drag_listener_from_source(&source);
 
         source
     }
