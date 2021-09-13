@@ -8,6 +8,9 @@ use drag_listener::{add_drag_listener, DragEvent};
 mod move_controler;
 use move_controler::MoveControler;
 
+mod resize_controler;
+use resize_controler::ResizeControler;
+
 /// Register a drag listener on a source
 pub fn add_drag_listener_from_source(component_source: &ComponentSource) {
     let root = &component_source.root;
@@ -64,19 +67,16 @@ fn add_drag_listener_from_instance(component: &Component) {
                 }
             })
         } else if btn == 2 {
-            // TODO: Resize
-            // let mut controler = MoveControler::new(component.clone());
+            let mut controler = ResizeControler::new(component.clone());
 
-            // Box::new(move |event| match event {
-            //     DragEvent::MouseMove(event) => {
-            //         controler.mouse_move(event);
-            //     }
-            //     DragEvent::MouseUp(event) => {
-            //         controler.mouse_up(event);
-            //     }
-            // })
-
-            Box::new(|_| {})
+            Box::new(move |event| match event {
+                DragEvent::MouseMove(event) => {
+                    controler.mouse_move(event);
+                }
+                DragEvent::MouseUp(event) => {
+                    controler.mouse_up(event);
+                }
+            })
         } else {
             Box::new(|_| {})
         }

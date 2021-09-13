@@ -53,6 +53,14 @@ impl Component {
         }
     }
 
+    pub fn set_is_selected(&self, is: bool) {
+        if is {
+            self.element.class_list().add_1("selected").unwrap();
+        } else {
+            self.element.class_list().remove_1("selected").unwrap();
+        }
+    }
+
     pub fn set_position(&self, x: i32, y: i32) {
         self.element
             .style()
@@ -61,6 +69,22 @@ impl Component {
         self.element
             .style()
             .set_property("top", &format!("{}px", y))
+            .unwrap();
+    }
+
+    pub fn size(&self) -> (f64, f64) {
+        let bbox = self.element.get_bounding_client_rect();
+        (bbox.width(), bbox.height())
+    }
+
+    pub fn set_size(&self, w: f64, h: f64) {
+        self.element
+            .style()
+            .set_property("width", &format!("{}px", w))
+            .unwrap();
+        self.element
+            .style()
+            .set_property("height", &format!("{}px", h))
             .unwrap();
     }
 

@@ -83,6 +83,7 @@ customElement(
 customElement("launch-table", {}, (props, _other) => {
   return (
     <SolidUI.Table
+      block={true}
       columns={[
         {
           title: "Name",
