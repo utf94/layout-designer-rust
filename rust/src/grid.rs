@@ -6,8 +6,8 @@ pub struct Grid {
     placeholder: HtmlElement,
     svg: SvgsvgElement,
 
-    pub pos: (u32, u32),
-    pub size: (u32, u32),
+    pub placeholder_pos: (u32, u32),
+    pub placeholder_size: (u32, u32),
 }
 
 impl Grid {
@@ -38,8 +38,8 @@ impl Grid {
             placeholder,
             svg,
 
-            pos: (0, 0),
-            size: (1, 1),
+            placeholder_pos: (0, 0),
+            placeholder_size: (1, 1),
         }
     }
 
@@ -47,7 +47,7 @@ impl Grid {
         let div_x = w / 76.0;
         let div_y = h / 76.0;
 
-        self.size = (div_x.round().max(1.0) as u32, div_y.round().max(1.0) as u32);
+        self.placeholder_size = (div_x.round().max(1.0) as u32, div_y.round().max(1.0) as u32);
     }
 
     fn move_placeholder(&mut self, x: f64, y: f64) {
@@ -65,18 +65,24 @@ impl Grid {
         let grid_x = div_x.floor() as u32 + 1;
         let grid_y = div_y.floor() as u32 + 1;
 
-        let grid_x = grid_x.min(grid_w - self.size.0 + 1).max(0);
+        let grid_x = grid_x.min(grid_w - self.placeholder_size.0 + 1).max(0);
         let grid_y = grid_y.min(grid_h + 1).max(0);
 
-        self.pos = (grid_x, grid_y);
+        self.placeholder_pos = (grid_x, grid_y);
 
         self.placeholder
             .style()
-            .set_property("grid-column", &format!("{}/span {}", grid_x, self.size.0))
+            .set_property(
+                "grid-column",
+                &format!("{}/span {}", grid_x, self.placeholder_size.0),
+            )
             .unwrap();
         self.placeholder
             .style()
-            .set_property("grid-row", &format!("{}/span {}", grid_y, self.size.1))
+            .set_property(
+                "grid-row",
+                &format!("{}/span {}", grid_y, self.placeholder_size.1),
+            )
             .unwrap();
     }
 }
