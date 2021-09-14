@@ -159,21 +159,8 @@ impl MoveController {
             if let Some(container) = elements.first() {
                 if container.class_list().contains("grid") {
                     let grid = self.grids.get_grid(container);
-
-                    self.component
-                        .element()
-                        .style()
-                        .set_property(
-                            "grid-column",
-                            &format!("{}/span {}", grid.pos.0, grid.size.0),
-                        )
-                        .unwrap();
-
-                    self.component
-                        .element()
-                        .style()
-                        .set_property("grid-row", &format!("{}/span {}", grid.pos.1, grid.size.1))
-                        .unwrap();
+                    self.component.set_grid_pos((grid.pos.0, grid.pos.1));
+                    self.component.set_grid_size((grid.size.0, grid.size.1));
                 }
 
                 self.component

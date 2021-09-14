@@ -351,6 +351,16 @@ layout-container.grid {
   align-items: center;
 }
 
+layout-container.grid > * {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* Take all avalible space in the grid cell */
+  width: 100%;
+  height: 100%;
+}
+
 layout-container.grid .grid-placeholder {
   background-color: rgba(0, 0, 0, 0.1);
   width: 100%;

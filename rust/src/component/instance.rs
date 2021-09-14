@@ -1,12 +1,20 @@
+use std::{cell::RefCell, rc::Rc};
+
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 
 use crate::{elements::component::EditorComponent, utils};
 
+struct InnerData {
+    grid_size: (u32, u32),
+    grid_pos: (u32, u32),
+}
+
 /// Instance of a component
 #[derive(Clone)]
 pub struct Component {
     element: EditorComponent,
+    data: Rc<RefCell<InnerData>>,
 }
 
 impl Component {
@@ -15,7 +23,13 @@ impl Component {
 
         document.body().unwrap().append_child(&element).unwrap();
 
-        let component = Self { element };
+        let component = Self {
+            element,
+            data: Rc::new(RefCell::new(InnerData {
+                grid_size: (1, 1),
+                grid_pos: (1, 1),
+            })),
+        };
 
         {
             let editor = crate::editor::get_editor_state();
@@ -31,10 +45,6 @@ impl Component {
         component
     }
 
-    pub fn wrap(element: EditorComponent) -> Self {
-        Self { element }
-    }
-
     pub fn element(&self) -> &EditorComponent {
         &self.element
     }
@@ -43,6 +53,43 @@ impl Component {
         self.element
             .parent_element()
             .and_then(|parent| parent.dyn_into().ok())
+    }
+
+    fn update_grid_css_properties(&self) {
+        let data = self.data.borrow();
+        self.element
+            .style()
+            .set_property(
+                "grid-column",
+                &format!("{}/span {}", data.grid_pos.0, data.grid_size.0),
+            )
+            .unwrap();
+
+        self.element
+            .style()
+            .set_property(
+                "grid-row",
+                &format!("{}/span {}", data.grid_pos.1, data.grid_size.1),
+            )
+            .unwrap();
+    }
+
+    pub fn grid_pos(&self) -> (u32, u32) {
+        self.data.borrow().grid_pos
+    }
+
+    pub fn set_grid_pos(&mut self, pos: (u32, u32)) {
+        self.data.borrow_mut().grid_pos = pos;
+        self.update_grid_css_properties();
+    }
+
+    pub fn grid_size(&self) -> (u32, u32) {
+        self.data.borrow().grid_size
+    }
+
+    pub fn set_grid_size(&mut self, size: (u32, u32)) {
+        self.data.borrow_mut().grid_size = size;
+        self.update_grid_css_properties();
     }
 
     pub fn set_is_dragged(&self, is: bool) {
