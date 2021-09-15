@@ -1,5 +1,58 @@
 import { DataType } from "./index";
 
+type Props = { [key: string]: string };
+type Styles = { [key: string]: string };
+type Attributes = { [key: string]: string };
+
+interface ComponentData {
+  props: Props;
+  styles: Styles;
+  attributes: Attributes;
+  innerText: string | null;
+}
+
+interface Component {
+  name: string;
+  id: string;
+  data: ComponentData;
+}
+
+interface Padding {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+
+enum LayoutKind {
+  Free = "free",
+  Flex = "flex",
+  Grid = "grid",
+}
+interface Layout {
+  kind: LayoutKind;
+  height: string;
+  components: Component[];
+  padding: Padding;
+}
+
+interface Page {
+  title: string;
+  width: string;
+  backgroundColor: string;
+  layouts: Layout[];
+}
+
+interface JsonOutput {
+  framework: string;
+  components: string;
+  pages: Page[];
+}
+
+//
+//
+//
+
 interface ComponentParameter {
   name: string;
   data_type: DataType;
@@ -14,7 +67,7 @@ interface EditorComponent extends HTMLElement {
   descriptor: ComponentDescriptor;
 }
 
-export function generate_json() {
+export function generate_json(): JsonOutput {
   const page = document.getElementById("page");
 
   const children = [...page.children];
@@ -23,16 +76,16 @@ export function generate_json() {
     .filter((ch) => ch.classList.contains("container"))
     .map((ch) => ch as HTMLElement)
     .map((ch) => {
-      let kind: string;
+      let kind: LayoutKind;
 
       if (ch.classList.contains("free")) {
-        kind = "free";
+        kind = LayoutKind.Free;
       } else if (ch.classList.contains("flex")) {
-        kind = "flex";
+        kind = LayoutKind.Flex;
       } else if (ch.classList.contains("grid")) {
-        kind = "grid";
+        kind = LayoutKind.Grid;
       } else {
-        kind = "free";
+        kind = LayoutKind.Free;
       }
 
       const height = window.getComputedStyle(ch).height;
@@ -45,7 +98,7 @@ export function generate_json() {
 
           const style = ch.getAttribute("style").split(";");
 
-          const style_json = {};
+          const style_json: Styles = {};
 
           style
             .filter((item) => item.length > 0)
@@ -57,7 +110,7 @@ export function generate_json() {
               style_json[key] = value;
             });
 
-          const props = {};
+          const props: Props = {};
           let innerText: string | null = null;
 
           desc.parameters.forEach((param) => {
@@ -78,19 +131,21 @@ export function generate_json() {
             }
           });
 
-          return {
+          const page: Component = {
             name: desc.tag_name,
             id: ch.id,
             data: {
               props,
               styles: style_json,
-              attributes: [],
+              attributes: {},
               innerText,
             },
           };
+
+          return page;
         });
 
-      const layout = {
+      const layout: Layout = {
         kind,
         height,
         components,
