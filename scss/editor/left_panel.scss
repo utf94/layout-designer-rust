@@ -28,12 +28,11 @@
 
   #picker {
     display: grid;
-    height: 100%;
 
     gap: 10px;
 
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: repeat(auto-fit, 52px);
+    grid-auto-rows: 52px;
 
     overflow-y: auto;
     overflow-x: hidden;

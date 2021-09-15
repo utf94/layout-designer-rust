@@ -69,6 +69,11 @@
         </section>
 
         <section class="nav__right">
+          <div class="icon-btn-container">
+            <img src="./img/avatar_backdrop.svg" style="position: absolute" />
+            <img src="./img/icons/user.svg" style="position: absolute" />
+          </div>
+
           <div class="icon-btn-container" id="preview-open-trigger">
             <img src="./img/icons/play.svg" />
           </div>
@@ -101,21 +106,26 @@
       </div>
 
       <aside class="editor__right-panel">
+        <header>
+          <div class="active">Design</div>
+          <div>Data</div>
+        </header>
+
         <div id="parameters">
           <section>
-            <div class="title">Selected component</div>
-            <div id="selected-component-label">-</div>
-          </section>
+            <div class="title">Page Dimensions</div>
 
-          <section>
-            <div class="title">Page</div>
-            <input
-              id="page-width-input"
-              type="range"
-              min="764"
-              max="1300"
-              value="764"
-            />
+            <div class="page-dimensions">
+              <div>
+                <span>W</span>
+                <input id="page-width-input" type="number" value="764" />
+              </div>
+              <div>
+                <span>H</span>
+                <input disabled type="text" value="Auto" />
+              </div>
+            </div>
+
             <script>
               // TODO: Move this to more suitable location
               document
@@ -128,9 +138,50 @@
           </section>
 
           <section>
-            <div class="title">Page Tree</div>
-            <ul id="component-list"></ul>
+            <div class="title">Fill</div>
+
+            <div class="page-color">
+              <input id="page-fill-input" type="color" value="#c4c4c4" />
+              <span id="page-fill-span">C4C4C4</span>
+            </div>
+
+            <script>
+              // TODO: Move this to more suitable location
+              document
+                .getElementById("page-fill-input")
+                .addEventListener("input", (event) => {
+                  document.getElementById("page").style.backgroundColor =
+                    event.target.value;
+
+                  let text = event.target.value.split("#")[1];
+                  document.getElementById("page-fill-span").innerText =
+                    text.toUpperCase();
+                });
+            </script>
           </section>
+
+          <!-- Debug -->
+          <div
+            style="
+              margin-top: auto;
+              height: 366px;
+              overflow: scroll;
+              opacity: 0.3;
+            "
+          >
+            <div class="title">Debug Section:</div>
+
+            <section style="margin-top: 8px">
+              <div class="title">Selected component</div>
+              <div id="selected-component-label">-</div>
+            </section>
+
+            <section style="margin-top: 8px">
+              <div class="title">Page Tree</div>
+              <ul id="component-list"></ul>
+            </section>
+          </div>
+          <!--  -->
         </div>
       </aside>
 

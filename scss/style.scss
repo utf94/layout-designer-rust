@@ -1,11 +1,11 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");
 
 @import "editor";
 
 * {
   box-sizing: border-box;
   user-select: none;
-  font-family: "Roboto", sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 html,
@@ -45,7 +45,6 @@ body {
 /*  */
 /* Components  */
 /*  */
-
 
 .component {
   transition: box-shadow 0.5s;
@@ -215,7 +214,7 @@ layout-container {
 }
 
 #page layout-container {
-  border-bottom: 1px dashed black;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.3);
 }
 
 layout-container.flex {
