@@ -3,11 +3,15 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "swc src -d build",
-    "pack": "npx spack"
+    "build": "spack && sass scss/style.scss:dist/css/style.css",
+    "spack": "spack",
+    "build-sass": "sass scss/style.scss:dist/css/style.css",
+    "sass-dev": "sass scss/style.scss:dist/css/style.css --watch"
   },
   "devDependencies": {
     "@swc/cli": "^0.1.49",
-    "@swc/core": "^1.2.84"
+    "@swc/core": "^1.2.84",
+    "sass": "^1.41.0",
+    "spak": "^0.22.1"
   }
 }

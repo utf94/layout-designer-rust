@@ -1,0 +1,40 @@
+.editor__right-panel {
+  background-color: rgb(255, 255, 255);
+  box-shadow: 0 10px 16px 0 rgba(0, 0, 0, 0.01);
+  z-index: 2;
+
+  #parameters {
+    height: 100%;
+    padding: 8px;
+
+    section {
+      border-bottom: 1px solid;
+      border-color: rgba(235, 235, 235, 1);
+
+      .title {
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 12px;
+      }
+    }
+
+    #component-list {
+      li:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+
+      li {
+        .color-picker {
+          width: 26px;
+          height: 29px;
+          border-style: none;
+          background-color: rgba(0, 0, 0, 0);
+        }
+
+        .text-picker {
+          width: 50%;
+        }
+      }
+    }
+  }
+}

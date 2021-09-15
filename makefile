@@ -1,6 +1,6 @@
 build:
 	wasm-pack build ./rust --release --target web --out-name web --out-dir ./dist 
-	npx spack
+	npm run build
 	cp ./rust/dist/web_bg.wasm ./dist/web_bg.wasm
 
 optimize:

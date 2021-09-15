@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Editor</title>
 
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="./dist/css/style.css" />
 
     <!-- Solid-UI Elements -->
     <script src="solid-ui/dist/solid-ui.umd.js"></script>
@@ -37,7 +37,7 @@
       </defs>
     </svg>
 
-    <editor-root id="editor">
+    <main id="editor">
       <nav class="nav">
         <section class="nav__left">
           <div id="logo-btn">
@@ -46,8 +46,8 @@
           </div>
 
           <div class="nav__left__project-decs">
-            <div class="project-title">Title</div>
-            <div class="project-subtitle">Subtitle</div>
+            <div class="title">Title</div>
+            <div class="subtitle">Subtitle</div>
           </div>
         </section>
 
@@ -77,7 +77,16 @@
           </div>
         </section>
       </nav>
-      <aside id="picker"></aside>
+
+      <aside class="editor__left-panel">
+        <header>
+          <div>Layers</div>
+          <div class="active">Assets</div>
+        </header>
+
+        <div id="picker"></div>
+      </aside>
+
       <div id="workspace">
         <div id="page-wrapper">
           <div id="page">
@@ -90,40 +99,43 @@
           </div>
         </div>
       </div>
-      <aside id="parameters">
-        <section>
-          <div class="title">Selected component</div>
-          <div id="selected-component-label">-</div>
-        </section>
 
-        <section>
-          <div class="title">Page</div>
-          <input
-            id="page-width-input"
-            type="range"
-            min="764"
-            max="1300"
-            value="764"
-          />
-          <script>
-            // TODO: Move this to more suitable location
-            document
-              .getElementById("page-width-input")
-              .addEventListener("input", (event) => {
-                document.getElementById("page-wrapper").style.width =
-                  event.target.value + "px";
-              });
-          </script>
-        </section>
+      <aside class="editor__right-panel">
+        <div id="parameters">
+          <section>
+            <div class="title">Selected component</div>
+            <div id="selected-component-label">-</div>
+          </section>
 
-        <section>
-          <div class="title">Page Tree</div>
-          <ul id="component-list"></ul>
-        </section>
+          <section>
+            <div class="title">Page</div>
+            <input
+              id="page-width-input"
+              type="range"
+              min="764"
+              max="1300"
+              value="764"
+            />
+            <script>
+              // TODO: Move this to more suitable location
+              document
+                .getElementById("page-width-input")
+                .addEventListener("input", (event) => {
+                  document.getElementById("page-wrapper").style.width =
+                    event.target.value + "px";
+                });
+            </script>
+          </section>
+
+          <section>
+            <div class="title">Page Tree</div>
+            <ul id="component-list"></ul>
+          </section>
+        </div>
       </aside>
 
       <context-menu style="display: none" />
-    </editor-root>
+    </main>
 
     <div id="preview-wrapper" style="visibility: hidden; opacity: 0">
       <div id="preview-close-trigger"></div>

@@ -1,0 +1,63 @@
+.editor__left-panel {
+  background-color: rgb(255, 255, 255);
+  box-shadow: 0 10px 16px 0 rgba(0, 0, 0, 0.01);
+  padding: 0px 8px;
+
+  header {
+    display: flex;
+    align-items: center;
+
+    border-bottom: 1px solid #ebebeb;
+    font-size: 12px;
+    font-weight: 600;
+
+    height: 40px;
+    width: 224px;
+
+    color: #adadad;
+
+    > .active {
+      color: #333333;
+    }
+
+    > * {
+      margin: 0px 8px;
+      cursor: pointer;
+    }
+  }
+
+  #picker {
+    display: grid;
+    height: 100%;
+
+    gap: 10px;
+
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: repeat(auto-fit, 52px);
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 20px 0px;
+
+    .component-source {
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      background-color: #f1f1f1;
+      border: 1px solid #d3d3d3;
+      border-radius: 5px;
+
+      overflow: hidden;
+
+      filter: grayscale(1) opacity(0.6);
+
+      * {
+        pointer-events: none;
+        transform: scale(0.8);
+      }
+    }
+  }
+}

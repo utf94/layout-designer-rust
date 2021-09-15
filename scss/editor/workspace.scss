@@ -1,0 +1,21 @@
+#workspace {
+  display: flex;
+  justify-content: center;
+  overflow-y: scroll;
+
+  #page-wrapper {
+    display: block;
+    position: relative;
+
+    width: 766px;
+    height: 2000px;
+
+    background-color: rgb(221, 221, 221);
+    border: 1px solid rgb(190, 190, 190);
+    margin-top: 50px;
+
+    #page {
+      height: 100%;
+    }
+  }
+}
