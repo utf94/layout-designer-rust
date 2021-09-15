@@ -1,30 +1,23 @@
 import { default as init, Editor } from "../rust/dist/web.js";
-import { open_preview, close_preview } from "./preview";
+import * as Preview from "./preview";
+import * as JsonPreview from "./json_preview";
+
 import * as ContextMenu from "./context_menu";
 import "./container";
 
-const Type = {
-  Color: "color",
-  Text: "text",
-  Number: "number",
-  Boolean: "boolean",
-  LayoutStyle: "layout_style",
-};
+export enum DataType {
+  Color = "color",
+  Text = "text",
+  Number = "number",
+  Boolean = "boolean",
+  LayoutStyle = "layout_style",
+}
 
 export async function run() {
   ContextMenu.connect();
 
-  document
-    .querySelector("#preview-close-trigger")
-    .addEventListener("click", () => {
-      close_preview();
-    });
-
-  document
-    .querySelector("#preview-open-trigger")
-    .addEventListener("click", () => {
-      open_preview();
-    });
+  Preview.connect();
+  JsonPreview.connect();
 
   await init("./dist/web_bg.wasm");
   const editor = new Editor();
@@ -51,29 +44,30 @@ export async function run() {
   editor.register_component({
     tag_name: "launch-button",
     parameters: {
-      variant: Type.Text,
-      type: Type.Text,
-      size: Type.Text,
-      shape: Type.Text,
-      disabled: Type.Boolean,
+      innertext: DataType.Text,
+      variant: DataType.Text,
+      type: DataType.Text,
+      size: DataType.Text,
+      shape: DataType.Text,
+      disabled: DataType.Boolean,
     },
   });
   editor.register_component({
     tag_name: "launch-checkbox",
     parameters: {
-      disabled: Type.Boolean,
-      indeterminate: Type.Boolean,
+      disabled: DataType.Boolean,
+      indeterminate: DataType.Boolean,
     },
   });
 
   editor.register_component({
     tag_name: "launch-text",
     parameters: {
-      text: Type.Text,
-      type: Type.Text,
-      weight: Type.Text,
-      underline: Type.Boolean,
-      italic: Type.Boolean,
+      innertext: DataType.Text,
+      type: DataType.Text,
+      weight: DataType.Text,
+      underline: DataType.Boolean,
+      italic: DataType.Boolean,
     },
   });
 

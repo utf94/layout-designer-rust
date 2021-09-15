@@ -125,6 +125,7 @@ context-menu {
 
   display: flex;
   justify-content: center;
+  align-items: center;
   z-index: 9999;
 
   transition: visibility 0.5s, opacity 0.5s;
@@ -141,7 +142,6 @@ context-menu {
 #preview {
   position: relative;
   width: 766px;
-  height: 100%;
   background-color: white;
   box-shadow: 0 0px 16px 0 rgba(0, 0, 0, 0.3);
 

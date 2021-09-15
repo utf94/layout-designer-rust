@@ -31,6 +31,7 @@ function customElement<T>(
 customElement(
   "launch-button",
   {
+    innertext: "Button",
     variant: "primary",
     type: "filled",
     size: "medium",
@@ -38,7 +39,9 @@ customElement(
     disabled: "",
   },
   (props, _other) => {
-    return <SolidUI.Button {...(props as any)}>Test</SolidUI.Button>;
+    return (
+      <SolidUI.Button {...(props as any)}>{props.innertext}</SolidUI.Button>
+    );
   }
 );
 
@@ -49,14 +52,14 @@ customElement(
     indeterminate: "",
   },
   (props, _other) => {
-    return <SolidUI.Checkbox {...(props as any)}>Test</SolidUI.Checkbox>;
+    return <SolidUI.Checkbox {...(props as any)}></SolidUI.Checkbox>;
   }
 );
 
 customElement(
   "launch-text",
   {
-    text: "text",
+    innertext: "text",
     type: "normal",
     weight: "normal",
     underline: "",
@@ -65,7 +68,7 @@ customElement(
   (props, _other) => {
     return (
       <SolidUI.Text {...(props as any)}>
-        <slot>{props.text}</slot>
+        <slot>{props.innertext}</slot>
       </SolidUI.Text>
     );
   }

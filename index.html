@@ -93,14 +93,15 @@
       </aside>
 
       <div id="workspace">
-        <div id="page-wrapper">
+        <div id="page-wrapper" style="width: 765px">
           <div id="page">
             <layout-container class="flex"></layout-container>
             <layout-container class="grid" style="height: 225px">
             </layout-container>
-            <layout-container class="flex"></layout-container>
-            <layout-container class="grid"> </layout-container>
-            <layout-container class="free"></layout-container>
+            <layout-container
+              class="free"
+              style="height: 225px"
+            ></layout-container>
           </div>
         </div>
       </div>
@@ -118,7 +119,7 @@
             <div class="page-dimensions">
               <div>
                 <span>W</span>
-                <input id="page-width-input" type="number" value="764" />
+                <input id="page-width-input" type="number" value="765" />
               </div>
               <div>
                 <span>H</span>
@@ -166,10 +167,23 @@
               margin-top: auto;
               height: 366px;
               overflow: scroll;
-              opacity: 0.3;
+              opacity: 0.5;
             "
           >
             <div class="title">Debug Section:</div>
+
+            <section
+              style="margin-top: 8px; display: flex; align-items: center"
+            >
+              <div class="title" style="margin-right: 5px">JSON Output:</div>
+              <div
+                class="icon-btn-container"
+                style="border: 1px solid black"
+                id="json-preview-btn"
+              >
+                <img src="./img/icons/code.svg" />
+              </div>
+            </section>
 
             <section style="margin-top: 8px">
               <div class="title">Selected component</div>

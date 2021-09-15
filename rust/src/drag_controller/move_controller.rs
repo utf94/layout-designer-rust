@@ -156,11 +156,16 @@ impl MoveController {
                 .filter(|elm| elm.class_list().contains("container"))
                 .collect();
 
-            if let Some(container) = elements.first() {
+            let container = elements.first();
+
+            if let Some(container) = container {
                 if container.class_list().contains("grid") {
                     let grid = self.grids.get_grid(container);
-                    self.component.set_grid_pos((grid.placeholder_pos.0, grid.placeholder_pos.1));
-                    self.component.set_grid_size((grid.placeholder_size.0, grid.placeholder_size.1));
+
+                    self.component
+                        .set_grid_pos((grid.placeholder_pos.0, grid.placeholder_pos.1));
+                    self.component
+                        .set_grid_size((grid.placeholder_size.0, grid.placeholder_size.1));
                 }
 
                 self.component
@@ -182,6 +187,16 @@ impl MoveController {
             let offset = (page_rect.left() as i32, page_rect.top() as i32);
 
             drag_state.stop(offset);
+
+            // drag_state::stop sets a absolute pos of a component, but we dont need it when we are in a grid/flex
+            // TODO(poly): Find a a cleaner solution
+            if let Some(container) = container {
+                if container.class_list().contains("grid")
+                    || container.class_list().contains("flex")
+                {
+                    self.component.unset_pos();
+                }
+            }
         }
 
         self.component.set_is_dragged(false);

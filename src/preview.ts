@@ -50,3 +50,17 @@ export function open_preview() {
   preview.style.transform = "translateY(0) scale(1)";
   preview.style.visibility = "visible";
 }
+
+export function connect() {
+  document
+    .querySelector("#preview-close-trigger")
+    .addEventListener("click", () => {
+      close_preview();
+    });
+
+  document
+    .querySelector("#preview-open-trigger")
+    .addEventListener("click", () => {
+      open_preview();
+    });
+}
