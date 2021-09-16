@@ -42,8 +42,8 @@ impl GridLayout {
         let data = Array2::<i32>::zeros((width, height));
         let mapping = HashMap::new();
         Self {
-            width: width,
-            height: height,
+            width,
+            height,
             data,
             mapping,
         }

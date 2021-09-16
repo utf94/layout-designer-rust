@@ -235,13 +235,7 @@ impl ParametersPanel {
 
                             let value = comp.element().get_attribute(&key);
 
-                            input.set_checked(
-                                if value.unwrap_or_else(|| "false".into()) == "true" {
-                                    true
-                                } else {
-                                    false
-                                },
-                            );
+                            input.set_checked(value.unwrap_or_else(|| "false".into()) == "true");
 
                             let cb = utils::new_listener(
                                 (comp.element().clone(), key.clone()),
