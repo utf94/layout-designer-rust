@@ -94,6 +94,12 @@ impl Page {
     /// * `width` - width of a page in px
     pub fn resize(&mut self, width: usize) {
         self.width = width;
+
+        self.html_element
+            .style()
+            .set_property("width", &format!("{}px", self.width))
+            .unwrap();
+
         for layout in self.layouts.iter_mut() {
             let (_, height) = layout.size();
             layout.resize(self.width, height)

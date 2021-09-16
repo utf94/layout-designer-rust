@@ -1,8 +1,12 @@
 import { default as init, Editor } from "../rust/dist/web.js";
+export { Editor } from "../rust/dist/web.js";
+
 import * as Preview from "./preview";
 import * as JsonPreview from "./json_preview";
 
 import * as ContextMenu from "./context_menu";
+import * as PageSettings from "./page_settings";
+
 import "./container";
 
 export enum DataType {
@@ -14,11 +18,6 @@ export enum DataType {
 }
 
 export async function run() {
-  ContextMenu.connect();
-
-  Preview.connect();
-  JsonPreview.connect();
-
   await init("./dist/web_bg.wasm");
   const editor = new Editor();
   // editor.register_component({
@@ -75,4 +74,10 @@ export async function run() {
     tag_name: "launch-table",
     parameters: {},
   });
+
+  ContextMenu.connect();
+
+  Preview.connect();
+  JsonPreview.connect();
+  PageSettings.connect(editor);
 }

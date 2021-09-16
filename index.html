@@ -123,16 +123,6 @@
                 <input disabled type="text" value="Auto" />
               </div>
             </div>
-
-            <script>
-              // TODO: Move this to more suitable location
-              document
-                .getElementById("page-width-input")
-                .addEventListener("input", (event) => {
-                  document.getElementById("page-wrapper").style.width =
-                    event.target.value + "px";
-                });
-            </script>
           </section>
 
           <section>
@@ -142,20 +132,6 @@
               <input id="page-fill-input" type="color" value="#ffffff" />
               <span id="page-fill-span">FFFFFF</span>
             </div>
-
-            <script>
-              // TODO: Move this to more suitable location
-              document
-                .getElementById("page-fill-input")
-                .addEventListener("input", (event) => {
-                  document.getElementById("page").style.backgroundColor =
-                    event.target.value;
-
-                  let text = event.target.value.split("#")[1];
-                  document.getElementById("page-fill-span").innerText =
-                    text.toUpperCase();
-                });
-            </script>
           </section>
 
           <!-- Debug -->
