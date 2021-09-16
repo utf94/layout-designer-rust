@@ -1,7 +1,10 @@
+use std::borrow::Borrow;
+
 use wasm_bindgen::JsCast;
 use web_sys::{Document, HtmlElement};
 
-use crate::{component::Component, grid::Grids};
+use super::grid::Grids;
+use crate::component::Component;
 
 use super::drag_transform::DragTransform;
 
@@ -197,6 +200,12 @@ impl MoveController {
                     self.component.unset_pos();
                 }
             }
+
+            crate::editor::with_editor_state(|editor| {
+                if let Some(layou_elm) = container {
+                    editor.insert_component_into_layout(layou_elm, self.component.index());
+                }
+            });
         }
 
         self.component.set_is_dragged(false);

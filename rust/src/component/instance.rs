@@ -1,5 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
+use generational_arena::Index;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 
@@ -8,6 +9,12 @@ use crate::{elements::component::EditorComponent, utils};
 struct InnerData {
     grid_size: (u32, u32),
     grid_pos: (u32, u32),
+
+    /// The index of a componetn
+    ///
+    /// Despite the fact that this is an `Option`, it is guaranteed to be initialized
+    /// It is Option because we don't know the Index when Component is initialized, we get the id after initialization
+    index: Option<Index>,
 }
 
 /// Instance of a component
@@ -28,21 +35,28 @@ impl Component {
             data: Rc::new(RefCell::new(InnerData {
                 grid_size: (1, 1),
                 grid_pos: (1, 1),
+                index: None,
             })),
         };
 
-        {
-            let editor = crate::editor::get_editor_state();
-
+        let id = crate::editor::with_editor_state(|editor| {
             let id = editor.insert_component(component.clone());
-            let id = id.into_raw_parts();
+            let (number, generation) = id.into_raw_parts();
 
             component
                 .element()
-                .set_id(&format!("component-{}-{}", id.0, id.1));
-        }
+                .set_id(&format!("component-{}-{}", number, generation));
+
+            id
+        });
+
+        component.data.borrow_mut().index = Some(id);
 
         component
+    }
+
+    pub fn index(&self) -> Index {
+        self.data.borrow().index.unwrap()
     }
 
     pub fn element(&self) -> &EditorComponent {
@@ -149,8 +163,9 @@ impl Component {
                 if event.animation_name() == "death-animation" {
                     component.element().remove();
 
-                    let editor = crate::editor::get_editor_state();
-                    editor.update();
+                    let id = component.data.borrow().index.unwrap();
+
+                    crate::editor::with_editor_state(|editor| editor.remove_component(id));
                 }
             });
 

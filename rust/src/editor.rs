@@ -1,6 +1,10 @@
+use std::cell::RefCell;
+
+use generational_arena::Index;
 use wasm_bindgen::prelude::*;
 
 mod workspace;
+use web_sys::HtmlElement;
 use workspace::Workspace;
 
 mod parameters_panel;
@@ -11,8 +15,6 @@ use crate::{
     elements::component::EditorComponentSource,
 };
 
-#[wasm_bindgen]
-#[derive(Clone)]
 pub struct EditorState {
     workspace: Workspace,
     parameters_panel: ParametersPanel,
@@ -27,7 +29,7 @@ impl EditorState {
         }
     }
 
-    pub fn insert_component(&self, value: Component) -> generational_arena::Index {
+    pub fn insert_component(&mut self, value: Component) -> generational_arena::Index {
         let id = self.workspace.insert_component(value);
 
         self.parameters_panel
@@ -36,7 +38,8 @@ impl EditorState {
         id
     }
 
-    pub fn remove(&self, i: generational_arena::Index) -> Option<Component> {
+    #[allow(unused)]
+    pub fn remove_component(&mut self, i: generational_arena::Index) -> Option<Component> {
         let out = self.workspace.remove_component(i);
 
         self.parameters_panel
@@ -45,20 +48,20 @@ impl EditorState {
         out
     }
 
-    pub fn update(&self) {
-        self.workspace.update();
-
-        self.parameters_panel
-            .update_components_tree(&self.workspace);
+    pub fn insert_component_into_layout(&mut self, layou_elm: &HtmlElement, id: Index) {
+        self.workspace.insert_component_into_layout(layou_elm, id);
     }
 }
 
 thread_local! {
-    static EDITOR_STATE: EditorState = EditorState::new();
+    static EDITOR_STATE: RefCell<EditorState> = RefCell::new(EditorState::new());
 }
 
-pub fn get_editor_state() -> EditorState {
-    EDITOR_STATE.with(|s| s.clone())
+pub fn with_editor_state<F, R>(f: F) -> R
+where
+    F: FnOnce(&mut EditorState) -> R,
+{
+    EDITOR_STATE.with(|s| f(&mut s.borrow_mut()))
 }
 
 #[wasm_bindgen]
@@ -74,6 +77,8 @@ impl Default for Editor {
 impl Editor {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
+        // Call to thread local `with` method, will cause it to initialize
+        with_editor_state(|_| {});
         Self {}
     }
 

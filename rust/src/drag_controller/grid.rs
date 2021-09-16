@@ -1,6 +1,8 @@
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlElement, SvgsvgElement};
 
+/// Temporary Representation Of Grid layout element
+/// Should be replaced by [crate::layout::grid::GridLayout]
 pub struct Grid {
     grid: HtmlElement,
     placeholder: HtmlElement,
@@ -87,6 +89,8 @@ impl Grid {
     }
 }
 
+/// Temporary Representation Of Grid elements list
+/// Should be replaced
 pub struct Grids {
     grids: Vec<Grid>,
 }

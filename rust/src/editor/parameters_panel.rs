@@ -5,16 +5,17 @@ use web_sys::{HtmlElement, HtmlInputElement, HtmlTextAreaElement};
 
 use crate::{editor::Workspace, elements::component::ComponentPropertie, utils};
 
+// This is probably wrong place to store this
+// Editor struct itself probably should be responsible for that
 struct State {
     selected_component_label: HtmlElement,
     selected: HtmlElement,
 }
 
-#[derive(Clone)]
 pub struct ParametersPanel {
-    root: HtmlElement,
+    _root: HtmlElement,
     component_list: HtmlElement,
-    state: Rc<RefCell<State>>,
+    _state: Rc<RefCell<State>>,
 }
 
 impl ParametersPanel {
@@ -58,8 +59,8 @@ impl ParametersPanel {
         let component_list = document.get_element_by_id("component-list").unwrap();
         let component_list: HtmlElement = component_list.dyn_into().unwrap();
         Self {
-            root,
-            state,
+            _root: root,
+            _state: state,
             component_list,
         }
     }

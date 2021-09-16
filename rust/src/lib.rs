@@ -2,12 +2,13 @@ use wasm_bindgen::prelude::*;
 
 pub mod component;
 
-mod editor;
-mod grid;
 mod drag_controller;
+mod editor;
 mod utils;
 
 mod elements;
+
+mod layout;
 
 // Wasm entry point
 #[wasm_bindgen(start)]

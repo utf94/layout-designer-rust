@@ -1,10 +1,9 @@
 use wasm_bindgen::JsCast;
 use web_sys::{Document, HtmlElement};
 
-use crate::{
-    component::Component,
-    grid::{Grid, Grids},
-};
+use crate::component::Component;
+
+use super::grid::{Grid, Grids};
 
 struct ResizeState {
     pub component: Component,

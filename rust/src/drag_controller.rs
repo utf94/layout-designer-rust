@@ -11,6 +11,8 @@ use move_controller::MoveController;
 mod resize_controller;
 use resize_controller::ResizeController;
 
+mod grid;
+
 /// Register a drag listener on a source
 pub fn add_drag_listener_from_source(component_source: &ComponentSource) {
     let root = &component_source.root;
