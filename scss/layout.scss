@@ -1,0 +1,76 @@
+layout-container {
+  width: 100%;
+  min-height: 76px;
+}
+
+layout-container {
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.3);
+}
+
+layout-container.flex {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+layout-container.grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 76px);
+  grid-template-rows: repeat(auto-fill, 76px);
+  justify-items: center;
+  align-items: center;
+}
+
+layout-container.grid > * {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* Take all avalible space in the grid cell */
+  width: 100%;
+  height: 100%;
+}
+
+layout-container.grid .grid-placeholder {
+  background-color: rgba(0, 0, 0, 0.1);
+  width: 100%;
+  height: 100%;
+
+  opacity: 0;
+  transition: visibility 0.5s, opacity 0.5s;
+
+  z-index: 0;
+}
+
+layout-container.free {
+  display: block;
+  position: relative;
+}
+
+layout-container.free > * {
+  position: absolute;
+}
+
+layout-container:after {
+  color: rgb(180, 180, 180);
+  position: absolute;
+  right: -50px;
+}
+
+layout-container.flex:after {
+  content: "Flex";
+}
+
+layout-container.grid:after {
+  content: "Grid";
+}
+
+layout-container.free:after {
+  content: "Free";
+}
+
+layout-container:last-child {
+  height: 100%;
+}

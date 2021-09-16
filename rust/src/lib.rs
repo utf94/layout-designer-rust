@@ -8,7 +8,7 @@ mod utils;
 
 mod elements;
 
-mod layout;
+mod page;
 
 // Wasm entry point
 #[wasm_bindgen(start)]

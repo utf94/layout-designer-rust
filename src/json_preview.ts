@@ -67,9 +67,7 @@ interface EditorComponent extends HTMLElement {
   descriptor: ComponentDescriptor;
 }
 
-export function generate_json(): JsonOutput {
-  const page = document.getElementById("page");
-
+function generate_page_json(page: HTMLElement): Page {
   const children = [...page.children];
 
   const layouts = children
@@ -163,16 +161,22 @@ export function generate_json(): JsonOutput {
   const page_computed_style = window.getComputedStyle(page);
 
   return {
+    title: "Home",
+    width: page_computed_style.width,
+    backgroundColor: page_computed_style.backgroundColor,
+    layouts,
+  };
+}
+
+export function generate_json(): JsonOutput {
+  const pages = [...document.querySelectorAll(".page")].map((page_elm) =>
+    generate_page_json(page_elm as HTMLElement)
+  );
+
+  return {
     framework: "solidjs",
     components: "solidui",
-    pages: [
-      {
-        title: "Home",
-        width: page_computed_style.width,
-        backgroundColor: page_computed_style.backgroundColor,
-        layouts,
-      },
-    ],
+    pages,
   };
 }
 

@@ -1,37 +1,44 @@
 use generational_arena::{Arena, Index};
+use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 
-use crate::{component::Component, layout::Layout};
+use crate::{
+    component::Component,
+    page::{layout::Layout, Page},
+};
 
 pub struct Workspace {
+    /// Root html element of a Workspace
+    _html_element: HtmlElement,
+
     components: Arena<Component>,
 
-    // Layouts shoud be inside of a page, but we don't have a page struct for now
-    #[allow(unused)]
-    layouts: Vec<Layout>,
+    /// A debug page, should be replaced with Vec<Page> at some point
+    page: Page,
 }
 
 impl Workspace {
     pub fn new() -> Self {
         let document = web_sys::window().unwrap().document().unwrap();
 
-        let mut layouts = Vec::new();
+        let html_element = document.get_element_by_id("workspace").unwrap();
+        let html_element: HtmlElement = html_element.dyn_into().unwrap();
+
+        let mut page = Page::new("Home");
+
+        page.append_to(&html_element);
 
         // Add some debug layouts
         {
-            layouts.push(Layout::new_flex(765, 76));
-            layouts.push(Layout::new_grid(765, 225));
-            layouts.push(Layout::new_free(765, 255));
-
-            let page = document.get_element_by_id("page").unwrap();
-            for layout in layouts.iter() {
-                layout.append_to(&page);
-            }
+            page.insert_layout(Layout::new_flex(765, 76));
+            page.insert_layout(Layout::new_grid(765, 225));
+            page.insert_layout(Layout::new_free(765, 255));
         }
 
         Self {
+            _html_element: html_element,
             components: Arena::new(),
-            layouts,
+            page,
         }
     }
 
@@ -48,10 +55,9 @@ impl Workspace {
     }
 
     pub fn insert_component_into_layout(&mut self, layou_elm: &HtmlElement, id: Index) {
-        let layout = self.layouts.iter_mut().find(|l| l == &layou_elm);
-
-        if let (Some(layout), Some(component)) = (layout, self.components.get_mut(id)) {
-            layout.insert_component((id, component));
+        if let Some(component) = self.components.get_mut(id) {
+            self.page
+                .insert_component_into_layout(layou_elm, (id, component));
         }
     }
 

@@ -10,9 +10,6 @@ pub struct MoveController {
     document: Document,
     workspace: HtmlElement,
 
-    page_wrapper: HtmlElement,
-    _page: HtmlElement,
-
     pub component: Component,
     drag_state: Option<DragTransform>,
     grids: Grids,
@@ -26,18 +23,9 @@ impl MoveController {
         let workspace = document.get_element_by_id("workspace").unwrap();
         let workspace: HtmlElement = workspace.dyn_into().unwrap();
 
-        let page_wrapper = document.get_element_by_id("page-wrapper").unwrap();
-        let page_wrapper: HtmlElement = page_wrapper.dyn_into().unwrap();
-
-        let page = document.get_element_by_id("page").unwrap();
-        let _page: HtmlElement = page.dyn_into().unwrap();
-
         Self {
             document,
             workspace,
-
-            page_wrapper,
-            _page,
 
             component,
             drag_state: None,
@@ -159,6 +147,8 @@ impl MoveController {
 
             let container = elements.first();
 
+            let mut offset = (0, 0);
+
             if let Some(container) = container {
                 if container.class_list().contains("grid") {
                     let grid = self.grids.get_grid(container);
@@ -167,6 +157,9 @@ impl MoveController {
                         .set_grid_pos((grid.placeholder_pos.0, grid.placeholder_pos.1));
                     self.component
                         .set_grid_size((grid.placeholder_size.0, grid.placeholder_size.1));
+                } else if container.class_list().contains("free") {
+                    let rect = container.get_bounding_client_rect();
+                    offset = (rect.left() as i32, rect.top() as i32);
                 }
 
                 self.component
@@ -177,15 +170,11 @@ impl MoveController {
 
                 container.append_child(self.component.element()).unwrap();
             } else {
-                self.page_wrapper
+                self.workspace
                     .append_child(self.component.element())
                     .unwrap();
                 self.component.remove();
             }
-
-            let page_rect = self.page_wrapper.get_bounding_client_rect();
-
-            let offset = (page_rect.left() as i32, page_rect.top() as i32);
 
             drag_state.stop(offset);
 
@@ -214,15 +203,5 @@ impl MoveController {
             .style()
             .remove_property("pointer-events")
             .unwrap();
-
-        // let workspace_rect = self.workspace.get_bounding_client_rect();
-        // let elem_rect = self.component.element().get_bounding_client_rect();
-        // if !(elem_rect.left() >= workspace_rect.left()
-        //     && elem_rect.left() <= workspace_rect.left() + workspace_rect.width()
-        //     && elem_rect.top() >= workspace_rect.top()
-        //     && elem_rect.top() <= workspace_rect.top() + workspace_rect.height())
-        // {
-        //     self.component.remove();
-        // }
     }
 }

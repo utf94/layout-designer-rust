@@ -9,7 +9,7 @@ export function close_preview() {
 }
 
 export function open_preview() {
-  const page = document.getElementById("page");
+  const page = document.querySelector(".page");
 
   const children = [...page.children];
 

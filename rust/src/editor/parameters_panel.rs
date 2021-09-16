@@ -5,12 +5,7 @@ use web_sys::{HtmlElement, HtmlInputElement, HtmlTextAreaElement};
 
 use crate::{editor::Workspace, elements::component::ComponentPropertie, utils};
 
-// This is probably wrong place to store this
-// Editor struct itself probably should be responsible for that
-struct State {
-    selected_component_label: HtmlElement,
-    selected: HtmlElement,
-}
+struct State {}
 
 pub struct ParametersPanel {
     _root: HtmlElement,
@@ -24,37 +19,8 @@ impl ParametersPanel {
         let root = document.get_element_by_id("parameters").unwrap();
         let root: HtmlElement = root.dyn_into().unwrap();
 
-        let selected_component_label = document
-            .get_element_by_id("selected-component-label")
-            .unwrap();
-        let selected_component_label: HtmlElement = selected_component_label.dyn_into().unwrap();
-
-        let page = document.get_element_by_id("page").unwrap();
-        let page: HtmlElement = page.dyn_into().unwrap();
-
-        let state = State {
-            selected_component_label,
-            selected: root.clone(),
-        };
-
+        let state = State {};
         let state = Rc::new(RefCell::new(state));
-
-        let onmousedown =
-            utils::new_listener(state.clone(), |state, event: web_sys::MouseEvent| {
-                if let Some(target) = event.target() {
-                    let element: Option<HtmlElement> = target.dyn_into().ok();
-
-                    if let Some(element) = element {
-                        state
-                            .borrow()
-                            .selected_component_label
-                            .set_inner_text(&format!("<{}/>", element.tag_name().to_lowercase()));
-                        state.borrow_mut().selected = element;
-                    }
-                }
-            });
-
-        page.set_onmousedown(Some(&onmousedown));
 
         let component_list = document.get_element_by_id("component-list").unwrap();
         let component_list: HtmlElement = component_list.dyn_into().unwrap();
