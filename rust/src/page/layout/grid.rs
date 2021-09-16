@@ -54,6 +54,10 @@ impl GridLayout {
     }
 
     /// Resize the grid, called when html layout element gets resized
+    ///
+    /// # Arguments
+    /// * `width` - width of a grid in cells
+    /// * `height` - height of a grid in cells
     pub fn resize(&mut self, width: usize, height: usize) {
         unimplemented!("Resize impl")
     }

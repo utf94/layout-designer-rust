@@ -3,6 +3,7 @@ use std::cell::RefCell;
 use wasm_bindgen::prelude::*;
 
 mod workspace;
+use web_sys::HtmlElement;
 use workspace::Workspace;
 
 mod parameters_panel;
@@ -79,5 +80,14 @@ impl Editor {
         let descriptor = ComponentDescriptor::new(desc);
         let source = EditorComponentSource::new(descriptor);
         ComponentSource::new(source);
+    }
+
+    /// Resize one of pages in workspace
+    pub fn resize_page(&mut self, page: &HtmlElement, width: usize) {
+        with_editor_state(|editor| {
+            if let Some(page) = editor.workspace.get_page_mut(page) {
+                page.resize(width);
+            }
+        })
     }
 }

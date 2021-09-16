@@ -115,7 +115,6 @@ impl Layout {
     /// Creates a new grid layout
     ///
     /// # Arguments
-    ///
     /// * `width` - width of a layout in px
     /// * `height` - height of a layout in px
     /// * `cell_size` - size of a grid cell in px
@@ -154,6 +153,10 @@ impl Layout {
         };
     }
 
+    pub fn size(&self) -> (usize, usize) {
+        (self.width, self.height)
+    }
+
     pub fn resize(&mut self, width: usize, height: usize) {
         self.width = width;
         self.height = height;
@@ -162,9 +165,14 @@ impl Layout {
         // because we will want to extend this match in future
         #[allow(clippy::single_match)]
         match &mut self.kind {
-            LayoutKind::Grid { grid, .. } => grid.resize(width, height),
+            LayoutKind::Grid { grid, cell_size } => {
+                let grid_w = (width as f64 / *cell_size as f64).round();
+                let grid_h = (height as f64 / *cell_size as f64).round();
+
+                grid.resize(width as usize, height as usize);
+            }
             _ => {}
-        };
+        }
     }
 }
 

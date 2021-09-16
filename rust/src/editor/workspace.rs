@@ -33,7 +33,7 @@ impl Workspace {
 
         // Add a debug page
         {
-            let mut page = Page::new("Home");
+            let mut page = Page::new("Home", 765);
 
             page.append_to(&html_element);
 
@@ -50,6 +50,18 @@ impl Workspace {
             components: Arena::new(),
             pages,
         }
+    }
+
+    /// Get a page by html element
+    #[allow(unused)]
+    pub fn get_page(&self, elm: &HtmlElement) -> Option<&Page> {
+        self.pages.iter().find(|page| page == &elm)
+    }
+
+    /// Get a mutable page by html element
+    #[allow(unused)]
+    pub fn get_page_mut(&mut self, elm: &HtmlElement) -> Option<&mut Page> {
+        self.pages.iter_mut().find(|page| page == &elm)
     }
 
     /// Get unmutable ref to the components arena

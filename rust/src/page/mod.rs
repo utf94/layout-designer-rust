@@ -21,6 +21,9 @@ pub struct Page {
     /// For example `Home`, `Contact`, `News`
     _name: String,
 
+    /// Width of a page
+    width: usize,
+
     /// List of layouts inside of a page,
     /// laid out one under the other
     layouts: Vec<Layout>,
@@ -28,7 +31,7 @@ pub struct Page {
 
 impl Page {
     /// Create a new page, with given name
-    pub fn new(name: &str) -> Self {
+    pub fn new(name: &str, width: usize) -> Self {
         let name = name.to_owned();
 
         let document = web_sys::window().unwrap().document().unwrap();
@@ -36,7 +39,10 @@ impl Page {
         let html_element = document.create_element("div").unwrap();
         let html_element: HtmlElement = html_element.dyn_into().unwrap();
 
-        html_element.style().set_property("width", "765px").unwrap();
+        html_element
+            .style()
+            .set_property("width", &format!("{}px", width))
+            .unwrap();
 
         html_element.class_list().add_1("page").unwrap();
 
@@ -44,6 +50,7 @@ impl Page {
             html_element,
 
             _name: name,
+            width,
 
             layouts: Vec::new(),
         }
@@ -79,5 +86,23 @@ impl Page {
         if let Some(layout) = layout {
             layout.insert_component(component);
         }
+    }
+
+    /// Resize the page
+    ///
+    /// # Arguments
+    /// * `width` - width of a page in px
+    pub fn resize(&mut self, width: usize) {
+        self.width = width;
+        for layout in self.layouts.iter_mut() {
+            let (_, height) = layout.size();
+            layout.resize(self.width, height)
+        }
+    }
+}
+
+impl PartialEq<HtmlElement> for Page {
+    fn eq(&self, html_element: &HtmlElement) -> bool {
+        &self.html_element == html_element
     }
 }
