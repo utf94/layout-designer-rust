@@ -32,6 +32,8 @@ pub enum LayoutKind {
 
     /// CSS Grid based layout
     Grid {
+        /// Size of a grid cell in px
+        cell_size: usize,
         /// Data related to grid layout implementation
         grid: GridLayout,
     },
@@ -111,12 +113,22 @@ impl Layout {
     }
 
     /// Creates a new grid layout
-    pub fn new_grid(width: usize, height: usize) -> Self {
+    ///
+    /// # Arguments
+    ///
+    /// * `width` - width of a layout in px
+    /// * `height` - height of a layout in px
+    /// * `cell_size` - size of a grid cell in px
+    pub fn new_grid(width: usize, height: usize, cell_size: usize) -> Self {
+        let grid_w = (width as f64 / cell_size as f64).round();
+        let grid_h = (height as f64 / cell_size as f64).round();
+
         Self::new(
             width,
             height,
             LayoutKind::Grid {
-                grid: GridLayout::new(width, height),
+                cell_size,
+                grid: GridLayout::new(grid_w as usize, grid_h as usize),
             },
         )
     }
@@ -137,7 +149,7 @@ impl Layout {
         // because we will want to extend this match in future
         #[allow(clippy::single_match)]
         match &mut self.kind {
-            LayoutKind::Grid { grid } => grid.insert_component(component),
+            LayoutKind::Grid { grid, .. } => grid.insert_component(component),
             _ => {}
         };
     }
@@ -150,7 +162,7 @@ impl Layout {
         // because we will want to extend this match in future
         #[allow(clippy::single_match)]
         match &mut self.kind {
-            LayoutKind::Grid { grid } => grid.resize(width, height),
+            LayoutKind::Grid { grid, .. } => grid.resize(width, height),
             _ => {}
         };
     }

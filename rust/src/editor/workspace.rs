@@ -39,7 +39,7 @@ impl Workspace {
 
             // Add some debug layouts
             page.insert_layout(Layout::new_flex(765, 76));
-            page.insert_layout(Layout::new_grid(765, 225));
+            page.insert_layout(Layout::new_grid(765, 225, 76));
             page.insert_layout(Layout::new_free(765, 255));
 
             pages.push(page);

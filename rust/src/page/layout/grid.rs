@@ -38,6 +38,10 @@ pub struct GridLayout {
 /// Methods for GridLayout Struct
 impl GridLayout {
     /// Create new instance of GridLayout Struct
+    ///
+    /// # Arguments
+    /// * `width` - width of a grid in cells
+    /// * `height` - height of a grid in cells
     pub fn new(width: usize, height: usize) -> Self {
         let data = Array2::<i32>::zeros((width, height));
         let mapping = HashMap::new();
