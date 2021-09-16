@@ -125,7 +125,7 @@ impl Component {
         }
     }
 
-    pub fn set_position(&self, x: i32, y: i32) {
+    pub fn set_position(&self, (x, y): (i32, i32)) {
         self.element
             .style()
             .set_property("left", &format!("{}px", x))
@@ -136,11 +136,13 @@ impl Component {
             .unwrap();
     }
 
+    /// Get size in px
     pub fn size(&self) -> (f64, f64) {
         let bbox = self.element.get_bounding_client_rect();
         (bbox.width(), bbox.height())
     }
 
+    /// Set size in px
     pub fn set_size(&self, w: f64, h: f64) {
         self.element
             .style()
@@ -152,7 +154,8 @@ impl Component {
             .unwrap();
     }
 
-    pub fn unset_pos(&self) {
+    /// Unsets absolute pos
+    pub fn unset_absolute_pos(&self) {
         self.element.style().remove_property("top").unwrap();
         self.element.style().remove_property("left").unwrap();
         self.element.style().remove_property("position").unwrap();
@@ -165,13 +168,6 @@ impl Component {
             utils::new_listener(self.clone(), |component, event: web_sys::AnimationEvent| {
                 if event.animation_name() == "death-animation" {
                     component.element().remove();
-
-                    let id = component.data.borrow().index.unwrap();
-
-                    crate::editor::with_editor_state(|editor| {
-                        editor.workspace.remove_component(id);
-                        editor.update_parameters_panel();
-                    });
                 }
             });
 

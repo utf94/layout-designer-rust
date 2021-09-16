@@ -22,20 +22,19 @@ pub fn add_drag_listener_from_source(component_source: &ComponentSource) {
         if btn == 0 {
             let component = component_source.new_instance();
 
-            let mut controler = MoveController::new(component);
+            let mut controler = MoveController::new(component.clone());
 
             Box::new(move |event| match event {
                 DragEvent::MouseMove(event) => {
                     controler.mouse_move(event);
                 }
                 DragEvent::MouseUp(event) => {
-                    add_drag_listener_from_instance(&controler.component);
+                    add_drag_listener_from_instance(&component);
 
                     controler.mouse_up(event);
 
                     // Element was parented, stop the spawn animation
-                    controler
-                        .component
+                    component
                         .element()
                         .class_list()
                         .remove_1("spawn-animation")

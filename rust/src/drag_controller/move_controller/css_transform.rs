@@ -2,16 +2,15 @@ use crate::component::Component;
 
 /// Struct responsible for the CSS transforms during the drag
 pub struct CssMoveTransform {
-    pub component: Component,
+    component: Component,
 
-    last_x: i32,
-    last_y: i32,
+    /// Current absolute position of moved component
+    absolute_pos: (i32, i32),
 
-    absolute_pos_x: i32,
-    absolute_pos_y: i32,
-
-    start_x: i32,
-    start_y: i32,
+    /// Last know pos, used to calculate delta
+    last_pos: (i32, i32),
+    /// Starting pos
+    start_pos: (i32, i32),
 }
 
 impl CssMoveTransform {
@@ -23,45 +22,41 @@ impl CssMoveTransform {
         let start_x = x;
         let start_y = y;
 
-        let absolute_pos_x = component.element().offset_left();
-        let absolute_pos_y = component.element().offset_top();
+        let absolute_x = component.element().offset_left();
+        let absolute_y = component.element().offset_top();
 
         Self {
             component,
-            last_x,
-            last_y,
-            absolute_pos_x,
-            absolute_pos_y,
-            start_x,
-            start_y,
+            last_pos: (last_x, last_y),
+            absolute_pos: (absolute_x, absolute_y),
+            start_pos: (start_x, start_y),
         }
     }
 
     /// Called when mouse is being draged
     pub fn drag(&mut self, x: i32, y: i32) {
-        self.absolute_pos_x -= self.last_x - x;
-        self.absolute_pos_y -= self.last_y - y;
+        self.absolute_pos.0 -= self.last_pos.0 - x;
+        self.absolute_pos.1 -= self.last_pos.1 - y;
 
-        self.last_x = x;
-        self.last_y = y;
+        self.last_pos.0 = x;
+        self.last_pos.1 = y;
 
         self.component
             .element()
             .style()
             .set_property(
                 "transform",
-                &format!("translate({}px, {}px)", x - self.start_x, y - self.start_y),
+                &format!(
+                    "translate({}px, {}px)",
+                    x - self.start_pos.0,
+                    y - self.start_pos.1
+                ),
             )
             .unwrap();
     }
 
     /// Strop the css transfrom move
-    pub fn stop(&mut self, offset: (i32, i32)) {
-        self.component.set_position(
-            self.absolute_pos_x - offset.0,
-            self.absolute_pos_y - offset.1,
-        );
-
+    pub fn stop(&mut self) -> (i32, i32) {
         // After the move is done we should no longer have any transfroms on the component
         // It should be positioned by the layout from now on
         self.component
@@ -69,5 +64,7 @@ impl CssMoveTransform {
             .style()
             .remove_property("transform")
             .unwrap();
+
+        self.absolute_pos
     }
 }

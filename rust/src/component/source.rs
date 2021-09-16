@@ -39,7 +39,7 @@ impl ComponentSource {
         let component = Component::new(component);
 
         let rect = self.source.instance().get_bounding_client_rect();
-        component.set_position(rect.left() as i32, rect.top() as i32);
+        component.set_position((rect.left() as i32, rect.top() as i32));
 
         component
             .element()

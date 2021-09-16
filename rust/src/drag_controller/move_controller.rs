@@ -9,9 +9,8 @@ use css_transform::CssMoveTransform;
 
 pub struct MoveController {
     document: Document,
-    workspace: HtmlElement,
 
-    pub component: Component,
+    component: Component,
     drag_state: Option<CssMoveTransform>,
     grids: Grids,
 }
@@ -22,12 +21,8 @@ impl MoveController {
         let window = web_sys::window().unwrap();
         let document = window.document().unwrap();
 
-        let workspace = document.get_element_by_id("workspace").unwrap();
-        let workspace: HtmlElement = workspace.dyn_into().unwrap();
-
         Self {
             document,
-            workspace,
 
             component,
             drag_state: None,
@@ -47,7 +42,7 @@ impl MoveController {
         if self.component.parent().unwrap() != self.document.body().unwrap() {
             let component_rect = self.component.element().get_bounding_client_rect();
             self.component
-                .set_position(component_rect.left() as i32, component_rect.top() as i32);
+                .set_position((component_rect.left() as i32, component_rect.top() as i32));
 
             self.document
                 .body()
@@ -75,7 +70,7 @@ impl MoveController {
             drag_state.drag(event.client_x(), event.client_y());
 
             {
-                let component_rect = drag_state.component.element().get_bounding_client_rect();
+                let component_rect = self.component.element().get_bounding_client_rect();
 
                 let component_x = component_rect.left();
                 let component_y = component_rect.top();
@@ -121,18 +116,8 @@ impl MoveController {
         self.document.set_onmousemove(None);
         self.document.set_onmouseup(None);
 
-        let workspace_rect = self.workspace.get_bounding_client_rect();
-        let elem_rect = self.component.element().get_bounding_client_rect();
-
-        let remove = !(elem_rect.left() >= workspace_rect.left()
-            && elem_rect.left() <= workspace_rect.left() + workspace_rect.width()
-            && elem_rect.top() >= workspace_rect.top()
-            && elem_rect.top() <= workspace_rect.top() + workspace_rect.height());
-
-        if remove {
-            self.component.remove();
-        } else if let Some(drag_state) = self.drag_state.as_mut() {
-            let component_rect = drag_state.component.element().get_bounding_client_rect();
+        if let Some(drag_state) = self.drag_state.as_mut() {
+            let component_rect = self.component.element().get_bounding_client_rect();
 
             let component_x = component_rect.left();
             let component_y = component_rect.top();
@@ -152,21 +137,29 @@ impl MoveController {
 
             let container = elements.first();
 
-            let mut offset = (0, 0);
-
             if let Some(container) = container {
+                let new_absolute_pos = drag_state.stop();
+
                 if container.class_list().contains("grid") {
                     let grid = self.grids.get_grid(container);
 
+                    self.component.unset_absolute_pos();
                     self.component
                         .set_grid_pos((grid.placeholder_pos.0, grid.placeholder_pos.1));
                     self.component
                         .set_grid_size((grid.placeholder_size.0, grid.placeholder_size.1));
+                } else if container.class_list().contains("flex") {
+                    self.component.unset_absolute_pos();
                 } else if container.class_list().contains("free") {
                     let rect = container.get_bounding_client_rect();
-                    offset = (rect.left() as i32, rect.top() as i32);
+                    let offset = (rect.left() as i32, rect.top() as i32);
+                    let pos = (new_absolute_pos.0 - offset.0, new_absolute_pos.1 - offset.1);
+
+                    self.component.set_position(pos);
                 }
 
+                // Move has ended so now the layout is responsible for positioning
+                // So we remove the position property
                 self.component
                     .element()
                     .style()
@@ -175,22 +168,14 @@ impl MoveController {
 
                 container.append_child(self.component.element()).unwrap();
             } else {
-                self.workspace
-                    .append_child(self.component.element())
-                    .unwrap();
+                // We are outside of any layout, so we are removing the component
                 self.component.remove();
-            }
 
-            drag_state.stop(offset);
-
-            // drag_state::stop sets a absolute pos of a component, but we dont need it when we are in a grid/flex
-            // TODO(poly): Find a a cleaner solution
-            if let Some(container) = container {
-                if container.class_list().contains("grid")
-                    || container.class_list().contains("flex")
-                {
-                    self.component.unset_pos();
-                }
+                // Remove the component from the editor
+                crate::editor::with_editor_state(|editor| {
+                    editor.workspace.remove_component(self.component.index());
+                    editor.update_parameters_panel();
+                });
             }
 
             crate::editor::with_editor_state(|editor| {
