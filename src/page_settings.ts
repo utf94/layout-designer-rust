@@ -17,7 +17,7 @@ export function connect(editor: Editor) {
     .addEventListener("input", (event) => {
       const target = event.target as HTMLInputElement;
 
-      const page = document.querySelector("page") as HTMLElement;
+      const page = document.querySelector(".page") as HTMLElement;
       page.style.backgroundColor = target.value;
 
       let text = target.value.split("#")[1];
