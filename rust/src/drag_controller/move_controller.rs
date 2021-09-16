@@ -1,5 +1,3 @@
-use std::borrow::Borrow;
-
 use wasm_bindgen::JsCast;
 use web_sys::{Document, HtmlElement};
 
