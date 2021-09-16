@@ -1,4 +1,3 @@
-use generational_arena::Index;
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlElement};
 
