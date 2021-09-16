@@ -4,7 +4,7 @@ use generational_arena::Index;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 
-use crate::{elements::component::EditorComponent, utils};
+use crate::{html_elements::component::EditorComponent, utils};
 
 struct InnerData {
     grid_size: (u32, u32),

@@ -2,7 +2,7 @@ use wasm_bindgen::JsCast;
 
 use web_sys::HtmlElement;
 
-use crate::{elements::component::EditorComponentSource, drag_controller};
+use crate::{drag_controller, html_elements::component::EditorComponentSource};
 
 use super::Component;
 

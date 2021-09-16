@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlElement, HtmlInputElement, HtmlTextAreaElement};
 
-use crate::{editor::Workspace, elements::component::ComponentPropertie, utils};
+use crate::{editor::Workspace, html_elements::component::ComponentPropertie, utils};
 
 struct State {}
 

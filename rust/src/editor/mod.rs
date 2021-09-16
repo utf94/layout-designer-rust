@@ -8,7 +8,10 @@ use workspace::Workspace;
 mod parameters_panel;
 use parameters_panel::ParametersPanel;
 
-use crate::{component::ComponentSource, elements::component::EditorComponentSource};
+use crate::{
+    component::ComponentSource,
+    html_elements::component::{ComponentDescriptor, EditorComponentSource},
+};
 
 pub struct EditorState {
     pub workspace: Workspace,
@@ -60,7 +63,7 @@ impl Editor {
     }
 
     pub fn register_component(&mut self, desc: JsValue) {
-        let descriptor = crate::elements::component::ComponentDescriptor::new(desc);
+        let descriptor = ComponentDescriptor::new(desc);
         let source = EditorComponentSource::new(descriptor);
         ComponentSource::new(source);
     }

@@ -6,7 +6,7 @@ mod drag_controller;
 mod editor;
 mod utils;
 
-mod elements;
+mod html_elements;
 
 mod page;
 
@@ -21,7 +21,7 @@ pub fn start() -> ::std::result::Result<(), JsValue> {
     // and I'm to lazy to file a bug for it, so I just added the redundant unsafe
     #[allow(unused_unsafe)]
     unsafe {
-        elements::component::register();
+        html_elements::component::register();
     }
 
     Ok(())

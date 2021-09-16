@@ -12,12 +12,12 @@ pub enum ComponentPropertie {
     Boolean = "boolean",
 }
 
-#[wasm_bindgen(module = "/src/elements/component.js")]
+#[wasm_bindgen(module = "/src/html_elements/component.js")]
 extern "C" {
     pub fn register();
 }
 
-#[wasm_bindgen(module = "/src/elements/component.js")]
+#[wasm_bindgen(module = "/src/html_elements/component.js")]
 extern "C" {
     #[derive(Debug, Clone)]
     pub type ComponentParameter;
@@ -29,7 +29,7 @@ extern "C" {
     pub fn data_type(this: &ComponentParameter) -> ComponentPropertie;
 }
 
-#[wasm_bindgen(module = "/src/elements/component.js")]
+#[wasm_bindgen(module = "/src/html_elements/component.js")]
 extern "C" {
     #[derive(Debug, Clone)]
     pub type ComponentDescriptor;
@@ -54,7 +54,7 @@ impl ComponentDescriptor {
     }
 }
 
-#[wasm_bindgen(module = "/src/elements/component.js")]
+#[wasm_bindgen(module = "/src/html_elements/component.js")]
 extern "C" {
     #[wasm_bindgen(extends = HtmlElement)]
     #[derive(Debug, Clone)]
@@ -73,7 +73,7 @@ extern "C" {
     pub fn instantiate_component(this: &EditorComponentSource) -> EditorComponent;
 }
 
-#[wasm_bindgen(module = "/src/elements/component.js")]
+#[wasm_bindgen(module = "/src/html_elements/component.js")]
 extern "C" {
     #[wasm_bindgen(extends = HtmlElement)]
     #[derive(Debug, Clone)]
