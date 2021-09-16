@@ -190,7 +190,9 @@ impl MoveController {
 
             crate::editor::with_editor_state(|editor| {
                 if let Some(layou_elm) = container {
-                    editor.insert_component_into_layout(layou_elm, self.component.index());
+                    editor
+                        .workspace
+                        .insert_component_into_layout(layou_elm, self.component.index());
                 }
             });
         }

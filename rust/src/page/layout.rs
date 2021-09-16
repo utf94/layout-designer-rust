@@ -133,6 +133,9 @@ impl Layout {
     pub fn insert_component(&mut self, component: (Index, &mut Component)) {
         self.html_element.append_child(component.1.element());
 
+        // Disabling the "redundand single branch match" lint
+        // because we will want to extend this match in future
+        #[allow(clippy::single_match)]
         match &mut self.kind {
             LayoutKind::Grid { grid } => grid.insert_component(component),
             _ => {}
@@ -143,6 +146,9 @@ impl Layout {
         self.width = width;
         self.height = height;
 
+        // Disabling the "redundand single branch match" lint
+        // because we will want to extend this match in future
+        #[allow(clippy::single_match)]
         match &mut self.kind {
             LayoutKind::Grid { grid } => grid.resize(width, height),
             _ => {}

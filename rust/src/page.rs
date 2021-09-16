@@ -57,6 +57,11 @@ impl Page {
         parent.append_child(&self.html_element).unwrap();
     }
 
+    /// Get unmutable list of all layouts in a page
+    pub fn layouts(&self) -> &[Layout] {
+        &self.layouts
+    }
+
     /// Insert a layout into a page
     pub fn insert_layout(&mut self, layout: Layout) {
         layout.append_to(&self.html_element);

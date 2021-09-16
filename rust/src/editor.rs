@@ -1,22 +1,17 @@
 use std::cell::RefCell;
 
-use generational_arena::Index;
 use wasm_bindgen::prelude::*;
 
 mod workspace;
-use web_sys::HtmlElement;
 use workspace::Workspace;
 
 mod parameters_panel;
 use parameters_panel::ParametersPanel;
 
-use crate::{
-    component::{Component, ComponentSource},
-    elements::component::EditorComponentSource,
-};
+use crate::{component::ComponentSource, elements::component::EditorComponentSource};
 
 pub struct EditorState {
-    workspace: Workspace,
+    pub workspace: Workspace,
     parameters_panel: ParametersPanel,
 }
 
@@ -29,27 +24,9 @@ impl EditorState {
         }
     }
 
-    pub fn insert_component(&mut self, value: Component) -> generational_arena::Index {
-        let id = self.workspace.insert_component(value);
-
+    pub fn update_parameters_panel(&mut self) {
         self.parameters_panel
             .update_components_tree(&self.workspace);
-
-        id
-    }
-
-    #[allow(unused)]
-    pub fn remove_component(&mut self, i: generational_arena::Index) -> Option<Component> {
-        let out = self.workspace.remove_component(i);
-
-        self.parameters_panel
-            .update_components_tree(&self.workspace);
-
-        out
-    }
-
-    pub fn insert_component_into_layout(&mut self, layou_elm: &HtmlElement, id: Index) {
-        self.workspace.insert_component_into_layout(layou_elm, id);
     }
 }
 

@@ -40,12 +40,15 @@ impl Component {
         };
 
         let id = crate::editor::with_editor_state(|editor| {
-            let id = editor.insert_component(component.clone());
+            let id = editor.workspace.insert_component(component.clone());
+
             let (number, generation) = id.into_raw_parts();
 
             component
                 .element()
                 .set_id(&format!("component-{}-{}", number, generation));
+
+            editor.update_parameters_panel();
 
             id
         });
@@ -165,7 +168,10 @@ impl Component {
 
                     let id = component.data.borrow().index.unwrap();
 
-                    crate::editor::with_editor_state(|editor| editor.remove_component(id));
+                    crate::editor::with_editor_state(|editor| {
+                        editor.workspace.remove_component(id);
+                        editor.update_parameters_panel();
+                    });
                 }
             });
 
