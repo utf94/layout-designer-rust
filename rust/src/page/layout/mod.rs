@@ -142,8 +142,8 @@ impl Layout {
 }
 
 impl Layout {
-    pub fn insert_component(&mut self, component: (Index, &mut Component)) {
-        self.html_element.append_child(component.1.element());
+    pub fn insert_component(&mut self, component: &mut Component) {
+        self.html_element.append_child(component.element());
 
         // Disabling the "redundand single branch match" lint
         // because we will want to extend this match in future

@@ -91,7 +91,7 @@ impl Workspace {
 
         // If both page and component were found:
         if let (Some(page), Some(component)) = (page, component) {
-            page.insert_component_into_layout(layou_elm, (id, component));
+            page.insert_component_into_layout(layou_elm, component);
         }
     }
 

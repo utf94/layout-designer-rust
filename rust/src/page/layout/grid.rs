@@ -59,7 +59,7 @@ impl GridLayout {
     }
 
     /// Insert new component into the grid
-    pub fn insert_component(&mut self, component: (Index, &mut Component)) {
+    pub fn insert_component(&mut self, component: &mut Component) {
         // unimplemented!("Inser component impl")
     }
 }

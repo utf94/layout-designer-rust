@@ -73,7 +73,7 @@ impl Page {
     pub fn insert_component_into_layout(
         &mut self,
         layou_elm: &HtmlElement,
-        component: (Index, &mut Component),
+        component: &mut Component,
     ) {
         let layout = self.layouts.iter_mut().find(|l| l == &layou_elm);
 
