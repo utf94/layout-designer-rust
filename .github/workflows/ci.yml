@@ -17,4 +17,4 @@ jobs:
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - run: cd rust && cargo test
-      - run: wasm-pack build
+      - run: cd rust && wasm-pack build
