@@ -4,18 +4,20 @@ use web_sys::{Document, HtmlElement};
 use super::grid::Grids;
 use crate::component::Component;
 
-use super::drag_transform::DragTransform;
+mod css_transform;
+use css_transform::CssMoveTransform;
 
 pub struct MoveController {
     document: Document,
     workspace: HtmlElement,
 
     pub component: Component,
-    drag_state: Option<DragTransform>,
+    drag_state: Option<CssMoveTransform>,
     grids: Grids,
 }
 
 impl MoveController {
+    /// Init the move controler for a component
     pub fn new(component: Component) -> Self {
         let window = web_sys::window().unwrap();
         let document = window.document().unwrap();
@@ -33,6 +35,7 @@ impl MoveController {
         }
     }
 
+    /// Start the component drag
     pub fn drag_start(&mut self, event: web_sys::MouseEvent) {
         self.component
             .element()
@@ -59,13 +62,14 @@ impl MoveController {
             .set_property("position", "absolute")
             .unwrap();
 
-        self.drag_state = Some(DragTransform::start(
+        self.drag_state = Some(CssMoveTransform::start(
             self.component.clone(),
             event.client_x(),
             event.client_y(),
         ));
     }
 
+    /// Called when mouse moves
     pub fn mouse_move(&mut self, event: web_sys::MouseEvent) {
         if let Some(drag_state) = self.drag_state.as_mut() {
             drag_state.drag(event.client_x(), event.client_y());
@@ -112,6 +116,7 @@ impl MoveController {
         }
     }
 
+    /// Called when mouse is up
     pub fn mouse_up(&mut self, _event: web_sys::MouseEvent) {
         self.document.set_onmousemove(None);
         self.document.set_onmouseup(None);

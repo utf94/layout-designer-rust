@@ -7,6 +7,9 @@ use crate::{
     page::{layout::Layout, Page},
 };
 
+/// Workspace is an area in the middle of the editor.
+///
+/// All of the pages are placed inside of it.
 pub struct Workspace {
     /// Root html element of the Workspace
     _html_element: HtmlElement,

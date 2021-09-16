@@ -27,18 +27,26 @@ where
             let window = web_sys::window().unwrap();
             let document = window.document().unwrap();
 
+            // Check if there are other drags in progress
+            // If so just ignore the event
             if DRAGING.load(atomic::Ordering::Acquire) {
                 return;
             } else {
+                // Drag is now in progress
                 DRAGING.store(true, atomic::Ordering::Release);
             }
 
+            // Call `mouse_down` callback provided by the caller
+            //
+            // It returns a new callback that we will use to handle drage events
             let cb = mouse_down(event);
+            // It is needed in 2 callback so we ref count it
             let cb = Rc::new(RefCell::new(cb));
 
             let onmousemove = utils::new_listener(cb.clone(), |cb, event: web_sys::MouseEvent| {
                 event.prevent_default();
 
+                // Notify the caller that mouse was moved
                 let mut cb = cb.borrow_mut();
                 cb(DragEvent::MouseMove(event));
             });
@@ -49,9 +57,11 @@ where
                     document.set_onmousemove(None);
                     document.set_onmouseup(None);
 
+                    // Notify the caller that mouse is up, and drag has ended
                     let mut cb = cb.borrow_mut();
                     cb(DragEvent::MouseUp(event));
 
+                    // Drag is no longer in progress
                     DRAGING.store(false, atomic::Ordering::Release);
                 },
             );

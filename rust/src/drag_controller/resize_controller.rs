@@ -13,6 +13,7 @@ struct ResizeState {
 }
 
 impl ResizeState {
+    /// Start the resize of a component
     pub fn start(component: Component, x: i32, y: i32) -> Self {
         let last_x = x;
         let last_y = y;
@@ -24,12 +25,16 @@ impl ResizeState {
         }
     }
 
+    /// Called when mouse is being draged
     pub fn drag(&mut self, grid: Option<&Grid>, x: i32, y: i32) {
         let dx = self.last_x - x;
         let dy = self.last_y - y;
 
         let (w, h) = self.component.size();
 
+        // Check if we are in a gird
+        // If so resize cell by cell
+        // Otherwise just resize freely
         if let Some(_grid) = grid {
             let (pos_x, pos_y) = self.component.grid_pos();
             let (size_x, size_y) = self.component.grid_size();
@@ -103,6 +108,7 @@ pub struct ResizeController {
 }
 
 impl ResizeController {
+    /// Init the move controler for a component
     pub fn new(component: Component) -> Self {
         let window = web_sys::window().unwrap();
         let document = window.document().unwrap();
@@ -117,6 +123,7 @@ impl ResizeController {
         }
     }
 
+    /// Start the component drag
     pub fn drag_start(&mut self, event: web_sys::MouseEvent) {
         self.component
             .element()
@@ -165,6 +172,7 @@ impl ResizeController {
         ));
     }
 
+    /// Called when mouse moves
     pub fn mouse_move(&mut self, event: web_sys::MouseEvent) {
         if let Some(drag_state) = self.drag_state.as_mut() {
             if let Some(elm) = self.grid_element.as_ref() {
@@ -181,6 +189,7 @@ impl ResizeController {
         }
     }
 
+    /// Called when mouse moves
     pub fn mouse_up(&mut self, _event: web_sys::MouseEvent) {
         self.document.set_onmousemove(None);
         self.document.set_onmouseup(None);

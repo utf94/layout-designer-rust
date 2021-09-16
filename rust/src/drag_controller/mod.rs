@@ -1,7 +1,5 @@
 use crate::component::{Component, ComponentSource};
 
-mod drag_transform;
-
 mod drag_listener;
 use drag_listener::{add_drag_listener, DragEvent};
 

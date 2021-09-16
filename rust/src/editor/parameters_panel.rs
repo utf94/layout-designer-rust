@@ -1,36 +1,30 @@
-use std::{cell::RefCell, rc::Rc};
-
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlElement, HtmlInputElement, HtmlTextAreaElement};
 
 use crate::{editor::Workspace, html_elements::component::ComponentPropertie, utils};
 
-struct State {}
-
+/// The panel on the right side of the editor
 pub struct ParametersPanel {
     _root: HtmlElement,
     component_list: HtmlElement,
-    _state: Rc<RefCell<State>>,
 }
 
 impl ParametersPanel {
+    /// Initialize the parameters panel (on the right side of the editor)
     pub fn new() -> Self {
         let document = web_sys::window().unwrap().document().unwrap();
         let root = document.get_element_by_id("parameters").unwrap();
         let root: HtmlElement = root.dyn_into().unwrap();
 
-        let state = State {};
-        let state = Rc::new(RefCell::new(state));
-
         let component_list = document.get_element_by_id("component-list").unwrap();
         let component_list: HtmlElement = component_list.dyn_into().unwrap();
         Self {
             _root: root,
-            _state: state,
             component_list,
         }
     }
 
+    /// Update the list of components
     pub fn update_components_tree(&self, workspace: &Workspace) {
         self.component_list.set_inner_html("");
 
@@ -48,6 +42,8 @@ impl ParametersPanel {
 
             for param in comp.element().descriptor().parameters().iter() {
                 let key = param.name();
+
+                // TODO(poly): Replace this huge messy match with something cleaner
                 match param.data_type() {
                     ComponentPropertie::Color => {
                         let div = document.create_element("div").unwrap();

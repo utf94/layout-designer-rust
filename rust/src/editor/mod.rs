@@ -13,6 +13,7 @@ use crate::{
     html_elements::component::{ComponentDescriptor, EditorComponentSource},
 };
 
+/// The main state of the whole editor
 pub struct EditorState {
     pub workspace: Workspace,
     parameters_panel: ParametersPanel,
@@ -27,6 +28,7 @@ impl EditorState {
         }
     }
 
+    /// Let the parameters pannel know that something in the workspace has changed, and it should update
     pub fn update_parameters_panel(&mut self) {
         self.parameters_panel
             .update_components_tree(&self.workspace);
@@ -34,9 +36,18 @@ impl EditorState {
 }
 
 thread_local! {
+    /// A global variable that stores the state of the editor
+    ///
+    /// The variable is thread local, in order to avoid the need for Mutex.
+    /// With thread local var the RefCell is enought to check mutability rules.
+    ///
+    /// NOTE(poly): Not sure if we want to have global state in the long run,
+    /// but in some parts of the codebase we are in callback hell, so it's easier to just acces a global,
+    /// instead of trying to refcount it across every callback
     static EDITOR_STATE: RefCell<EditorState> = RefCell::new(EditorState::new());
 }
 
+/// Helper function used to acces the global editor state
 pub fn with_editor_state<F, R>(f: F) -> R
 where
     F: FnOnce(&mut EditorState) -> R,
@@ -44,6 +55,7 @@ where
     EDITOR_STATE.with(|s| f(&mut s.borrow_mut()))
 }
 
+/// Editor struct used as an API surface bettwen JS and Rust
 #[wasm_bindgen]
 pub struct Editor {}
 
@@ -62,6 +74,7 @@ impl Editor {
         Self {}
     }
 
+    /// Register a new kind of component
     pub fn register_component(&mut self, desc: JsValue) {
         let descriptor = ComponentDescriptor::new(desc);
         let source = EditorComponentSource::new(descriptor);
