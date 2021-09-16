@@ -8,4 +8,8 @@
   border: 1px solid rgb(190, 190, 190);
 
   box-shadow: 0px 4px 10px 1px rgba(0, 0, 0, 0.05);
+
+  .container:hover {
+    outline: 2px solid #0095f8;
+  }
 }

@@ -3,26 +3,28 @@
   box-shadow: 0 10px 16px 0 rgba(0, 0, 0, 0.01);
   padding: 0px 8px;
 
-  header {
+  tabs-controler {
+    height: 100%;
+  }
+
+  #pages-panel > header {
     display: flex;
     align-items: center;
 
-    border-bottom: 1px solid #ebebeb;
     font-size: 12px;
     font-weight: 600;
 
     height: 40px;
     width: 224px;
 
-    color: #adadad;
-
-    > .active {
-      color: #333333;
-    }
+    color: #333333;
 
     > * {
       margin: 0px 8px;
-      cursor: pointer;
+    }
+
+    #add-page-btn {
+      margin-left: auto;
     }
   }
 

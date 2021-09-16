@@ -84,12 +84,27 @@
       </nav>
 
       <aside class="editor__left-panel">
-        <header>
-          <div>Layers</div>
-          <div class="active">Assets</div>
-        </header>
+        <tabs-controler selectedId="layers">
+          <header>
+            <tab-label tabId="layers">Layers</tab-label>
+            <tab-label tabId="assets">Assets</tab-label>
+          </header>
 
-        <div id="picker"></div>
+          <tab-panel tabId="layers">
+            <div id="pages-panel">
+              <header>
+                <div class="title">Pages</div>
+                <div id="add-page-btn" class="icon-btn-container">
+                  <img src="./img/icons/plus.svg" />
+                </div>
+              </header>
+            </div>
+          </tab-panel>
+
+          <tab-panel tabId="assets">
+            <div id="picker"></div>
+          </tab-panel>
+        </tabs-controler>
       </aside>
 
       <div id="workspace">
@@ -104,67 +119,76 @@
       </div>
 
       <aside class="editor__right-panel">
-        <header>
-          <div class="active">Design</div>
-          <div>Data</div>
-        </header>
+        <tabs-controler selectedId="design">
+          <header>
+            <tab-label tabId="design" class="active">Design</tab-label>
+            <tab-label tabId="data">Data</tab-label>
+            <tab-label tabId="debug">Debug</tab-label>
+          </header>
 
-        <div id="parameters">
-          <section>
-            <div class="title">Page Dimensions</div>
+          <tab-panel tabId="design">
+            <div id="parameters">
+              <section>
+                <div class="title">Page Dimensions</div>
 
-            <div class="page-dimensions">
-              <div>
-                <span>W</span>
-                <input id="page-width-input" type="number" value="765" />
-              </div>
-              <div>
-                <span>H</span>
-                <input disabled type="text" value="Auto" />
-              </div>
+                <div class="page-dimensions">
+                  <div>
+                    <span>W</span>
+                    <input id="page-width-input" type="number" value="765" />
+                  </div>
+                  <div>
+                    <span>H</span>
+                    <input disabled type="text" value="Auto" />
+                  </div>
+                </div>
+              </section>
+
+              <section>
+                <div class="title">Fill</div>
+
+                <div class="page-color">
+                  <input id="page-fill-input" type="color" value="#ffffff" />
+                  <span id="page-fill-span">FFFFFF</span>
+                </div>
+              </section>
             </div>
-          </section>
+          </tab-panel>
 
-          <section>
-            <div class="title">Fill</div>
+          <tab-panel tabId="data"></tab-panel>
 
-            <div class="page-color">
-              <input id="page-fill-input" type="color" value="#ffffff" />
-              <span id="page-fill-span">FFFFFF</span>
-            </div>
-          </section>
-
-          <!-- Debug -->
-          <div
-            style="
-              margin-top: auto;
-              height: 366px;
-              overflow: scroll;
-              opacity: 0.5;
-            "
-          >
-            <div class="title">Debug Section:</div>
-
-            <section
-              style="margin-top: 8px; display: flex; align-items: center"
+          <tab-panel tabId="debug">
+            <!-- Debug -->
+            <div
+              style="
+                overflow-y: scroll;
+                overflow-x: hidden;
+                width: 100%;
+                padding: 8px;
+              "
             >
-              <div class="title" style="margin-right: 5px">JSON Output:</div>
-              <div
-                class="icon-btn-container"
-                style="border: 1px solid black"
-                id="json-preview-btn"
-              >
-                <img src="./img/icons/code.svg" />
-              </div>
-            </section>
+              <div class="title">Debug Section:</div>
 
-            <section style="margin-top: 8px">
-              <div class="title">Page Tree</div>
-              <ul id="component-list"></ul>
-            </section>
-          </div>
-          <!--  -->
-        </div>
+              <section
+                style="margin-top: 8px; display: flex; align-items: center"
+              >
+                <div class="title" style="margin-right: 5px">JSON Output:</div>
+                <div
+                  class="icon-btn-container"
+                  style="border: 1px solid black"
+                  id="json-preview-btn"
+                >
+                  <img src="./img/icons/code.svg" />
+                </div>
+              </section>
+
+              <section style="margin-top: 8px">
+                <div class="title">Page Tree</div>
+                <ul id="component-list"></ul>
+              </section>
+            </div>
+            <!--  -->
+          </tab-panel>
+        </tabs-controler>
       </aside>
 
       <context-menu style="display: none" />
