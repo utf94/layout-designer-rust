@@ -35,7 +35,11 @@ body {
 }
 
 .icon-btn-container:hover {
-  background-color: rgb(230, 230, 230);
+  background-color: #ebebeb;
+
+  img {
+    filter: brightness(0.3);
+  }
 }
 
 .separator-vert {
