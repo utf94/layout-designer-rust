@@ -7,24 +7,54 @@
     height: 100%;
   }
 
-  #pages-panel > header {
-    display: flex;
-    align-items: center;
+  #pages-panel {
+    > header {
+      display: flex;
+      align-items: center;
 
-    font-size: 12px;
-    font-weight: 600;
+      font-size: 12px;
+      font-weight: 600;
 
-    height: 40px;
-    width: 224px;
+      height: 40px;
+      width: 224px;
 
-    color: #333333;
+      color: #333333;
 
-    > * {
-      margin: 0px 8px;
+      > * {
+        margin: 0px 8px;
+      }
+
+      #add-page-btn {
+        margin-left: auto;
+      }
     }
 
-    #add-page-btn {
-      margin-left: auto;
+    .page-item {
+      width: 224px;
+      height: 32px;
+
+      display: flex;
+      justify-content: left;
+      align-items: center;
+
+      .page-item__icon {
+        display: flex;
+        min-width: 16px;
+        min-height: 16px;
+        justify-content: center;
+        align-items: center;
+
+        margin-right: 8px;
+      }
+
+      padding: 8px;
+
+      font-size: 12px;
+      font-weight: 500;
+      color: #333333;
+
+      background: #ebebeb;
+      border-radius: 5px;
     }
   }
 
