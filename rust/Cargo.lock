@@ -56,6 +56,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "gloo-events"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "088514ec8ef284891c762c88a66b639b3a730134714692ee31829765c5bc814f"
+dependencies = [
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
 name = "js-sys"
 version = "0.3.54"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -231,6 +241,7 @@ dependencies = [
  "console_error_panic_hook",
  "console_log",
  "generational-arena",
+ "gloo-events",
  "js-sys",
  "log",
  "ndarray",

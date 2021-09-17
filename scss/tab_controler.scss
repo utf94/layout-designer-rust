@@ -1,0 +1,36 @@
+tabs-controler {
+  display: flex;
+  flex-direction: column;
+
+  > header {
+    display: flex;
+    align-items: center;
+
+    border-bottom: 1px solid #ebebeb;
+    font-size: 12px;
+    font-weight: 600;
+
+    height: 40px;
+    width: 224px;
+
+    color: #adadad;
+
+    > .active {
+      color: #333333;
+    }
+
+    > * {
+      margin: 0px 8px;
+      cursor: pointer;
+    }
+  }
+
+  tab-panel[hidden] {
+    display: none;
+  }
+
+  tab-panel:not(tab-panel[hidden]) {
+    display: flex;
+    flex-direction: column;
+  }
+}

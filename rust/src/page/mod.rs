@@ -56,6 +56,31 @@ impl Page {
         }
     }
 
+    #[allow(unused)]
+    pub fn set_is_selected(&mut self, is: bool) {
+        if is {
+            self.html_element.class_list().add_1("selected").unwrap();
+        } else {
+            self.html_element.class_list().remove_1("selected").unwrap();
+        }
+    }
+
+    /// Determines whether the workspace contains a given html element
+    pub fn contains(&self, elm: &Element) -> bool {
+        self.html_element.contains(Some(elm))
+    }
+
+    ///  Fina component on a page
+    pub fn find_component_by_element(&self, elm: &Element) -> Option<&Component> {
+        let layout = self.layouts.iter().find(|layout| layout.contains(elm));
+        layout.and_then(|layout| {
+            layout
+                .components()
+                .iter()
+                .find(|compoent| compoent.contains(elm))
+        })
+    }
+
     /// Append the page to the element
     ///
     /// Used to append page to the workspace

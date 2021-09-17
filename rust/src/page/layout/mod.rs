@@ -49,6 +49,8 @@ pub struct Layout {
     width: usize,
     /// Layout kind specyfic data
     kind: LayoutKind,
+    /// Children of a layout
+    components: Vec<Component>,
 }
 
 // Init related methods:
@@ -87,6 +89,8 @@ impl Layout {
             height,
             width,
             kind,
+
+            components: Vec::new(),
         }
     }
 
@@ -141,8 +145,20 @@ impl Layout {
 }
 
 impl Layout {
+    /// Determines whether the layout contains a given html element
+    pub fn contains(&self, elm: &Element) -> bool {
+        self.html_element.contains(Some(elm))
+    }
+
+    /// Get list of components stored in a layout
+    pub fn components(&self) -> &[Component] {
+        &self.components
+    }
+
     pub fn insert_component(&mut self, component: &mut Component) {
         self.html_element.append_child(component.element());
+
+        self.components.push(component.clone());
 
         // Disabling the "redundand single branch match" lint
         // because we will want to extend this match in future

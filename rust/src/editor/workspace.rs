@@ -1,6 +1,6 @@
 use generational_arena::{Arena, Index};
 use wasm_bindgen::JsCast;
-use web_sys::HtmlElement;
+use web_sys::{Element, HtmlElement};
 
 use crate::{
     component::Component,
@@ -12,7 +12,7 @@ use crate::{
 /// All of the pages are placed inside of it.
 pub struct Workspace {
     /// Root html element of the Workspace
-    _html_element: HtmlElement,
+    html_element: HtmlElement,
 
     /// List of all components known to the editor
     components: Arena<Component>,
@@ -46,10 +46,15 @@ impl Workspace {
         }
 
         Self {
-            _html_element: html_element,
+            html_element,
             components: Arena::new(),
             pages,
         }
+    }
+
+    /// Determines whether the workspace contains a given html element
+    pub fn contains(&self, elm: &Element) -> bool {
+        self.html_element.contains(Some(elm))
     }
 
     /// Get a page by html element
@@ -64,6 +69,10 @@ impl Workspace {
         self.pages.iter_mut().find(|page| page == &elm)
     }
 
+    pub fn pages(&self) -> &[Page] {
+        &self.pages
+    }
+
     /// Get unmutable ref to the components arena
     ///
     /// Used mostly to iterate over all components.
@@ -75,6 +84,11 @@ impl Workspace {
     /// ```
     pub fn components(&self) -> &Arena<Component> {
         &self.components
+    }
+
+    /// Get mutable ref to the components arena
+    pub fn components_mut(&mut self) -> &mut Arena<Component> {
+        &mut self.components
     }
 
     /// Add new component into workspace

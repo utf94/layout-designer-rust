@@ -124,7 +124,7 @@ impl ResizeController {
     }
 
     /// Start the component drag
-    pub fn drag_start(&mut self, event: web_sys::MouseEvent) {
+    pub fn drag_start(&mut self, event: &web_sys::MouseEvent) {
         self.component
             .element()
             .style()
@@ -154,14 +154,8 @@ impl ResizeController {
 
             if let Some(container) = elements.first() {
                 if container.class_list().contains("grid") {
-                    self.grids.show(container);
-
                     self.grid_element = Some(container.clone());
-                } else {
-                    self.grids.hide();
                 }
-            } else {
-                self.grids.hide();
             }
         }
 
@@ -173,7 +167,7 @@ impl ResizeController {
     }
 
     /// Called when mouse moves
-    pub fn mouse_move(&mut self, event: web_sys::MouseEvent) {
+    pub fn mouse_move(&mut self, event: &web_sys::MouseEvent) {
         if let Some(drag_state) = self.drag_state.as_mut() {
             if let Some(elm) = self.grid_element.as_ref() {
                 drag_state.drag(
@@ -190,7 +184,7 @@ impl ResizeController {
     }
 
     /// Called when mouse moves
-    pub fn mouse_up(&mut self, _event: web_sys::MouseEvent) {
+    pub fn mouse_up(mut self, _event: &web_sys::MouseEvent) {
         self.document.set_onmousemove(None);
         self.document.set_onmouseup(None);
 
@@ -199,8 +193,6 @@ impl ResizeController {
         }
 
         self.component.set_is_selected(false);
-
-        self.grids.hide();
 
         self.component
             .element()

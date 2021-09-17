@@ -3,8 +3,10 @@ layout-container {
   min-height: 76px;
 }
 
-layout-container {
-  border-bottom: 1px dashed rgba(0, 0, 0, 0.3);
+#workspace layout-container {
+  &:hover {
+    outline: 1px solid #0095f8;
+  }
 }
 
 layout-container.flex {
@@ -21,6 +23,39 @@ layout-container.grid {
   grid-template-rows: repeat(auto-fill, 76px);
   justify-items: center;
   align-items: center;
+
+  .grid-svg {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.3s, opacity 0.3s;
+  }
+
+  .grid-placeholder {
+    visibility: hidden;
+    opacity: 0;
+
+    background-color: rgba(0, 0, 0, 0.1);
+    width: 100%;
+    height: 100%;
+
+    transition: visibility 0.5s, opacity 0.5s;
+
+    z-index: 0;
+  }
+}
+
+#workspace layout-container.grid {
+  &:hover {
+    .grid-svg {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .grid-placeholder {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
 }
 
 layout-container.grid > * {
@@ -31,17 +66,6 @@ layout-container.grid > * {
   /* Take all avalible space in the grid cell */
   width: 100%;
   height: 100%;
-}
-
-layout-container.grid .grid-placeholder {
-  background-color: rgba(0, 0, 0, 0.1);
-  width: 100%;
-  height: 100%;
-
-  opacity: 0;
-  transition: visibility 0.5s, opacity 0.5s;
-
-  z-index: 0;
 }
 
 layout-container.free {

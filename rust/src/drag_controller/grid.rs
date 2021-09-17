@@ -1,12 +1,11 @@
 use wasm_bindgen::JsCast;
-use web_sys::{HtmlElement, SvgsvgElement};
+use web_sys::HtmlElement;
 
 /// Temporary Representation Of Grid layout element
 /// Should be replaced by [crate::layout::grid::GridLayout]
 pub struct Grid {
     grid: HtmlElement,
     placeholder: HtmlElement,
-    svg: SvgsvgElement,
 
     pub placeholder_pos: (u32, u32),
     pub placeholder_size: (u32, u32),
@@ -14,31 +13,15 @@ pub struct Grid {
 
 impl Grid {
     fn new(grid: HtmlElement) -> Self {
-        let children = grid.children();
-
-        let mut svg = None;
-        let mut placeholder = None;
-
-        for id in 0..children.length() {
-            let ch = children.item(id).unwrap();
-
-            if ch.class_list().contains("grid-svg") {
-                svg = Some(ch);
-            } else if ch.class_list().contains("grid-placeholder") {
-                placeholder = Some(ch);
-            }
-        }
-
-        let svg = svg.expect("grid svg not found");
-        let svg: SvgsvgElement = svg.dyn_into().unwrap();
-
-        let placeholder = placeholder.expect("grid placeholder  not found");
+        let placeholder = grid
+            .query_selector(".grid-placeholder")
+            .unwrap()
+            .expect("grid placeholder  not found");
         let placeholder: HtmlElement = placeholder.dyn_into().unwrap();
 
         Self {
             grid,
             placeholder,
-            svg,
 
             placeholder_pos: (0, 0),
             placeholder_size: (1, 1),
@@ -129,49 +112,5 @@ impl Grids {
     pub fn get_grid(&self, container: &HtmlElement) -> &Grid {
         let grid = self.grids.iter().find(|g| &g.grid == container);
         grid.unwrap()
-    }
-
-    pub fn show(&mut self, container: &HtmlElement) {
-        self.hide();
-
-        let grid = self
-            .grids
-            .iter_mut()
-            .find(|g| g.grid.is_equal_node(Some(container)));
-        let grid = grid.unwrap();
-
-        grid.svg
-            .style()
-            .set_property("visibility", "visible")
-            .unwrap();
-        grid.svg.style().set_property("opacity", "1").unwrap();
-
-        grid.placeholder
-            .style()
-            .set_property("visibility", "visible")
-            .unwrap();
-        grid.placeholder
-            .style()
-            .set_property("opacity", "1")
-            .unwrap();
-    }
-
-    pub fn hide(&self) {
-        for grid in self.grids.iter() {
-            grid.placeholder
-                .style()
-                .set_property("visibility", "hidden")
-                .unwrap();
-            grid.placeholder
-                .style()
-                .set_property("opacity", "0")
-                .unwrap();
-
-            grid.svg
-                .style()
-                .set_property("visibility", "hidden")
-                .unwrap();
-            grid.svg.style().set_property("opacity", "0").unwrap();
-        }
     }
 }

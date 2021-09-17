@@ -8,6 +8,7 @@ import * as ContextMenu from "./context_menu";
 import * as PageSettings from "./page_settings";
 
 import "./container";
+import "./editor-ui/tab-controler";
 
 export enum DataType {
   Color = "color",

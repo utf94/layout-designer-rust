@@ -1,8 +1,8 @@
 use wasm_bindgen::JsCast;
 
-use web_sys::HtmlElement;
+use web_sys::{Element, HtmlElement};
 
-use crate::{drag_controller, html_elements::component::EditorComponentSource};
+use crate::html_elements::component::EditorComponentSource;
 
 use super::Component;
 
@@ -27,11 +27,12 @@ impl ComponentSource {
         let app = document.get_element_by_id("picker").unwrap();
         app.append_child(&root).unwrap();
 
-        let source = Self { root, source };
+        Self { root, source }
+    }
 
-        drag_controller::add_drag_listener_from_source(&source);
-
-        source
+    /// Determines whether the workspace contains a given html element
+    pub fn contains(&self, elm: &Element) -> bool {
+        self.root.contains(Some(elm))
     }
 
     pub fn new_instance(&self) -> Component {

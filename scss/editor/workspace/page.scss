@@ -8,4 +8,27 @@
   border: 1px solid rgb(190, 190, 190);
 
   box-shadow: 0px 4px 10px 1px rgba(0, 0, 0, 0.05);
+
+  // Layouts are used in debug preview as well, so for now this file is imported from style.scss
+  // @import "./page/layout";
+
+}
+
+.page.selected {
+  outline: 1px solid #0095f8;
+
+  &::before {
+    color: #0095f8;
+  }
+}
+
+.page::before {
+  content: "Home";
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #adadad;
+
+  position: absolute;
+  top: -16px;
 }
