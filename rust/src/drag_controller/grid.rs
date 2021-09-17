@@ -19,11 +19,6 @@ impl Grid {
             .expect("grid placeholder  not found");
         let placeholder: HtmlElement = placeholder.dyn_into().unwrap();
 
-        placeholder
-            .style()
-            .set_property("display", "block")
-            .unwrap();
-
         Self {
             grid,
             placeholder,

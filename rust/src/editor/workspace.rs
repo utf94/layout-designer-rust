@@ -57,19 +57,6 @@ impl Workspace {
         self.html_element.contains(Some(elm))
     }
 
-    /// Called by editor to notify the workspace about click events
-    pub fn on_mouse_click(&mut self, target: &HtmlElement, event: &web_sys::MouseEvent) {
-        for page in self.pages.iter_mut() {
-            if page.contains(target) {
-                page.on_mouse_click(target, event);
-
-                page.set_is_selected(page == target);
-            } else {
-                page.set_is_selected(false);
-            }
-        }
-    }
-
     /// Get a page by html element
     #[allow(unused)]
     pub fn get_page(&self, elm: &HtmlElement) -> Option<&Page> {
@@ -80,6 +67,10 @@ impl Workspace {
     #[allow(unused)]
     pub fn get_page_mut(&mut self, elm: &HtmlElement) -> Option<&mut Page> {
         self.pages.iter_mut().find(|page| page == &elm)
+    }
+
+    pub fn pages(&self) -> &[Page] {
+        &self.pages
     }
 
     /// Get unmutable ref to the components arena
@@ -93,6 +84,11 @@ impl Workspace {
     /// ```
     pub fn components(&self) -> &Arena<Component> {
         &self.components
+    }
+
+    /// Get mutable ref to the components arena
+    pub fn components_mut(&mut self) -> &mut Arena<Component> {
+        &mut self.components
     }
 
     /// Add new component into workspace

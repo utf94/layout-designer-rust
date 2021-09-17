@@ -15,6 +15,7 @@ console_error_panic_hook = "0.1"
 console_log = "0.2.0"
 generational-arena = "0.2.8"
 ndarray = "0.15.3"
+gloo-events = "0.1.1"
 
 [dependencies.web-sys]
 version = "0.3"

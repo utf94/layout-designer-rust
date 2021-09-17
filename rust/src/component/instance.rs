@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use generational_arena::Index;
 use wasm_bindgen::JsCast;
-use web_sys::HtmlElement;
+use web_sys::{Element, HtmlElement};
 
 use crate::{html_elements::component::EditorComponent, utils};
 
@@ -30,32 +30,23 @@ impl Component {
 
         document.body().unwrap().append_child(&element).unwrap();
 
-        let component = Self {
+        Self {
             element,
             data: Rc::new(RefCell::new(InnerData {
                 grid_size: (1, 1),
                 grid_pos: (1, 1),
                 index: None,
             })),
-        };
+        }
+    }
 
-        let id = crate::editor::with_editor_state(|editor| {
-            let id = editor.workspace.insert_component(component.clone());
+    pub fn set_id(&mut self, id: Index) {
+        let (number, generation) = id.into_raw_parts();
 
-            let (number, generation) = id.into_raw_parts();
+        self.element()
+            .set_id(&format!("component-{}-{}", number, generation));
 
-            component
-                .element()
-                .set_id(&format!("component-{}-{}", number, generation));
-
-            editor.update_parameters_panel();
-
-            id
-        });
-
-        component.data.borrow_mut().index = Some(id);
-
-        component
+        self.data.borrow_mut().index = Some(id);
     }
 
     pub fn index(&self) -> Index {
@@ -70,6 +61,11 @@ impl Component {
         self.element
             .parent_element()
             .and_then(|parent| parent.dyn_into().ok())
+    }
+
+    /// Determines whether the workspace contains a given html element
+    pub fn contains(&self, elm: &Element) -> bool {
+        self.element.contains(Some(elm))
     }
 
     fn update_grid_css_properties(&self) {
@@ -161,6 +157,12 @@ impl Component {
         self.element.style().remove_property("position").unwrap();
     }
 
+    /// Unsets absolute pos
+    pub fn unset_size(&self) {
+        self.element.style().remove_property("width").unwrap();
+        self.element.style().remove_property("height").unwrap();
+    }
+
     pub fn remove(&self) {
         self.element.class_list().add_1("death-animation").unwrap();
 
@@ -174,5 +176,17 @@ impl Component {
         self.element
             .add_event_listener_with_callback("animationend", &onanimationend)
             .unwrap();
+    }
+}
+
+impl PartialEq<Element> for Component {
+    fn eq(&self, html_element: &Element) -> bool {
+        self.element.dyn_ref::<Element>().unwrap() == html_element
+    }
+}
+
+impl PartialEq<HtmlElement> for Component {
+    fn eq(&self, html_element: &HtmlElement) -> bool {
+        self.element.dyn_ref::<HtmlElement>().unwrap() == html_element
     }
 }

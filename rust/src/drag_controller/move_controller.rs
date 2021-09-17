@@ -7,6 +7,18 @@ use crate::component::Component;
 mod css_transform;
 use css_transform::CssMoveTransform;
 
+pub enum MoveResult {
+    MovedToLayout {
+        component: Component,
+        absolute_pos: (i32, i32),
+        layout: HtmlElement,
+    },
+    Removed {
+        component: Component,
+    },
+    NotStarted,
+}
+
 pub struct MoveController {
     document: Document,
 
@@ -31,7 +43,7 @@ impl MoveController {
     }
 
     /// Start the component drag
-    pub fn drag_start(&mut self, event: web_sys::MouseEvent) {
+    pub fn drag_start(&mut self, event: &web_sys::MouseEvent) {
         self.component
             .element()
             .style()
@@ -65,7 +77,7 @@ impl MoveController {
     }
 
     /// Called when mouse moves
-    pub fn mouse_move(&mut self, event: web_sys::MouseEvent) {
+    pub fn mouse_move(&mut self, event: &web_sys::MouseEvent) {
         if let Some(drag_state) = self.drag_state.as_mut() {
             drag_state.drag(event.client_x(), event.client_y());
 
@@ -106,9 +118,17 @@ impl MoveController {
     }
 
     /// Called when mouse is up
-    pub fn mouse_up(&mut self, _event: web_sys::MouseEvent) {
+    pub fn mouse_up(mut self, _event: &web_sys::MouseEvent) -> MoveResult {
         self.document.set_onmousemove(None);
         self.document.set_onmouseup(None);
+
+        self.component.set_is_dragged(false);
+
+        self.component
+            .element()
+            .style()
+            .remove_property("pointer-events")
+            .unwrap();
 
         if let Some(drag_state) = self.drag_state.as_mut() {
             let component_rect = self.component.element().get_bounding_client_rect();
@@ -138,6 +158,8 @@ impl MoveController {
                     let grid = self.grids.get_grid(container);
 
                     self.component.unset_absolute_pos();
+                    self.component.unset_size();
+
                     self.component
                         .set_grid_pos((grid.placeholder_pos.0, grid.placeholder_pos.1));
                     self.component
@@ -161,32 +183,19 @@ impl MoveController {
                     .unwrap();
 
                 container.append_child(self.component.element()).unwrap();
-            } else {
-                // We are outside of any layout, so we are removing the component
-                self.component.remove();
 
-                // Remove the component from the editor
-                crate::editor::with_editor_state(|editor| {
-                    editor.workspace.remove_component(self.component.index());
-                    editor.update_parameters_panel();
-                });
-            }
-
-            crate::editor::with_editor_state(|editor| {
-                if let Some(layou_elm) = container {
-                    editor
-                        .workspace
-                        .insert_component_into_layout(layou_elm, self.component.index());
+                MoveResult::MovedToLayout {
+                    component: self.component,
+                    layout: container.clone(),
+                    absolute_pos: new_absolute_pos,
                 }
-            });
+            } else {
+                MoveResult::Removed {
+                    component: self.component,
+                }
+            }
+        } else {
+            MoveResult::NotStarted
         }
-
-        self.component.set_is_dragged(false);
-
-        self.component
-            .element()
-            .style()
-            .remove_property("pointer-events")
-            .unwrap();
     }
 }

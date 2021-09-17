@@ -56,6 +56,7 @@ impl Page {
         }
     }
 
+    #[allow(unused)]
     pub fn set_is_selected(&mut self, is: bool) {
         if is {
             self.html_element.class_list().add_1("selected").unwrap();
@@ -69,8 +70,16 @@ impl Page {
         self.html_element.contains(Some(elm))
     }
 
-    /// Called by Workspace to notify the Page about click events
-    pub fn on_mouse_click(&mut self, _target: &HtmlElement, _event: &web_sys::MouseEvent) {}
+    ///  Fina component on a page
+    pub fn find_component_by_element(&self, elm: &Element) -> Option<&Component> {
+        let layout = self.layouts.iter().find(|layout| layout.contains(elm));
+        layout.and_then(|layout| {
+            layout
+                .components()
+                .iter()
+                .find(|compoent| compoent.contains(elm))
+        })
+    }
 
     /// Append the page to the element
     ///
