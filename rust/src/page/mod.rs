@@ -56,6 +56,22 @@ impl Page {
         }
     }
 
+    pub fn set_is_selected(&mut self, is: bool) {
+        if is {
+            self.html_element.class_list().add_1("selected").unwrap();
+        } else {
+            self.html_element.class_list().remove_1("selected").unwrap();
+        }
+    }
+
+    /// Determines whether the workspace contains a given html element
+    pub fn contains(&self, elm: &Element) -> bool {
+        self.html_element.contains(Some(elm))
+    }
+
+    /// Called by Workspace to notify the Page about click events
+    pub fn on_mouse_click(&mut self, _target: &HtmlElement, _event: &web_sys::MouseEvent) {}
+
     /// Append the page to the element
     ///
     /// Used to append page to the workspace

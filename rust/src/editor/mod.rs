@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 
 use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsCast;
 
 mod workspace;
 use web_sys::HtmlElement;
@@ -12,6 +13,7 @@ use parameters_panel::ParametersPanel;
 use crate::{
     component::ComponentSource,
     html_elements::component::{ComponentDescriptor, EditorComponentSource},
+    utils,
 };
 
 /// The main state of the whole editor
@@ -33,6 +35,16 @@ impl EditorState {
     pub fn update_parameters_panel(&mut self) {
         self.parameters_panel
             .update_components_tree(&self.workspace);
+    }
+
+    fn on_click(&mut self, event: web_sys::MouseEvent) {
+        if let Some(target) = event.target() {
+            if let Ok(elm) = target.dyn_into::<HtmlElement>() {
+                if self.workspace.contains(&elm) {
+                    self.workspace.on_mouse_click(&elm, &event);
+                }
+            }
+        }
     }
 }
 
@@ -56,6 +68,20 @@ where
     EDITOR_STATE.with(|s| f(&mut s.borrow_mut()))
 }
 
+/// Register click listenere for the editor
+fn register_click_listener() {
+    let on_click = utils::new_listener((), |_, event: web_sys::MouseEvent| {
+        with_editor_state(|editor| editor.on_click(event))
+    });
+
+    let document = web_sys::window().unwrap().document().unwrap();
+    document
+        .get_element_by_id("editor")
+        .unwrap()
+        .add_event_listener_with_callback("click", &on_click)
+        .unwrap();
+}
+
 /// Editor struct used as an API surface bettwen JS and Rust
 #[wasm_bindgen]
 pub struct Editor {}
@@ -70,8 +96,10 @@ impl Default for Editor {
 impl Editor {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
-        // Call to thread local `with` method, will cause it to initialize
+        // First Call to thread local `with` method, will cause it to initialize
         with_editor_state(|_| {});
+
+        register_click_listener();
         Self {}
     }
 

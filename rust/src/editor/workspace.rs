@@ -1,6 +1,6 @@
 use generational_arena::{Arena, Index};
 use wasm_bindgen::JsCast;
-use web_sys::HtmlElement;
+use web_sys::{Element, HtmlElement};
 
 use crate::{
     component::Component,
@@ -12,7 +12,7 @@ use crate::{
 /// All of the pages are placed inside of it.
 pub struct Workspace {
     /// Root html element of the Workspace
-    _html_element: HtmlElement,
+    html_element: HtmlElement,
 
     /// List of all components known to the editor
     components: Arena<Component>,
@@ -46,9 +46,27 @@ impl Workspace {
         }
 
         Self {
-            _html_element: html_element,
+            html_element,
             components: Arena::new(),
             pages,
+        }
+    }
+
+    /// Determines whether the workspace contains a given html element
+    pub fn contains(&self, elm: &Element) -> bool {
+        self.html_element.contains(Some(elm))
+    }
+
+    /// Called by editor to notify the workspace about click events
+    pub fn on_mouse_click(&mut self, target: &HtmlElement, event: &web_sys::MouseEvent) {
+        for page in self.pages.iter_mut() {
+            if page.contains(target) {
+                page.on_mouse_click(target, event);
+
+                page.set_is_selected(page == target);
+            } else {
+                page.set_is_selected(false);
+            }
         }
     }
 
