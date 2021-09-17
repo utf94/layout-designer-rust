@@ -4,15 +4,27 @@ use std::collections::HashMap;
 use generational_arena::Index;
 use crate::component::Component;
 
+/// Block Struct to represent position and size of block on grid
+struct Block {
+    /// Top left X starting cell position of block
+    x: usize,
+    /// Top left Y starting cell position of block
+    y: usize,
+    /// Total width of block in cells
+    width: usize,
+    /// Total height of block in cells
+    height: usize,
+}
+
 /// GridComponentData Struct to store component related data inside the grid
 #[derive(Debug)]
 struct GridComponentData {
     /// Reference ID which is stored on the 2D grid
     ref_id: i32,
     /// Top left X starting cell position of component on grid
-    position_x: usize,
+    x: usize,
     /// Top left Y starting cell position of component on grid
-    position_y: usize,
+    y: usize,
     /// Total width of component on grid in cells
     width: usize,
     /// Total height of component on grid in cells
@@ -72,34 +84,51 @@ impl GridLayout {
     /// # Arguments
     /// * `component` - component to to add or update
     pub fn insert_component(&mut self, component: &mut Component) {
-        // If component already exists then update its data on grid map
+        let ref_id : i32;
+        // If component already exists then remove it to insert it again with updated data
         if self.mapping.contains_key(&component.index()) {
-
+            let grid_component_data : GridComponentData = self.mapping.remove(&component.index()).unwrap();
+            let grid_component_block = Block {
+                x: grid_component_data.x,
+                y: grid_component_data.y,
+                width: grid_component_data.width,
+                height: grid_component_data.height,
+            };
+            self.set_data_block(grid_component_block, 0);
+            ref_id = grid_component_data.ref_id;
         }
-        // If component is new then add its data on grid map
+        // If component is new then calculate its new reference id
         else {
             self.ref_id_count += 1;
-            let new_grid_component_data = GridComponentData {
-                ref_id: self.ref_id_count,
-                position_x: component.grid_pos().0 as usize,
-                position_y: component.grid_pos().1 as usize,
-                width: component.grid_size().0 as usize,
-                height: component.grid_size().1 as usize
-            };
-            self.update_data(&new_grid_component_data);
-            // log::debug!("Map {:?}", self.data);
-            self.mapping.insert(component.index(), new_grid_component_data);
+            ref_id = self.ref_id_count;
         }
+        // Insert new or updated component back to mapping and update it on grid
+        let new_grid_component_data = GridComponentData {
+            ref_id: ref_id,
+            x: component.grid_pos().0 as usize,
+            y: component.grid_pos().1 as usize,
+            width: component.grid_size().0 as usize,
+            height: component.grid_size().1 as usize
+        };
+        let grid_component_block = Block {
+            x: new_grid_component_data.x,
+            y: new_grid_component_data.y,
+            width: new_grid_component_data.width,
+            height: new_grid_component_data.height,
+        };
+        self.set_data_block(grid_component_block, new_grid_component_data.ref_id);
+        self.mapping.insert(component.index(), new_grid_component_data);
     }
 
-    /// Update the data on the grid with new reference id for given component
+    /// Set the data on the grid with new value for given block
     ///  
     /// # Arguments
-    /// * `grid_component_data` - Grid component data to update on grid map
-    fn update_data(&mut self, grid_component_data: &GridComponentData) {
-        for i in grid_component_data.position_x..(grid_component_data.position_x + grid_component_data.width) {
-            for j in grid_component_data.position_y..(grid_component_data.position_y + grid_component_data.height) {
-                self.set_data_cell(grid_component_data.ref_id, i, j);
+    /// * `block` - Block representing position and size on grid
+    /// * `value` - Value to write for block
+    fn set_data_block(&mut self, block: Block, value: i32) {
+        for i in block.x..(block.x + block.width) {
+            for j in block.y..(block.y + block.height) {
+                self.set_data_cell(value, i, j);
             }
         }
     }
