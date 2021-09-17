@@ -154,14 +154,8 @@ impl ResizeController {
 
             if let Some(container) = elements.first() {
                 if container.class_list().contains("grid") {
-                    self.grids.show(container);
-
                     self.grid_element = Some(container.clone());
-                } else {
-                    self.grids.hide();
                 }
-            } else {
-                self.grids.hide();
             }
         }
 
@@ -199,8 +193,6 @@ impl ResizeController {
         }
 
         self.component.set_is_selected(false);
-
-        self.grids.hide();
 
         self.component
             .element()

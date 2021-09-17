@@ -90,8 +90,6 @@ impl MoveController {
 
                 if let Some(container) = elements.first() {
                     if container.class_list().contains("grid") {
-                        self.grids.show(container);
-
                         self.grids.resize_placeholder(
                             container,
                             component_rect.width(),
@@ -99,11 +97,7 @@ impl MoveController {
                         );
                         self.grids
                             .move_placeholder_to(container, component_x, component_y);
-                    } else {
-                        self.grids.hide();
                     }
-                } else {
-                    self.grids.hide();
                 }
             }
         } else {
@@ -188,7 +182,6 @@ impl MoveController {
         }
 
         self.component.set_is_dragged(false);
-        self.grids.hide();
 
         self.component
             .element()
