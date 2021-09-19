@@ -39,24 +39,19 @@ layout-container.grid {
     width: 100%;
     height: 100%;
 
-    transition: visibility 0.5s, opacity 0.5s;
+    transition: visibility 0.5s, opacity 0.5s, background-color 0.5s;
 
     z-index: 0;
   }
 
   .grid-placeholder.deny {
-    background-color: rgb(255, 16, 95, 0.7);
+    background-color: rgb(255, 16, 95, 0.5);
   }
 }
 
 #workspace layout-container.grid {
   &:hover {
     .grid-svg {
-      visibility: visible;
-      opacity: 1;
-    }
-
-    .grid-placeholder {
       visibility: visible;
       opacity: 1;
     }
@@ -80,26 +75,4 @@ layout-container.free {
 
 layout-container.free > * {
   position: absolute;
-}
-
-layout-container:after {
-  color: rgb(180, 180, 180);
-  position: absolute;
-  right: -50px;
-}
-
-layout-container.flex:after {
-  content: "Flex";
-}
-
-layout-container.grid:after {
-  content: "Grid";
-}
-
-layout-container.free:after {
-  content: "Free";
-}
-
-layout-container:last-child {
-  height: 100%;
 }

@@ -28,6 +28,10 @@ impl Grid {
         }
     }
 
+    pub fn red_overlay(&self) -> bool {
+        self.placeholder.class_list().contains("deny")
+    }
+
     pub fn set_red_overlay(&self, is: bool) {
         if is {
             self.placeholder.class_list().add_1("deny").unwrap();
@@ -42,6 +46,28 @@ impl Grid {
 
     pub fn placeholder_size(&self) -> (u32, u32) {
         self.placeholder_size
+    }
+
+    pub fn set_placeholder_visible(&self, is: bool) {
+        if is {
+            self.placeholder
+                .style()
+                .set_property("visibility", "visible")
+                .unwrap();
+            self.placeholder
+                .style()
+                .set_property("opacity", "1")
+                .unwrap();
+        } else {
+            self.placeholder
+                .style()
+                .set_property("visibility", "hidden")
+                .unwrap();
+            self.placeholder
+                .style()
+                .set_property("opacity", "0")
+                .unwrap();
+        }
     }
 
     pub fn resize_placeholder(&mut self, w: f64, h: f64) {
@@ -121,5 +147,12 @@ impl Grids {
     pub fn get_grid_mut(&mut self, container: &HtmlElement) -> &mut Grid {
         let grid = self.grids.iter_mut().find(|g| &g.grid == container);
         grid.unwrap()
+    }
+
+    pub fn hide_placeholders(&self) {
+        for grid in self.grids.iter() {
+            grid.set_red_overlay(false);
+            grid.set_placeholder_visible(false);
+        }
     }
 }

@@ -112,6 +112,7 @@ impl MoveController {
                         grid.resize_placeholder(component_rect.width(), component_rect.height());
                         grid.move_placeholder(component_x, component_y);
                         grid.set_red_overlay(false);
+                        grid.set_placeholder_visible(true);
 
                         {
                             let (x, y) = grid.placeholder_pos();
@@ -196,11 +197,13 @@ impl MoveController {
                 if container.class_list().contains("grid") {
                     let grid = self.grids.get_grid(container);
 
-                    self.component.unset_absolute_pos();
-                    self.component.unset_size();
+                    if !grid.red_overlay() {
+                        self.component.unset_absolute_pos();
+                        self.component.unset_size();
 
-                    self.component.set_grid_pos(grid.placeholder_pos());
-                    self.component.set_grid_size(grid.placeholder_size());
+                        self.component.set_grid_pos(grid.placeholder_pos());
+                        self.component.set_grid_size(grid.placeholder_size());
+                    }
                 } else if container.class_list().contains("flex") {
                     self.component.unset_absolute_pos();
                 } else if container.class_list().contains("free") {
@@ -210,6 +213,8 @@ impl MoveController {
 
                     self.component.set_position(pos);
                 }
+
+                self.grids.hide_placeholders();
 
                 // Move has ended so now the layout is responsible for positioning
                 // So we remove the position property
