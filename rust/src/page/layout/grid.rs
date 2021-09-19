@@ -5,7 +5,7 @@ use generational_arena::Index;
 use crate::component::Component;
 
 /// Block Struct to represent position and size of block on grid
-struct Block {
+pub struct Block {
     /// Top left X starting cell position of block
     x: usize,
     /// Top left Y starting cell position of block
@@ -17,7 +17,7 @@ struct Block {
 }
 
 /// GridComponentData Struct to store component related data inside the grid
-struct GridComponentData {
+pub struct GridComponentData {
     /// Reference ID which is stored on the 2D grid
     ref_id: i32,
     /// Top left X starting cell position of component on grid
@@ -33,7 +33,7 @@ struct GridComponentData {
 }
 
 /// GridComponentsDataMap Type for grid component hash mapping [unique ID -> GridComponentData]
-type GridComponentsDataMap = HashMap<Index, GridComponentData>;
+pub type GridComponentsDataMap = HashMap<Index, GridComponentData>;
 
 /// GridLayout Struct to store components information inside the grid
 pub struct GridLayout {
@@ -140,7 +140,7 @@ impl GridLayout {
     ///  
     /// # Arguments
     /// * `block` - Block representing position and size on grid
-    fn get_block_component_indices(&mut self, block: Block) -> Vec<Index> {
+    pub fn get_block_component_indices(&mut self, block: Block) -> Vec<Index> {
         let mut cell_value = 0;
         let mut indices: Vec<Index> = Vec::new();
         for i in block.x..(block.x + block.width) {
@@ -162,21 +162,22 @@ impl GridLayout {
     /// # Arguments
     /// * `x` - X position of cell
     /// * `y` - Y position of cell
-    fn get_cell_component_index(&mut self, x: usize, y: usize) -> Vec<Index> {
-        let mut index: Vec<Index> = Vec::new();
+    pub fn get_cell_component_index(&mut self, x: usize, y: usize) -> Option<Index> {
         let cell_value = self.get_data_cell(x, y);
         if self.mapping_ref_id.contains_key(&cell_value) {
             let component_index = self.mapping_ref_id.get(&cell_value).unwrap();
-            index.push(*component_index);
+            Some(*component_index)
         }
-        {index}
+        else {
+            None
+        }
     }
 
     /// Check if the component is currently overlapping on another component (returns true if overlapping)
     ///  
     /// # Arguments
     /// * `component` - Component to check if its overlapping on another component on grid
-    fn is_component_overlapping(&mut self, component: &mut Component) -> bool {
+    pub fn is_component_overlapping(&mut self, component: &mut Component) -> bool {
         let block = Block {
             x: component.grid_pos().0 as usize,
             y: component.grid_pos().1 as usize,
@@ -203,7 +204,7 @@ impl GridLayout {
     ///  
     /// # Arguments
     /// * `block` - Block representing position and size on grid
-    fn is_data_block_empty(&mut self, block: Block) -> bool {
+    pub fn is_data_block_empty(&mut self, block: Block) -> bool {
         let mut component_sum = 0;
         for i in block.x..(block.x + block.width) {
             for j in block.y..(block.y + block.height) {
@@ -223,7 +224,7 @@ impl GridLayout {
     /// # Arguments
     /// * `block` - Block representing position and size on grid
     /// * `value` - Value to write for block
-    fn set_data_block(&mut self, block: Block, value: i32) {
+    pub fn set_data_block(&mut self, block: Block, value: i32) {
         for i in block.x..(block.x + block.width) {
             for j in block.y..(block.y + block.height) {
                 self.set_data_cell(value, i, j);
@@ -237,7 +238,7 @@ impl GridLayout {
     /// * `value` - Value for cell
     /// * `x` - X position of cell
     /// * `y` - Y position of cell
-    fn set_data_cell(&mut self, value: i32, x: usize, y: usize) {
+    pub fn set_data_cell(&mut self, value: i32, x: usize, y: usize) {
         self.data[[x-1, y-1]] = value;
     }
 
@@ -246,7 +247,7 @@ impl GridLayout {
     /// # Arguments
     /// * `x` - X position of cell
     /// * `y` - Y position of cell
-    fn get_data_cell(&mut self, x: usize, y: usize) -> i32 {
+    pub fn get_data_cell(&mut self, x: usize, y: usize) -> i32 {
         self.data[[x-1, y-1]]
     }
 }
