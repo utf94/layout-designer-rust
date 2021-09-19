@@ -107,6 +107,7 @@ impl MoveController {
                 if let Some(container) = elements.first() {
                     if container.class_list().contains("grid") {
                         let grid = self.grids.get_grid_mut(container);
+                        let component = &self.component;
 
                         grid.resize_placeholder(component_rect.width(), component_rect.height());
                         grid.move_placeholder(component_x, component_y);
@@ -125,11 +126,15 @@ impl MoveController {
                                 if let Some(layout) = page.find_layout_by_element(container) {
                                     match layout.kind() {
                                         LayoutKind::Grid { grid_data, .. } => {
-                                            let is = !grid_data.is_data_block_empty(Block {
+                                            let is = grid_data.get_block_component_indices(Block {
                                                 x: x as usize,
                                                 y: y as usize,
                                                 width: w as usize,
                                                 height: h as usize,
+                                            });
+
+                                            let is = is.iter().any(|i| {
+                                                workspace.components().get(*i) != Some(component)
                                             });
 
                                             if is {

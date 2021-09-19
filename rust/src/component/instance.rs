@@ -190,3 +190,9 @@ impl PartialEq<HtmlElement> for Component {
         self.element.dyn_ref::<HtmlElement>().unwrap() == html_element
     }
 }
+
+impl PartialEq<Component> for Component {
+    fn eq(&self, other: &Component) -> bool {
+        self.element == other.element
+    }
+}

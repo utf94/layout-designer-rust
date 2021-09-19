@@ -76,7 +76,7 @@ extern "C" {
 #[wasm_bindgen(module = "/src/html_elements/component.js")]
 extern "C" {
     #[wasm_bindgen(extends = HtmlElement)]
-    #[derive(Debug, Clone)]
+    #[derive(Debug, Clone, PartialEq)]
     pub type EditorComponent;
 
     #[wasm_bindgen(constructor)]

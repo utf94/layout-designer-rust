@@ -144,7 +144,7 @@ impl GridLayout {
     ///  
     /// # Arguments
     /// * `block` - Block representing position and size on grid
-    pub fn get_block_component_indices(&mut self, block: Block) -> Vec<Index> {
+    pub fn get_block_component_indices(&self, block: Block) -> Vec<Index> {
         let mut cell_value = 0;
         let mut indices: Vec<Index> = Vec::new();
         for i in block.x..(block.x + block.width) {
