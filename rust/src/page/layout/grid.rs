@@ -136,6 +136,42 @@ impl GridLayout {
         self.mapping.insert(component.index(), new_grid_component_data);
     }
 
+    /// Returns the list of Index of all components at a specific block in vector (empty vector if no component) 
+    ///  
+    /// # Arguments
+    /// * `block` - Block representing position and size on grid
+    fn get_block_component_indices(&mut self, block: Block) -> Vec<Index> {
+        let mut cell_value = 0;
+        let mut indices: Vec<Index> = Vec::new();
+        for i in block.x..(block.x + block.width) {
+            for j in block.y..(block.y + block.height) {
+                cell_value = self.get_data_cell(i, j);
+                if self.mapping_ref_id.contains_key(&cell_value) {
+                    let component_index = self.mapping_ref_id.get(&cell_value).unwrap();
+                    if !indices.contains(component_index) {
+                        indices.push(*component_index);
+                    }
+                }
+            }
+        }
+        {indices}
+    }
+
+    /// Returns the Index of component at a specific cell in vector (empty vector if no component) 
+    ///  
+    /// # Arguments
+    /// * `x` - X position of cell
+    /// * `y` - Y position of cell
+    fn get_cell_component_index(&mut self, x: usize, y: usize) -> Vec<Index> {
+        let mut index: Vec<Index> = Vec::new();
+        let cell_value = self.get_data_cell(x, y);
+        if self.mapping_ref_id.contains_key(&cell_value) {
+            let component_index = self.mapping_ref_id.get(&cell_value).unwrap();
+            index.push(*component_index);
+        }
+        {index}
+    }
+
     /// Check if the component is currently overlapping on another component (returns true if overlapping)
     ///  
     /// # Arguments
