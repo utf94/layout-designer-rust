@@ -2,10 +2,7 @@ use generational_arena::{Arena, Index};
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlElement};
 
-use crate::{
-    component::Component,
-    page::{layout::Layout, Page},
-};
+use crate::{component::Component, page::Page};
 
 /// Workspace is an area in the middle of the editor.
 ///
@@ -29,27 +26,16 @@ impl Workspace {
         let html_element = document.get_element_by_id("workspace").unwrap();
         let html_element: HtmlElement = html_element.dyn_into().unwrap();
 
-        let mut pages = Vec::new();
-
-        // Add a debug page
-        {
-            let mut page = Page::new("Home", 765);
-
-            page.append_to(&html_element);
-
-            // Add some debug layouts
-            page.insert_layout(Layout::new_flex(765, 76));
-            page.insert_layout(Layout::new_grid(765, 225, 76));
-            page.insert_layout(Layout::new_free(765, 255));
-
-            pages.push(page);
-        }
-
         Self {
             html_element,
             components: Arena::new(),
-            pages,
+            pages: Vec::new(),
         }
+    }
+
+    pub fn insert_page(&mut self, page: Page) {
+        page.append_to(&self.html_element);
+        self.pages.push(page);
     }
 
     /// Determines whether the workspace contains a given html element
