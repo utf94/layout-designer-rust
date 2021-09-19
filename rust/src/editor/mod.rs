@@ -14,8 +14,12 @@ use parameters_panel::ParametersPanel;
 mod component_picker;
 use component_picker::ComponentPicker;
 
+mod inspector_tree;
+
 use crate::drag_controller::move_controller::{MoveController, MoveResult};
 use crate::drag_controller::resize_controller::ResizeController;
+use crate::page::layout::Layout;
+use crate::page::Page;
 use crate::{
     component::ComponentSource,
     html_elements::component::{ComponentDescriptor, EditorComponentSource},
@@ -33,9 +37,23 @@ pub struct EditorState {
 impl EditorState {
     fn new() -> Self {
         let parameters_panel = ParametersPanel::new();
+
+        let mut workspace = Workspace::new();
+        // Add a debug page
+        {
+            let mut page = Page::new("Home", 765);
+
+            // Add some debug layouts
+            page.insert_layout(Layout::new_flex(765, 76));
+            page.insert_layout(Layout::new_grid(765, 225, 76));
+            page.insert_layout(Layout::new_free(765, 255));
+
+            workspace.insert_page(page);
+        }
+
         Self {
             component_picker: ComponentPicker::new(),
-            workspace: Workspace::new(),
+            workspace,
             parameters_panel,
 
             drag_state: DragState::None,
