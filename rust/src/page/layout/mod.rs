@@ -4,7 +4,7 @@ use generational_arena::Index;
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlElement};
 
-mod grid;
+pub mod grid;
 use grid::GridLayout;
 
 mod free;
@@ -35,7 +35,7 @@ pub enum LayoutKind {
         /// Size of a grid cell in px
         cell_size: usize,
         /// Data related to grid layout implementation
-        grid: GridLayout,
+        grid_data: GridLayout,
     },
 }
 
@@ -131,7 +131,7 @@ impl Layout {
             height,
             LayoutKind::Grid {
                 cell_size,
-                grid: GridLayout::new(grid_w as usize, grid_h as usize),
+                grid_data: GridLayout::new(grid_w as usize, grid_h as usize),
             },
         )
     }
@@ -145,6 +145,10 @@ impl Layout {
 }
 
 impl Layout {
+    pub fn kind(&self) -> &LayoutKind {
+        &self.kind
+    }
+
     /// Determines whether the layout contains a given html element
     pub fn contains(&self, elm: &Element) -> bool {
         self.html_element.contains(Some(elm))
@@ -164,7 +168,9 @@ impl Layout {
         // because we will want to extend this match in future
         #[allow(clippy::single_match)]
         match &mut self.kind {
-            LayoutKind::Grid { grid, .. } => grid.insert_component(component),
+            LayoutKind::Grid {
+                grid_data: grid, ..
+            } => grid.insert_component(component),
             _ => {}
         };
     }
@@ -181,7 +187,10 @@ impl Layout {
         // because we will want to extend this match in future
         #[allow(clippy::single_match)]
         match &mut self.kind {
-            LayoutKind::Grid { grid, cell_size } => {
+            LayoutKind::Grid {
+                grid_data: grid,
+                cell_size,
+            } => {
                 let grid_w = (width as f64 / *cell_size as f64).round();
                 let grid_h = (height as f64 / *cell_size as f64).round();
 

@@ -7,8 +7,8 @@ pub struct Grid {
     grid: HtmlElement,
     placeholder: HtmlElement,
 
-    pub placeholder_pos: (u32, u32),
-    pub placeholder_size: (u32, u32),
+    placeholder_pos: (u32, u32),
+    placeholder_size: (u32, u32),
 }
 
 impl Grid {
@@ -28,14 +28,30 @@ impl Grid {
         }
     }
 
-    fn resize_placeholder(&mut self, w: f64, h: f64) {
+    pub fn set_red_overlay(&self, is: bool) {
+        if is {
+            self.placeholder.class_list().add_1("deny").unwrap();
+        } else {
+            self.placeholder.class_list().remove_1("deny").unwrap();
+        }
+    }
+
+    pub fn placeholder_pos(&self) -> (u32, u32) {
+        self.placeholder_pos
+    }
+
+    pub fn placeholder_size(&self) -> (u32, u32) {
+        self.placeholder_size
+    }
+
+    pub fn resize_placeholder(&mut self, w: f64, h: f64) {
         let div_x = w / 76.0;
         let div_y = h / 76.0;
 
         self.placeholder_size = (div_x.round().max(1.0) as u32, div_y.round().max(1.0) as u32);
     }
 
-    fn move_placeholder(&mut self, x: f64, y: f64) {
+    pub fn move_placeholder(&mut self, x: f64, y: f64) {
         let grid_bbox = self.grid.get_bounding_client_rect();
 
         let grid_w = (grid_bbox.width() / 76.0).floor() as u32;
@@ -97,20 +113,13 @@ impl Grids {
         Self { grids }
     }
 
-    pub fn resize_placeholder(&mut self, container: &HtmlElement, w: f64, h: f64) {
-        let grid = self.grids.iter_mut().find(|g| &g.grid == container);
-        let grid = grid.unwrap();
-        grid.resize_placeholder(w, h);
-    }
-
-    pub fn move_placeholder_to(&mut self, container: &HtmlElement, x: f64, y: f64) {
-        let grid = self.grids.iter_mut().find(|g| &g.grid == container);
-        let grid = grid.unwrap();
-        grid.move_placeholder(x, y);
-    }
-
     pub fn get_grid(&self, container: &HtmlElement) -> &Grid {
         let grid = self.grids.iter().find(|g| &g.grid == container);
+        grid.unwrap()
+    }
+
+    pub fn get_grid_mut(&mut self, container: &HtmlElement) -> &mut Grid {
+        let grid = self.grids.iter_mut().find(|g| &g.grid == container);
         grid.unwrap()
     }
 }

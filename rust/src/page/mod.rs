@@ -70,9 +70,19 @@ impl Page {
         self.html_element.contains(Some(elm))
     }
 
+    ///  Fina layout on a page
+    pub fn find_layout_by_element(&self, elm: &Element) -> Option<&Layout> {
+        self.layouts.iter().find(|layout| layout.contains(elm))
+    }
+
+    ///  Fina layout on a page mutably
+    pub fn find_layout_by_element_mut(&mut self, elm: &Element) -> Option<&mut Layout> {
+        self.layouts.iter_mut().find(|layout| layout.contains(elm))
+    }
+
     ///  Fina component on a page
     pub fn find_component_by_element(&self, elm: &Element) -> Option<&Component> {
-        let layout = self.layouts.iter().find(|layout| layout.contains(elm));
+        let layout = self.find_layout_by_element(elm);
         layout.and_then(|layout| {
             layout
                 .components()

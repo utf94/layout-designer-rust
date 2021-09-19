@@ -43,6 +43,10 @@ layout-container.grid {
 
     z-index: 0;
   }
+
+  .grid-placeholder.deny {
+    background-color: rgb(255, 16, 95, 0.7);
+  }
 }
 
 #workspace layout-container.grid {
