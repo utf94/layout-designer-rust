@@ -76,6 +76,18 @@ export async function run() {
     parameters: {},
   });
 
+  editor.register_component({
+    tag_name: "launch-pagination",
+    parameters: {
+      pages: DataType.Number,
+    },
+  });
+
+  editor.register_component({
+    tag_name: "launch-tabs",
+    parameters: {},
+  });
+
   ContextMenu.connect();
 
   Preview.connect();

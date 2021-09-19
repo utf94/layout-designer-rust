@@ -58,14 +58,17 @@ export class EditorComponent extends HTMLElement {
 
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        if (mutation.type === "attributes") {
+        const type = mutation.type;
+        const attributeName = mutation.attributeName;
+
+        if (type === "attributes") {
           if (
-            mutation.attributeName !== "id" &&
-            mutation.attributeName !== "class" &&
-            mutation.attributeName !== "style"
+            attributeName !== "id" &&
+            attributeName !== "class" &&
+            attributeName !== "style"
           ) {
-            const val = this.getAttribute(mutation.attributeName);
-            this._instance.setAttribute(mutation.attributeName, val);
+            const val = this.getAttribute(attributeName);
+            this._instance.setAttribute(attributeName, val);
           }
         }
       });

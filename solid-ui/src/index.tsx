@@ -86,7 +86,6 @@ customElement(
 customElement("launch-table", {}, (props, _other) => {
   return (
     <SolidUI.Table
-      block={true}
       columns={[
         {
           title: "Name",
@@ -121,3 +120,43 @@ customElement("launch-table", {}, (props, _other) => {
     ></SolidUI.Table>
   );
 });
+
+customElement(
+  "launch-pagination",
+  {
+    pages: 5,
+  },
+  (props, _other) => {
+    return <SolidUI.Pagination pages={props.pages}></SolidUI.Pagination>;
+  }
+);
+
+customElement(
+  "launch-tabs",
+  {
+    activeKey: "tab1",
+    json: encodeURI(
+      JSON.stringify({
+        tabs: [
+          { tab: "Tab 1", key: "tab1", content: "Text 1" },
+          { tab: "Tab 2", key: "tab2", content: "Text 2" },
+          { tab: "Tab 3", key: "tab3", content: "Text 3" },
+        ],
+      })
+    ),
+  },
+  (props, element) => {
+    return (
+      <SolidUI.Tabs
+        activeKey={props.activeKey}
+        onChange={(key) => console.log(element)}
+      >
+        {JSON.parse(decodeURI(props.json)).tabs.map((tab) => (
+          <SolidUI.TabPane tab={tab.tab} key={tab.key}>
+            {tab.content}
+          </SolidUI.TabPane>
+        ))}
+      </SolidUI.Tabs>
+    );
+  }
+);
