@@ -2,12 +2,16 @@ use wasm_bindgen::JsCast;
 use web_sys::{Document, HtmlElement};
 
 use super::grid::Grids;
-use crate::component::Component;
+use crate::{
+    component::Component,
+    editor::workspace::Workspace,
+    page::layout::{grid::Block, LayoutKind},
+};
 
 mod css_transform;
 use css_transform::CssMoveTransform;
 
-pub enum MoveResult {
+pub enum MouseUpResult {
     MovedToLayout {
         component: Component,
         absolute_pos: (i32, i32),
@@ -77,7 +81,7 @@ impl MoveController {
     }
 
     /// Called when mouse moves
-    pub fn mouse_move(&mut self, event: &web_sys::MouseEvent) {
+    pub fn mouse_move(&mut self, workspace: &mut Workspace, event: &web_sys::MouseEvent) {
         if let Some(drag_state) = self.drag_state.as_mut() {
             drag_state.drag(event.client_x(), event.client_y());
 
@@ -102,13 +106,49 @@ impl MoveController {
 
                 if let Some(container) = elements.first() {
                     if container.class_list().contains("grid") {
-                        self.grids.resize_placeholder(
-                            container,
-                            component_rect.width(),
-                            component_rect.height(),
-                        );
-                        self.grids
-                            .move_placeholder_to(container, component_x, component_y);
+                        let grid = self.grids.get_grid_mut(container);
+                        let component = &self.component;
+
+                        grid.resize_placeholder(component_rect.width(), component_rect.height());
+                        grid.move_placeholder(component_x, component_y);
+                        grid.set_red_overlay(false);
+                        grid.set_placeholder_visible(true);
+
+                        {
+                            let (x, y) = grid.placeholder_pos();
+                            let (w, h) = grid.placeholder_size();
+                            // Finda a page that it belongs to
+                            let page = workspace
+                                .pages()
+                                .iter()
+                                .find(|page| page.contains(container));
+
+                            if let Some(page) = page {
+                                if let Some(layout) = page.find_layout_by_element(container) {
+                                    match layout.kind() {
+                                        LayoutKind::Grid { grid_data, .. } => {
+                                            let is = grid_data.get_block_component_indices(Block {
+                                                x: x as usize,
+                                                y: y as usize,
+                                                width: w as usize,
+                                                height: h as usize,
+                                            });
+
+                                            let is = is.iter().any(|i| {
+                                                workspace.components().get(*i) != Some(component)
+                                            });
+
+                                            if is {
+                                                grid.set_red_overlay(true);
+                                            }
+                                        }
+                                        _ => {}
+                                    }
+                                }
+                            }
+
+                            grid.placeholder_pos();
+                        }
                     }
                 }
             }
@@ -118,17 +158,11 @@ impl MoveController {
     }
 
     /// Called when mouse is up
-    pub fn mouse_up(mut self, _event: &web_sys::MouseEvent) -> MoveResult {
+    pub fn mouse_up(mut self, _event: &web_sys::MouseEvent) -> MouseUpResult {
         self.document.set_onmousemove(None);
         self.document.set_onmouseup(None);
 
         self.component.set_is_dragged(false);
-
-        self.component
-            .element()
-            .style()
-            .remove_property("pointer-events")
-            .unwrap();
 
         if let Some(drag_state) = self.drag_state.as_mut() {
             let component_rect = self.component.element().get_bounding_client_rect();
@@ -142,6 +176,12 @@ impl MoveController {
                 (component_x + component_w / 2.0) as f32,
                 (component_y + component_h / 2.0) as f32,
             );
+
+            self.component
+                .element()
+                .style()
+                .remove_property("pointer-events")
+                .unwrap();
 
             let elements: Vec<_> = elements
                 .iter()
@@ -157,13 +197,13 @@ impl MoveController {
                 if container.class_list().contains("grid") {
                     let grid = self.grids.get_grid(container);
 
-                    self.component.unset_absolute_pos();
-                    self.component.unset_size();
+                    if !grid.red_overlay() {
+                        self.component.unset_absolute_pos();
+                        self.component.unset_size();
 
-                    self.component
-                        .set_grid_pos((grid.placeholder_pos.0, grid.placeholder_pos.1));
-                    self.component
-                        .set_grid_size((grid.placeholder_size.0, grid.placeholder_size.1));
+                        self.component.set_grid_pos(grid.placeholder_pos());
+                        self.component.set_grid_size(grid.placeholder_size());
+                    }
                 } else if container.class_list().contains("flex") {
                     self.component.unset_absolute_pos();
                 } else if container.class_list().contains("free") {
@@ -173,6 +213,8 @@ impl MoveController {
 
                     self.component.set_position(pos);
                 }
+
+                self.grids.hide_placeholders();
 
                 // Move has ended so now the layout is responsible for positioning
                 // So we remove the position property
@@ -184,18 +226,25 @@ impl MoveController {
 
                 container.append_child(self.component.element()).unwrap();
 
-                MoveResult::MovedToLayout {
+                MouseUpResult::MovedToLayout {
                     component: self.component,
                     layout: container.clone(),
                     absolute_pos: new_absolute_pos,
                 }
             } else {
-                MoveResult::Removed {
+                MouseUpResult::Removed {
                     component: self.component,
                 }
             }
         } else {
-            MoveResult::NotStarted
+            self.component
+                .element()
+                .style()
+                .remove_property("pointer-events")
+                .unwrap();
+            self.grids.hide_placeholders();
+
+            MouseUpResult::NotStarted
         }
     }
 }

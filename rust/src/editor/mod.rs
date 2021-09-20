@@ -4,7 +4,7 @@ use gloo_events::EventListener;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 
-mod workspace;
+pub mod workspace;
 use web_sys::HtmlElement;
 use workspace::Workspace;
 
@@ -16,7 +16,7 @@ use component_picker::ComponentPicker;
 
 mod inspector_tree;
 
-use crate::drag_controller::move_controller::{MoveController, MoveResult};
+use crate::drag_controller::move_controller::{MouseUpResult, MoveController};
 use crate::drag_controller::resize_controller::ResizeController;
 use crate::page::layout::Layout;
 use crate::page::Page;
@@ -127,7 +127,7 @@ impl EditorState {
             }
             MouseEventKind::MouseMove => {
                 match &mut self.drag_state {
-                    DragState::Move(s) => s.mouse_move(event),
+                    DragState::Move(s) => s.mouse_move(&mut self.workspace, event),
                     DragState::Resize(s) => s.mouse_move(event),
                     _ => {}
                 };
@@ -138,17 +138,17 @@ impl EditorState {
                         let res = drag.mouse_up(event);
 
                         match res {
-                            MoveResult::MovedToLayout {
+                            MouseUpResult::MovedToLayout {
                                 component, layout, ..
                             } => {
                                 self.workspace
                                     .insert_component_into_layout(&layout, component.index());
                             }
-                            MoveResult::Removed { component } => {
+                            MouseUpResult::Removed { component } => {
                                 component.remove();
                                 self.workspace.remove_component(component.index());
                             }
-                            MoveResult::NotStarted => {}
+                            MouseUpResult::NotStarted => {}
                         }
 
                         self.update_parameters_panel();

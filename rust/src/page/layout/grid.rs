@@ -1,23 +1,23 @@
+use crate::component::Component;
+use generational_arena::Index;
 /// Include relevent crates and modules
 use ndarray::Array2;
 use std::collections::HashMap;
-use generational_arena::Index;
-use crate::component::Component;
 
 /// Block Struct to represent position and size of block on grid
-struct Block {
+pub struct Block {
     /// Top left X starting cell position of block
-    x: usize,
+    pub x: usize,
     /// Top left Y starting cell position of block
-    y: usize,
+    pub y: usize,
     /// Total width of block in cells
-    width: usize,
+    pub width: usize,
     /// Total height of block in cells
-    height: usize,
+    pub height: usize,
 }
 
 /// GridComponentData Struct to store component related data inside the grid
-struct GridComponentData {
+pub struct GridComponentData {
     /// Reference ID which is stored on the 2D grid
     ref_id: i32,
     /// Top left X starting cell position of component on grid
@@ -33,7 +33,7 @@ struct GridComponentData {
 }
 
 /// GridComponentsDataMap Type for grid component hash mapping [unique ID -> GridComponentData]
-type GridComponentsDataMap = HashMap<Index, GridComponentData>;
+pub type GridComponentsDataMap = HashMap<Index, GridComponentData>;
 
 /// GridLayout Struct to store components information inside the grid
 pub struct GridLayout {
@@ -53,7 +53,6 @@ pub struct GridLayout {
 
 /// Methods for GridLayout Struct
 impl GridLayout {
-
     /// Create new instance of GridLayout Struct
     ///
     /// # Arguments
@@ -70,7 +69,7 @@ impl GridLayout {
             data,
             mapping,
             mapping_ref_id,
-            ref_id_count
+            ref_id_count,
         }
     }
 
@@ -81,7 +80,7 @@ impl GridLayout {
     /// * `height` - Height of a grid in cells
     pub fn resize(&mut self, width: usize, height: usize) {
         let mut move_cells = 0;
-        let movement_stack : Vec<(i32, GridComponentData)> = Vec::new();
+        let movement_stack: Vec<(i32, GridComponentData)> = Vec::new();
         // If new width is smaller than move components to left (as far as they can go)
         if width < self.width {
             move_cells = self.width - width;
@@ -91,17 +90,20 @@ impl GridLayout {
             move_cells = self.height - height;
         }
     }
-    
+
     /// Insert new or update (position or size) component into the grid
-    /// 
+    ///
     /// # Arguments
     /// * `component` - Component to to add or update
     pub fn insert_component(&mut self, component: &mut Component) {
-        let ref_id : i32;
+        let ref_id: i32;
         // If component already exists then remove it to insert it again with updated data
         if self.mapping.contains_key(&component.index()) {
-            let grid_component_data : GridComponentData = self.mapping.remove(&component.index()).unwrap();
-            self.mapping_ref_id.remove(&grid_component_data.ref_id).unwrap();
+            let grid_component_data: GridComponentData =
+                self.mapping.remove(&component.index()).unwrap();
+            self.mapping_ref_id
+                .remove(&grid_component_data.ref_id)
+                .unwrap();
             let grid_component_block = Block {
                 x: grid_component_data.x,
                 y: grid_component_data.y,
@@ -123,7 +125,7 @@ impl GridLayout {
             y: component.grid_pos().1 as usize,
             width: component.grid_size().0 as usize,
             height: component.grid_size().1 as usize,
-            component: component.clone()
+            component: component.clone(),
         };
         let grid_component_block = Block {
             x: new_grid_component_data.x,
@@ -132,15 +134,56 @@ impl GridLayout {
             height: new_grid_component_data.height,
         };
         self.set_data_block(grid_component_block, new_grid_component_data.ref_id);
-        self.mapping_ref_id.insert(new_grid_component_data.ref_id, component.index());
-        self.mapping.insert(component.index(), new_grid_component_data);
+        self.mapping_ref_id
+            .insert(new_grid_component_data.ref_id, component.index());
+        self.mapping
+            .insert(component.index(), new_grid_component_data);
+    }
+
+    /// Returns the list of Index of all components at a specific block in vector (empty vector if no component)
+    ///  
+    /// # Arguments
+    /// * `block` - Block representing position and size on grid
+    pub fn get_block_component_indices(&self, block: Block) -> Vec<Index> {
+        let mut cell_value = 0;
+        let mut indices: Vec<Index> = Vec::new();
+        for i in block.x..(block.x + block.width) {
+            for j in block.y..(block.y + block.height) {
+                cell_value = self.get_data_cell(i, j);
+                if self.mapping_ref_id.contains_key(&cell_value) {
+                    let component_index = self.mapping_ref_id.get(&cell_value).unwrap();
+                    if !indices.contains(component_index) {
+                        indices.push(*component_index);
+                    }
+                }
+            }
+        }
+        {
+            indices
+        }
+    }
+
+    /// Returns the Index of component at a specific cell in vector (empty vector if no component)
+    ///  
+    /// # Arguments
+    /// * `x` - X position of cell
+    /// * `y` - Y position of cell
+    pub fn get_cell_component_index(&self, x: usize, y: usize) -> Option<Index> {
+        let cell_value = self.get_data_cell(x, y);
+
+        if self.mapping_ref_id.contains_key(&cell_value) {
+            let component_index = self.mapping_ref_id.get(&cell_value).unwrap();
+            Some(*component_index)
+        } else {
+            None
+        }
     }
 
     /// Check if the component is currently overlapping on another component (returns true if overlapping)
     ///  
     /// # Arguments
     /// * `component` - Component to check if its overlapping on another component on grid
-    fn is_component_overlapping(&mut self, component: &mut Component) -> bool {
+    pub fn is_component_overlapping(&mut self, component: &mut Component) -> bool {
         let block = Block {
             x: component.grid_pos().0 as usize,
             y: component.grid_pos().1 as usize,
@@ -156,18 +199,20 @@ impl GridLayout {
             for j in block.y..(block.y + block.height) {
                 if self.get_data_cell(i, j) != 0 && self.get_data_cell(i, j) != ref_id {
                     overlapping = true;
-                    break 'outer
+                    break 'outer;
                 }
             }
         }
-        {overlapping}
+        {
+            overlapping
+        }
     }
 
     /// Check if the block is empty or contain components (returns true if empty)
     ///  
     /// # Arguments
     /// * `block` - Block representing position and size on grid
-    fn is_data_block_empty(&mut self, block: Block) -> bool {
+    pub fn is_data_block_empty(&self, block: Block) -> bool {
         let mut component_sum = 0;
         for i in block.x..(block.x + block.width) {
             for j in block.y..(block.y + block.height) {
@@ -176,8 +221,7 @@ impl GridLayout {
         }
         if component_sum > 0 {
             false
-        }
-        else {
+        } else {
             true
         }
     }
@@ -187,7 +231,7 @@ impl GridLayout {
     /// # Arguments
     /// * `block` - Block representing position and size on grid
     /// * `value` - Value to write for block
-    fn set_data_block(&mut self, block: Block, value: i32) {
+    pub fn set_data_block(&mut self, block: Block, value: i32) {
         for i in block.x..(block.x + block.width) {
             for j in block.y..(block.y + block.height) {
                 self.set_data_cell(value, i, j);
@@ -201,8 +245,8 @@ impl GridLayout {
     /// * `value` - Value for cell
     /// * `x` - X position of cell
     /// * `y` - Y position of cell
-    fn set_data_cell(&mut self, value: i32, x: usize, y: usize) {
-        self.data[[x-1, y-1]] = value;
+    pub fn set_data_cell(&mut self, value: i32, x: usize, y: usize) {
+        self.data[[x - 1, y - 1]] = value;
     }
 
     /// Get the value of data cell on the grid
@@ -210,7 +254,7 @@ impl GridLayout {
     /// # Arguments
     /// * `x` - X position of cell
     /// * `y` - Y position of cell
-    fn get_data_cell(&mut self, x: usize, y: usize) -> i32 {
-        self.data[[x-1, y-1]]
+    pub fn get_data_cell(&self, x: usize, y: usize) -> i32 {
+        self.data[[x - 1, y - 1]]
     }
 }
