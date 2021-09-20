@@ -170,13 +170,7 @@ impl GridLayout {
     /// * `y` - Y position of cell
     pub fn get_cell_component_index(&self, x: usize, y: usize) -> Option<Index> {
         let cell_value = self.get_data_cell(x, y);
-
-        if self.mapping_ref_id.contains_key(&cell_value) {
-            let component_index = self.mapping_ref_id.get(&cell_value).unwrap();
-            Some(*component_index)
-        } else {
-            None
-        }
+        self.mapping_ref_id.get(&cell_value).copied()
     }
 
     /// Check if the component is currently overlapping on another component (returns true if overlapping)
