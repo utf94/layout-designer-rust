@@ -242,6 +242,7 @@ impl MoveController {
                 .style()
                 .remove_property("pointer-events")
                 .unwrap();
+            self.grids.hide_placeholders();
 
             MouseUpResult::NotStarted
         }
