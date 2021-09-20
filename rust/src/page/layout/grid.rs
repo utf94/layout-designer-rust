@@ -132,14 +132,33 @@ impl GridLayout {
         self.set_data_block(grid_component_block, new_grid_component_data.ref_id);
         self.mapping_ref_id.insert(new_grid_component_data.ref_id, component.index());
         self.mapping.insert(component.index(), new_grid_component_data);
+        log::debug!("{:?}", self.data);
     }
 
-    /// Remove existing component from the grid
+    /// Remove existing component from the grid using component reference
     ///
     /// # Arguments
     /// * `component` - Component to remove
     pub fn remove_component(&mut self, component: &mut Component) {
-        
+        self.remove_component_by_index(component.index());
+    }
+
+    /// Remove existing component from the grid using component index
+    ///
+    /// # Arguments
+    /// * `index` - Index of component to remove
+    pub fn remove_component_by_index(&mut self, index: Index) {
+        if self.mapping.contains_key(&index) {
+            let grid_component_data: GridComponentData = self.mapping.remove(&index).unwrap();
+            self.mapping_ref_id.remove(&grid_component_data.ref_id).unwrap();
+            let grid_component_block = Block {
+                x: grid_component_data.x,
+                y: grid_component_data.y,
+                width: grid_component_data.width,
+                height: grid_component_data.height,
+            };
+            self.set_data_block(grid_component_block, 0);
+        }
     }
 
     /// Returns the list of Index of all components at a specific block in vector (empty vector if no component)
