@@ -132,7 +132,6 @@ impl GridLayout {
         self.set_data_block(grid_component_block, new_grid_component_data.ref_id);
         self.mapping_ref_id.insert(new_grid_component_data.ref_id, component.index());
         self.mapping.insert(component.index(), new_grid_component_data);
-        log::debug!("{:?}", self.data);
     }
 
     /// Remove existing component from the grid using component reference
