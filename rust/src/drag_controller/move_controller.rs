@@ -20,7 +20,9 @@ pub enum MouseUpResult {
     Removed {
         component: Component,
     },
-    NotStarted,
+    NotStarted {
+        component: Component,
+    },
 }
 
 pub struct MoveController {
@@ -244,7 +246,9 @@ impl MoveController {
                 .unwrap();
             self.grids.hide_placeholders();
 
-            MouseUpResult::NotStarted
+            MouseUpResult::NotStarted {
+                component: self.component,
+            }
         }
     }
 }

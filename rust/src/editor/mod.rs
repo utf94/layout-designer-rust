@@ -148,7 +148,11 @@ impl EditorState {
                                 component.remove();
                                 self.workspace.remove_component(component.index());
                             }
-                            MouseUpResult::NotStarted => {}
+                            MouseUpResult::NotStarted { component } => {
+                                if !self.workspace.contains(component.element()) {
+                                    component.remove();
+                                }
+                            }
                         }
 
                         self.update_parameters_panel();
