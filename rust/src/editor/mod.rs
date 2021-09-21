@@ -139,14 +139,34 @@ impl EditorState {
 
                         match res {
                             MouseUpResult::MovedToLayout {
-                                component, layout, ..
+                                mut component,
+                                layout,
+                                ..
                             } => {
+                                if let Some(layout) = component.layout() {
+                                    // Finda a page that it belongs to
+                                    let page = self
+                                        .workspace
+                                        .pages_mut()
+                                        .iter_mut()
+                                        .find(|page| page.contains(&layout));
+
+                                    if let Some(page) = page {
+                                        let layout =
+                                            page.layouts_mut().iter_mut().find(|l| **l == layout);
+
+                                        if let Some(layout) = layout {
+                                            layout.remove_component(&mut component);
+                                        }
+                                    }
+                                }
+
                                 self.workspace
                                     .insert_component_into_layout(&layout, component.index());
                             }
-                            MouseUpResult::Removed { component } => {
+                            MouseUpResult::Removed { mut component } => {
                                 component.remove();
-                                self.workspace.remove_component(component.index());
+                                self.workspace.remove_component(&mut component);
                             }
                             MouseUpResult::NotStarted { component } => {
                                 if !self.workspace.contains(component.element()) {

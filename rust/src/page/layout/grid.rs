@@ -98,8 +98,11 @@ impl GridLayout {
         let ref_id: i32;
         // If component already exists then remove it to insert it again with updated data
         if self.mapping.contains_key(&component.index()) {
-            let grid_component_data: GridComponentData = self.mapping.remove(&component.index()).unwrap();
-            self.mapping_ref_id.remove(&grid_component_data.ref_id).unwrap();
+            let grid_component_data: GridComponentData =
+                self.mapping.remove(&component.index()).unwrap();
+            self.mapping_ref_id
+                .remove(&grid_component_data.ref_id)
+                .unwrap();
             let grid_component_block = Block {
                 x: grid_component_data.x,
                 y: grid_component_data.y,
@@ -116,7 +119,7 @@ impl GridLayout {
         }
         // Insert new or updated component back to mapping and update it on grid
         let new_grid_component_data = GridComponentData {
-            ref_id: ref_id,
+            ref_id,
             x: component.grid_pos().0 as usize,
             y: component.grid_pos().1 as usize,
             width: component.grid_size().0 as usize,
@@ -130,8 +133,10 @@ impl GridLayout {
             height: new_grid_component_data.height,
         };
         self.set_data_block(grid_component_block, new_grid_component_data.ref_id);
-        self.mapping_ref_id.insert(new_grid_component_data.ref_id, component.index());
-        self.mapping.insert(component.index(), new_grid_component_data);
+        self.mapping_ref_id
+            .insert(new_grid_component_data.ref_id, component.index());
+        self.mapping
+            .insert(component.index(), new_grid_component_data);
     }
 
     /// Remove existing component from the grid using component reference
@@ -149,7 +154,9 @@ impl GridLayout {
     pub fn remove_component_by_index(&mut self, index: Index) {
         if self.mapping.contains_key(&index) {
             let grid_component_data: GridComponentData = self.mapping.remove(&index).unwrap();
-            self.mapping_ref_id.remove(&grid_component_data.ref_id).unwrap();
+            self.mapping_ref_id
+                .remove(&grid_component_data.ref_id)
+                .unwrap();
             let grid_component_block = Block {
                 x: grid_component_data.x,
                 y: grid_component_data.y,

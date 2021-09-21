@@ -234,6 +234,8 @@ impl MoveController {
                     absolute_pos: new_absolute_pos,
                 }
             } else {
+                self.grids.hide_placeholders();
+
                 MouseUpResult::Removed {
                     component: self.component,
                 }

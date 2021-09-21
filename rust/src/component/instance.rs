@@ -15,6 +15,8 @@ struct InnerData {
     /// Despite the fact that this is an `Option`, it is guaranteed to be initialized
     /// It is Option because we don't know the Index when Component is initialized, we get the id after initialization
     index: Option<Index>,
+
+    layout: Option<HtmlElement>,
 }
 
 /// Instance of a component
@@ -36,6 +38,7 @@ impl Component {
                 grid_size: (1, 1),
                 grid_pos: (1, 1),
                 index: None,
+                layout: None,
             })),
         }
     }
@@ -47,6 +50,14 @@ impl Component {
             .set_id(&format!("component-{}-{}", number, generation));
 
         self.data.borrow_mut().index = Some(id);
+    }
+
+    pub fn layout(&self) -> Option<HtmlElement> {
+        self.data.borrow().layout.clone()
+    }
+
+    pub fn set_layout(&mut self, layout: Option<HtmlElement>) {
+        self.data.borrow_mut().layout = layout;
     }
 
     pub fn index(&self) -> Index {

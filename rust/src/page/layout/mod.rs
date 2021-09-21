@@ -164,6 +164,8 @@ impl Layout {
 
         self.components.push(component.clone());
 
+        component.set_layout(Some(self.html_element.clone()));
+
         // Disabling the "redundand single branch match" lint
         // because we will want to extend this match in future
         #[allow(clippy::single_match)]
@@ -173,6 +175,24 @@ impl Layout {
             } => grid.insert_component(component),
             _ => {}
         };
+    }
+
+    pub fn remove_component(&mut self, component: &mut Component) {
+        let index = self.components.iter().position(|c| c == &*component);
+
+        if let Some(index) = index {
+            self.components.remove(index);
+
+            // Disabling the "redundand single branch match" lint
+            // because we will want to extend this match in future
+            #[allow(clippy::single_match)]
+            match &mut self.kind {
+                LayoutKind::Grid {
+                    grid_data: grid, ..
+                } => grid.remove_component(component),
+                _ => {}
+            };
+        }
     }
 
     pub fn size(&self) -> (usize, usize) {
