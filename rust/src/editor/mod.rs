@@ -14,7 +14,8 @@ use parameters_panel::ParametersPanel;
 mod component_picker;
 use component_picker::ComponentPicker;
 
-mod inspector_tree;
+mod hierarchy;
+use hierarchy::Hierarchy;
 
 use crate::drag_controller::move_controller::{MouseUpResult, MoveController};
 use crate::drag_controller::resize_controller::ResizeController;
@@ -29,6 +30,9 @@ use crate::{
 pub struct EditorState {
     component_picker: ComponentPicker,
     pub workspace: Workspace,
+
+    _hierarchy: Hierarchy,
+
     parameters_panel: ParametersPanel,
 
     drag_state: DragState,
@@ -55,6 +59,8 @@ impl EditorState {
             component_picker: ComponentPicker::new(),
             workspace,
             parameters_panel,
+
+            _hierarchy: Hierarchy::new(),
 
             drag_state: DragState::None,
         }
