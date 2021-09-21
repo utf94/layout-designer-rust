@@ -164,9 +164,9 @@ impl EditorState {
                                 self.workspace
                                     .insert_component_into_layout(&layout, component.index());
                             }
-                            MouseUpResult::Removed { component } => {
+                            MouseUpResult::Removed { mut component } => {
                                 component.remove();
-                                self.workspace.remove_component(component.index());
+                                self.workspace.remove_component(&mut component);
                             }
                             MouseUpResult::NotStarted { component } => {
                                 if !self.workspace.contains(component.element()) {

@@ -89,8 +89,24 @@ impl Workspace {
     /// Remove the component from the workspace
     ///
     /// Tracking it after this is done is not posible
-    pub fn remove_component(&mut self, i: generational_arena::Index) -> Option<Component> {
-        self.components.remove(i)
+    pub fn remove_component(&mut self, component: &mut Component) -> Option<Component> {
+        if let Some(layout) = component.layout() {
+            // Finda a page that it belongs to
+            let page = self
+                .pages_mut()
+                .iter_mut()
+                .find(|page| page.contains(&layout));
+
+            if let Some(page) = page {
+                let layout = page.layouts_mut().iter_mut().find(|l| **l == layout);
+
+                if let Some(layout) = layout {
+                    layout.remove_component(component);
+                }
+            }
+        }
+
+        self.components.remove(component.index())
     }
 
     /// Insert component into a layout
