@@ -153,7 +153,7 @@ impl EditorState {
 
                                     if let Some(page) = page {
                                         let layout =
-                                            page.layouts_mut().iter_mut().find(|l| &**l == &layout);
+                                            page.layouts_mut().iter_mut().find(|l| **l == layout);
 
                                         if let Some(layout) = layout {
                                             layout.remove_component(&mut component);
