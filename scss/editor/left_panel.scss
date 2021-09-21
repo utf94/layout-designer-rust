@@ -91,8 +91,6 @@
     overflow-y: auto;
     overflow-x: hidden;
 
-    padding: 20px 0px;
-
     .component-source {
       display: flex;
 
@@ -112,5 +110,35 @@
         transform: scale(0.8);
       }
     }
+  }
+
+  #layout-picker {
+    display: grid;
+
+    gap: 10px;
+
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-auto-rows: 52px;
+
+    div {
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      background-color: #f1f1f1;
+      color: #b3b3b3;
+
+      border: 1px solid #d3d3d3;
+      border-radius: 5px;
+
+      overflow: hidden;
+    }
+  }
+
+  .assets__title {
+    font-size: 12px;
+    font-weight: 600;
+    margin: 15px 0px;
   }
 }
