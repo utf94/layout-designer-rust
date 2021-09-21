@@ -98,6 +98,11 @@ impl Page {
         &self.layouts
     }
 
+    /// Get mutable list of all layouts in a page
+    pub fn layouts_mut(&mut self) -> &mut [Layout] {
+        &mut self.layouts
+    }
+
     /// Insert a layout into a page
     pub fn insert_layout(&mut self, layout: Layout) {
         layout.append_to(&self.html_element);

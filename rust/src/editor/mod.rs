@@ -18,6 +18,7 @@ mod inspector_tree;
 
 use crate::drag_controller::move_controller::{MouseUpResult, MoveController};
 use crate::drag_controller::resize_controller::ResizeController;
+use crate::page::layout;
 use crate::page::layout::Layout;
 use crate::page::Page;
 use crate::{
@@ -139,8 +140,28 @@ impl EditorState {
 
                         match res {
                             MouseUpResult::MovedToLayout {
-                                component, layout, ..
+                                mut component,
+                                layout,
+                                ..
                             } => {
+                                if let Some(layout) = component.layout() {
+                                    // Finda a page that it belongs to
+                                    let page = self
+                                        .workspace
+                                        .pages_mut()
+                                        .iter_mut()
+                                        .find(|page| page.contains(&layout));
+
+                                    if let Some(page) = page {
+                                        let layout =
+                                            page.layouts_mut().iter_mut().find(|l| &**l == &layout);
+
+                                        if let Some(layout) = layout {
+                                            layout.remove_component(&mut component);
+                                        }
+                                    }
+                                }
+
                                 self.workspace
                                     .insert_component_into_layout(&layout, component.index());
                             }

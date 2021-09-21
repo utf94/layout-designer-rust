@@ -59,6 +59,10 @@ impl Workspace {
         &self.pages
     }
 
+    pub fn pages_mut(&mut self) -> &mut [Page] {
+        &mut self.pages
+    }
+
     /// Get unmutable ref to the components arena
     ///
     /// Used mostly to iterate over all components.
