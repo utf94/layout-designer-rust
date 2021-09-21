@@ -18,7 +18,6 @@ mod inspector_tree;
 
 use crate::drag_controller::move_controller::{MouseUpResult, MoveController};
 use crate::drag_controller::resize_controller::ResizeController;
-use crate::page::layout;
 use crate::page::layout::Layout;
 use crate::page::Page;
 use crate::{
