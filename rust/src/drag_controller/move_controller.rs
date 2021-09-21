@@ -127,7 +127,7 @@ impl MoveController {
 
                             if let Some(page) = page {
                                 if let Some(layout) = page.find_layout_by_element(container) {
-                                    match layout.kind() {
+                                    match &*layout.kind() {
                                         LayoutKind::Grid { grid_data, .. } => {
                                             let is = grid_data.get_block_component_indices(Block {
                                                 x: x as usize,

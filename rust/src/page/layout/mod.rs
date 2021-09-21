@@ -1,5 +1,10 @@
 #![allow(unused)]
 
+use std::{
+    cell::{Ref, RefCell},
+    rc::Rc,
+};
+
 use generational_arena::Index;
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlElement};
@@ -39,10 +44,7 @@ pub enum LayoutKind {
     },
 }
 
-/// Layout struct that represents layout node
-pub struct Layout {
-    /// Root html element of a layout
-    html_element: HtmlElement,
+struct Data {
     /// Height of a layout
     height: usize,
     /// Width of a layout
@@ -51,6 +53,15 @@ pub struct Layout {
     kind: LayoutKind,
     /// Children of a layout
     components: Vec<Component>,
+}
+
+/// Layout struct that represents layout node
+#[derive(Clone)]
+pub struct Layout {
+    /// Root html element of a layout
+    html_element: HtmlElement,
+    /// Inner ref counted data
+    data: Rc<RefCell<Data>>,
 }
 
 // Init related methods:
@@ -86,11 +97,13 @@ impl Layout {
 
         Self {
             html_element,
-            height,
-            width,
-            kind,
+            data: Rc::new(RefCell::new(Data {
+                height,
+                width,
+                kind,
 
-            components: Vec::new(),
+                components: Vec::new(),
+            })),
         }
     }
 
@@ -145,8 +158,8 @@ impl Layout {
 }
 
 impl Layout {
-    pub fn kind(&self) -> &LayoutKind {
-        &self.kind
+    pub fn kind(&self) -> Ref<LayoutKind> {
+        Ref::map(self.data.borrow(), |r| &r.kind)
     }
 
     /// Determines whether the layout contains a given html element
@@ -155,21 +168,22 @@ impl Layout {
     }
 
     /// Get list of components stored in a layout
-    pub fn components(&self) -> &[Component] {
-        &self.components
+    pub fn components(&self) -> Ref<[Component]> {
+        Ref::map(self.data.borrow(), |r| r.components.as_ref())
     }
 
     pub fn insert_component(&mut self, component: &mut Component) {
         self.html_element.append_child(component.element());
 
-        self.components.push(component.clone());
+        let mut data = self.data.borrow_mut();
+        data.components.push(component.clone());
 
         component.set_layout(Some(self.html_element.clone()));
 
         // Disabling the "redundand single branch match" lint
         // because we will want to extend this match in future
         #[allow(clippy::single_match)]
-        match &mut self.kind {
+        match &mut data.kind {
             LayoutKind::Grid {
                 grid_data: grid, ..
             } => grid.insert_component(component),
@@ -178,15 +192,17 @@ impl Layout {
     }
 
     pub fn remove_component(&mut self, component: &mut Component) {
-        let index = self.components.iter().position(|c| c == &*component);
+        let mut data = self.data.borrow_mut();
+
+        let index = data.components.iter().position(|c| c == &*component);
 
         if let Some(index) = index {
-            self.components.remove(index);
+            data.components.remove(index);
 
             // Disabling the "redundand single branch match" lint
             // because we will want to extend this match in future
             #[allow(clippy::single_match)]
-            match &mut self.kind {
+            match &mut data.kind {
                 LayoutKind::Grid {
                     grid_data: grid, ..
                 } => grid.remove_component(component),
@@ -196,17 +212,20 @@ impl Layout {
     }
 
     pub fn size(&self) -> (usize, usize) {
-        (self.width, self.height)
+        let data = self.data.borrow();
+        (data.width, data.height)
     }
 
     pub fn resize(&mut self, width: usize, height: usize) {
-        self.width = width;
-        self.height = height;
+        let mut data = self.data.borrow_mut();
+
+        data.width = width;
+        data.height = height;
 
         // Disabling the "redundand single branch match" lint
         // because we will want to extend this match in future
         #[allow(clippy::single_match)]
-        match &mut self.kind {
+        match &mut data.kind {
             LayoutKind::Grid {
                 grid_data: grid,
                 cell_size,

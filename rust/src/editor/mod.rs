@@ -152,8 +152,8 @@ impl EditorState {
                                         .find(|page| page.contains(&layout));
 
                                     if let Some(page) = page {
-                                        let layout =
-                                            page.layouts_mut().iter_mut().find(|l| **l == layout);
+                                        let mut layouts = page.layouts_mut();
+                                        let layout = layouts.iter_mut().find(|l| **l == layout);
 
                                         if let Some(layout) = layout {
                                             layout.remove_component(&mut component);
