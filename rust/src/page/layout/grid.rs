@@ -1,6 +1,6 @@
+/// Include relevent crates and modules
 use crate::component::Component;
 use generational_arena::Index;
-/// Include relevent crates and modules
 use ndarray::Array2;
 use std::collections::HashMap;
 
@@ -59,7 +59,7 @@ impl GridLayout {
     /// * `width` - Width of a grid in cells
     /// * `height` - Height of a grid in cells
     pub fn new(width: usize, height: usize) -> Self {
-        let data = Array2::<i32>::zeros((width, height));
+        let mut data = Array2::<i32>::zeros((width, height));
         let mapping = HashMap::new();
         let mapping_ref_id = HashMap::new();
         let ref_id_count = 0;
@@ -79,31 +79,27 @@ impl GridLayout {
     /// * `width` - Width of a grid in cells
     /// * `height` - Height of a grid in cells
     pub fn resize(&mut self, width: usize, height: usize) {
-        let mut move_cells = 0;
-        let movement_stack: Vec<(i32, GridComponentData)> = Vec::new();
-        // If new width is smaller than move components to left (as far as they can go)
-        if width < self.width {
-            move_cells = self.width - width;
+        let mut new_data = Array2::<i32>::zeros((width, height));
+        let old_rows = self.data.nrows();
+        let old_cols = self.data.ncols();
+        for i in 0..old_rows {
+            for j in 0..old_cols {
+                new_data[[i, j]] = self.data[[i, j]];
+            }
         }
-        // If new height is smaller than move components to top (as far as they can go)
-        if height < self.height {
-            move_cells = self.height - height;
-        }
+        self.data = new_data;
     }
 
     /// Insert new or update (position or size) component into the grid
     ///
     /// # Arguments
-    /// * `component` - Component to to add or update
+    /// * `component` - Component to add or update
     pub fn insert_component(&mut self, component: &mut Component) {
         let ref_id: i32;
         // If component already exists then remove it to insert it again with updated data
         if self.mapping.contains_key(&component.index()) {
-            let grid_component_data: GridComponentData =
-                self.mapping.remove(&component.index()).unwrap();
-            self.mapping_ref_id
-                .remove(&grid_component_data.ref_id)
-                .unwrap();
+            let grid_component_data: GridComponentData = self.mapping.remove(&component.index()).unwrap();
+            self.mapping_ref_id.remove(&grid_component_data.ref_id).unwrap();
             let grid_component_block = Block {
                 x: grid_component_data.x,
                 y: grid_component_data.y,
@@ -134,10 +130,34 @@ impl GridLayout {
             height: new_grid_component_data.height,
         };
         self.set_data_block(grid_component_block, new_grid_component_data.ref_id);
-        self.mapping_ref_id
-            .insert(new_grid_component_data.ref_id, component.index());
-        self.mapping
-            .insert(component.index(), new_grid_component_data);
+        self.mapping_ref_id.insert(new_grid_component_data.ref_id, component.index());
+        self.mapping.insert(component.index(), new_grid_component_data);
+    }
+
+    /// Remove existing component from the grid using component reference
+    ///
+    /// # Arguments
+    /// * `component` - Component to remove
+    pub fn remove_component(&mut self, component: &mut Component) {
+        self.remove_component_by_index(component.index());
+    }
+
+    /// Remove existing component from the grid using component index
+    ///
+    /// # Arguments
+    /// * `index` - Index of component to remove
+    pub fn remove_component_by_index(&mut self, index: Index) {
+        if self.mapping.contains_key(&index) {
+            let grid_component_data: GridComponentData = self.mapping.remove(&index).unwrap();
+            self.mapping_ref_id.remove(&grid_component_data.ref_id).unwrap();
+            let grid_component_block = Block {
+                x: grid_component_data.x,
+                y: grid_component_data.y,
+                width: grid_component_data.width,
+                height: grid_component_data.height,
+            };
+            self.set_data_block(grid_component_block, 0);
+        }
     }
 
     /// Returns the list of Index of all components at a specific block in vector (empty vector if no component)
@@ -170,13 +190,7 @@ impl GridLayout {
     /// * `y` - Y position of cell
     pub fn get_cell_component_index(&self, x: usize, y: usize) -> Option<Index> {
         let cell_value = self.get_data_cell(x, y);
-
-        if self.mapping_ref_id.contains_key(&cell_value) {
-            let component_index = self.mapping_ref_id.get(&cell_value).unwrap();
-            Some(*component_index)
-        } else {
-            None
-        }
+        self.mapping_ref_id.get(&cell_value).copied()
     }
 
     /// Check if the component is currently overlapping on another component (returns true if overlapping)
