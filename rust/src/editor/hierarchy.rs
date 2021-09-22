@@ -48,10 +48,11 @@ impl Hierarchy {
         new_inspector_tree.set_id(&"inspector-tree");
 
         // Add all pages in hierarchy
-        for i in 0..workspace.pages().len() {
+        for page in workspace.pages() {
             // Get the name of page
-            let mut page_name = i.to_string();
-            page_name.push_str(" Page");
+            // let mut page_name = i.to_string();
+            // page_name.push_str(" Page");
+            let i = 0;
 
             // Create html elements of page
             let page_item_element = document.create_element("div").unwrap();
@@ -73,7 +74,7 @@ impl Hierarchy {
 
             let page_item_name_element = document.create_element("div").unwrap();
             let page_item_name_element: HtmlElement = page_item_name_element.dyn_into().unwrap();
-            page_item_name_element.set_inner_text(&page_name);
+            page_item_name_element.set_inner_text(&page.name());
 
             // Add html elements of page in hierarchy
             page_item_icon_element.append_child(&page_item_icon_img_element);
@@ -82,7 +83,8 @@ impl Hierarchy {
             page_item_element.append_child(&page_item_header_element);
 
             // Add all layouts in page
-            for j in 0..3 {
+            for layout in page.layouts().iter() {
+                let j = 0;
                 // Get the name of layout
                 let mut layout_name = i.to_string();
                 layout_name.push_str(&".");
@@ -126,7 +128,9 @@ impl Hierarchy {
                     .add_1("page-item__layout__children");
 
                 // Add all components in layout
-                for c in 0..3 {
+                for component in layout.components().iter() {
+                    let c = 0;
+
                     let component_item = document.create_element("div").unwrap();
                     let component_item: HtmlElement = component_item.dyn_into().unwrap();
                     component_item.class_list().add_1("page-item__component");

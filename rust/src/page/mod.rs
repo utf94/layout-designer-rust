@@ -15,7 +15,7 @@ struct Data {
     /// The name of a page
     ///
     /// For example `Home`, `Contact`, `News`
-    _name: String,
+    name: String,
 
     /// Width of a page
     width: usize,
@@ -61,12 +61,16 @@ impl Page {
             html_element,
 
             data: Rc::new(RefCell::new(Data {
-                _name: name,
+                name,
                 width,
 
                 layouts: Vec::new(),
             })),
         }
+    }
+
+    pub fn name(&self) -> Ref<str> {
+        Ref::map(self.data.borrow(), |data| data.name.as_ref())
     }
 
     #[allow(unused)]

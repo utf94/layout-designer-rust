@@ -45,6 +45,9 @@ pub enum LayoutKind {
 }
 
 struct Data {
+    /// Name of a layout
+    name: String,
+
     /// Height of a layout
     height: usize,
     /// Width of a layout
@@ -76,15 +79,17 @@ impl Layout {
         let html_element = document.create_element("layout-container").unwrap();
         let html_element: HtmlElement = html_element.dyn_into().unwrap();
 
-        match &kind {
+        let name = match &kind {
             LayoutKind::Free { .. } => {
                 html_element.class_list().add_2("free", "block").unwrap();
+                "Free"
             }
             LayoutKind::Flex { .. } => {
                 html_element
                     .class_list()
                     .add_4("flex", "items-center", "justify-evenly", "flex-wrap")
                     .unwrap();
+                "Flex"
             }
             LayoutKind::Grid { .. } => {
                 html_element
@@ -96,6 +101,7 @@ impl Layout {
                         "items-center",
                     )
                     .unwrap();
+                "Grid"
             }
         };
 
@@ -113,6 +119,7 @@ impl Layout {
         Self {
             html_element,
             data: Rc::new(RefCell::new(Data {
+                name: name.into(),
                 height,
                 width,
                 kind,
@@ -120,6 +127,10 @@ impl Layout {
                 components: Vec::new(),
             })),
         }
+    }
+
+    pub fn name(&self) -> Ref<str> {
+        Ref::map(self.data.borrow(), |data| data.name.as_ref())
     }
 
     /// Creates a new free layout

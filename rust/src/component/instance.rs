@@ -1,4 +1,7 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{
+    cell::{Ref, RefCell},
+    rc::Rc,
+};
 
 use generational_arena::Index;
 use wasm_bindgen::JsCast;
@@ -7,6 +10,8 @@ use web_sys::{Element, HtmlElement};
 use crate::{html_elements::component::EditorComponent, utils};
 
 struct InnerData {
+    name: String,
+
     grid_size: (u32, u32),
     grid_pos: (u32, u32),
 
@@ -35,6 +40,7 @@ impl Component {
         Self {
             element,
             data: Rc::new(RefCell::new(InnerData {
+                name: "Component".into(),
                 grid_size: (1, 1),
                 grid_pos: (1, 1),
                 index: None,
@@ -50,6 +56,10 @@ impl Component {
             .set_id(&format!("component-{}-{}", number, generation));
 
         self.data.borrow_mut().index = Some(id);
+    }
+
+    pub fn name(&self) -> Ref<str> {
+        Ref::map(self.data.borrow(), |data| data.name.as_ref())
     }
 
     pub fn layout(&self) -> Option<HtmlElement> {
