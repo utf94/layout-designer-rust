@@ -6,7 +6,7 @@ use std::{
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlElement};
 
-use crate::component::Component;
+use crate::{component::Component, editor::hierarchy::HierarchyItemData};
 
 pub mod layout;
 use layout::Layout;
@@ -23,6 +23,9 @@ struct Data {
     /// List of layouts inside of a page,
     /// laid out one under the other
     layouts: Vec<Layout>,
+
+    /// Hierarchy related data
+    hierarchy_data: HierarchyItemData,
 }
 
 /// The representation of a Paga
@@ -65,8 +68,18 @@ impl Page {
                 width,
 
                 layouts: Vec::new(),
+
+                hierarchy_data: HierarchyItemData::new(),
             })),
         }
+    }
+
+    pub fn hierarchy_data(&self) -> Ref<HierarchyItemData> {
+        Ref::map(self.data.borrow(), |data| &data.hierarchy_data)
+    }
+
+    pub fn hierarchy_data_mut(&self) -> RefMut<HierarchyItemData> {
+        RefMut::map(self.data.borrow_mut(), |data| &mut data.hierarchy_data)
     }
 
     pub fn name(&self) -> Ref<str> {

@@ -6,6 +6,14 @@ use gloo_events::EventListener;
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlElement};
 
+pub struct HierarchyItemData {}
+
+impl HierarchyItemData {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
 /// Hierarchy Struct to represent inspector in editor
 pub struct Hierarchy {
     /// Root html element of the Hierarchy

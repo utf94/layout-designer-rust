@@ -1,5 +1,5 @@
 use std::{
-    cell::{Ref, RefCell},
+    cell::{Ref, RefCell, RefMut},
     rc::Rc,
 };
 
@@ -7,7 +7,9 @@ use generational_arena::Index;
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlElement};
 
-use crate::{html_elements::component::EditorComponent, utils};
+use crate::{
+    editor::hierarchy::HierarchyItemData, html_elements::component::EditorComponent, utils,
+};
 
 struct InnerData {
     name: String,
@@ -22,6 +24,9 @@ struct InnerData {
     index: Option<Index>,
 
     layout: Option<HtmlElement>,
+
+    /// Hierarchy related data
+    hierarchy_data: HierarchyItemData,
 }
 
 /// Instance of a component
@@ -45,8 +50,18 @@ impl Component {
                 grid_pos: (1, 1),
                 index: None,
                 layout: None,
+
+                hierarchy_data: HierarchyItemData::new(),
             })),
         }
+    }
+
+    pub fn hierarchy_data(&self) -> Ref<HierarchyItemData> {
+        Ref::map(self.data.borrow(), |data| &data.hierarchy_data)
+    }
+
+    pub fn hierarchy_data_mut(&self) -> RefMut<HierarchyItemData> {
+        RefMut::map(self.data.borrow_mut(), |data| &mut data.hierarchy_data)
     }
 
     pub fn set_id(&mut self, id: Index) {

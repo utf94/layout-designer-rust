@@ -1,7 +1,7 @@
 #![allow(unused)]
 
 use std::{
-    cell::{Ref, RefCell},
+    cell::{Ref, RefCell, RefMut},
     rc::Rc,
 };
 
@@ -18,7 +18,7 @@ use free::FreeLayout;
 mod flex;
 use flex::FlexLayout;
 
-use crate::component::Component;
+use crate::{component::Component, editor::hierarchy::HierarchyItemData};
 
 /// Type of a layout
 pub enum LayoutKind {
@@ -56,6 +56,9 @@ struct Data {
     kind: LayoutKind,
     /// Children of a layout
     components: Vec<Component>,
+
+    /// Hierarchy related data
+    hierarchy_data: HierarchyItemData,
 }
 
 /// Layout struct that represents layout node
@@ -125,8 +128,18 @@ impl Layout {
                 kind,
 
                 components: Vec::new(),
+
+                hierarchy_data: HierarchyItemData::new(),
             })),
         }
+    }
+
+    pub fn hierarchy_data(&self) -> Ref<HierarchyItemData> {
+        Ref::map(self.data.borrow(), |data| &data.hierarchy_data)
+    }
+
+    pub fn hierarchy_data_mut(&self) -> RefMut<HierarchyItemData> {
+        RefMut::map(self.data.borrow_mut(), |data| &mut data.hierarchy_data)
     }
 
     pub fn name(&self) -> Ref<str> {

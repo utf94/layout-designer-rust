@@ -14,7 +14,7 @@ use parameters_panel::ParametersPanel;
 mod component_picker;
 use component_picker::ComponentPicker;
 
-mod hierarchy;
+pub mod hierarchy;
 use hierarchy::Hierarchy;
 
 use crate::drag_controller::move_controller::{MouseUpResult, MoveController};
