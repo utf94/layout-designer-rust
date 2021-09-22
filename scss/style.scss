@@ -6,6 +6,8 @@
 @import "editor/workspace/page/layout.scss";
 @import "component";
 
+@import "fake-tailwind";
+
 * {
   box-sizing: border-box;
   user-select: none;

@@ -31,7 +31,7 @@ pub struct EditorState {
     component_picker: ComponentPicker,
     pub workspace: Workspace,
 
-    _hierarchy: Hierarchy,
+    hierarchy: Hierarchy,
 
     parameters_panel: ParametersPanel,
 
@@ -55,12 +55,15 @@ impl EditorState {
             workspace.insert_page(page);
         }
 
+        let hierarchy = Hierarchy::new();
+        hierarchy.update(&workspace);
+
         Self {
             component_picker: ComponentPicker::new(),
             workspace,
             parameters_panel,
 
-            _hierarchy: Hierarchy::new(),
+            hierarchy,
 
             drag_state: DragState::None,
         }
@@ -70,6 +73,7 @@ impl EditorState {
     pub fn update_parameters_panel(&mut self) {
         self.parameters_panel
             .update_components_tree(&self.workspace);
+        self.hierarchy.update(&self.workspace);
     }
 
     fn on_mouse_event(&mut self, kind: MouseEventKind, event: &web_sys::MouseEvent) {

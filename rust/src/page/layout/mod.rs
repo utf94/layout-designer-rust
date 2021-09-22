@@ -76,13 +76,28 @@ impl Layout {
         let html_element = document.create_element("layout-container").unwrap();
         let html_element: HtmlElement = html_element.dyn_into().unwrap();
 
-        let kind_class = match &kind {
-            LayoutKind::Free { .. } => "free",
-            LayoutKind::Flex { .. } => "flex",
-            LayoutKind::Grid { .. } => "grid",
+        match &kind {
+            LayoutKind::Free { .. } => {
+                html_element.class_list().add_2("free", "block").unwrap();
+            }
+            LayoutKind::Flex { .. } => {
+                html_element
+                    .class_list()
+                    .add_4("flex", "items-center", "justify-evenly", "flex-wrap")
+                    .unwrap();
+            }
+            LayoutKind::Grid { .. } => {
+                html_element
+                    .class_list()
+                    .add_4(
+                        "grid",
+                        "grid-cols-10",
+                        "justify-items-center",
+                        "items-center",
+                    )
+                    .unwrap();
+            }
         };
-
-        html_element.class_list().add_1(kind_class).unwrap();
 
         // We don't handle width properly ATM
         //

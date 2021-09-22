@@ -30,6 +30,7 @@ enum LayoutKind {
   Grid = "grid",
 }
 interface Layout {
+  classes: string[];
   kind: LayoutKind;
   height: string;
   components: Component[];
@@ -143,7 +144,15 @@ function generate_page_json(page: HTMLElement): Page {
           return page;
         });
 
+      const classes: string[] = [];
+      ch.classList.forEach((value) => {
+        if (value !== "free" && value !== "container") {
+          classes.push(value);
+        }
+      });
+
       const layout: Layout = {
+        classes,
         kind,
         height,
         components,
