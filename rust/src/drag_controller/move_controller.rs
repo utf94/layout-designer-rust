@@ -61,6 +61,8 @@ impl MoveController {
             let component_rect = self.component.element().get_bounding_client_rect();
             self.component
                 .set_position((component_rect.left() as i32, component_rect.top() as i32));
+            self.component
+                .set_size(component_rect.width(), component_rect.height());
 
             self.document
                 .body()
