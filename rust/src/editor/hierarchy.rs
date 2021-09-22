@@ -57,11 +57,6 @@ impl Hierarchy {
 
         // Add all pages in hierarchy
         for page in workspace.pages() {
-            // Get the name of page
-            // let mut page_name = i.to_string();
-            // page_name.push_str(" Page");
-            let i = 0;
-
             // Create html elements of page
             let page_item_element = document.create_element("div").unwrap();
             let page_item_element: HtmlElement = page_item_element.dyn_into().unwrap();
@@ -92,13 +87,6 @@ impl Hierarchy {
 
             // Add all layouts in page
             for layout in page.layouts().iter() {
-                let j = 0;
-                // Get the name of layout
-                let mut layout_name = i.to_string();
-                layout_name.push_str(&".");
-                layout_name.push_str(&j.to_string());
-                layout_name.push_str(" Layout");
-
                 // Create html elements of layout
                 let layout_item_element = document.create_element("div").unwrap();
                 let layout_item_element: HtmlElement = layout_item_element.dyn_into().unwrap();
@@ -121,7 +109,7 @@ impl Hierarchy {
                 let layout_item_name_element = document.create_element("div").unwrap();
                 let layout_item_name_element: HtmlElement =
                     layout_item_name_element.dyn_into().unwrap();
-                layout_item_name_element.set_inner_text(&layout_name);
+                layout_item_name_element.set_inner_text(&layout.name());
 
                 // Add html elements of layout in page
                 layout_item_icon_element.append_child(&layout_item_icon_img_element);
@@ -137,8 +125,6 @@ impl Hierarchy {
 
                 // Add all components in layout
                 for component in layout.components().iter() {
-                    let c = 0;
-
                     let component_item = document.create_element("div").unwrap();
                     let component_item: HtmlElement = component_item.dyn_into().unwrap();
                     component_item.class_list().add_1("page-item__component");
@@ -156,9 +142,8 @@ impl Hierarchy {
 
                     let component_title = document.create_element("div").unwrap();
 
-                    let component_name = format!("{}.{}.{} Component", i, j, c);
                     let component_title: HtmlElement = component_title.dyn_into().unwrap();
-                    component_title.set_inner_text(&component_name);
+                    component_title.set_inner_text(&component.name());
                     component_item.append_child(&component_title);
 
                     layout_children.append_child(&component_item);
