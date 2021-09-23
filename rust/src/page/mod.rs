@@ -37,7 +37,7 @@ pub struct Page {
     /// Root html element of a page
     ///
     /// Layouts are placed inside of it
-    html_element: HtmlElement,
+    pub html_element: HtmlElement,
 
     /// Inner ref counted data
     data: Rc<RefCell<Data>>,

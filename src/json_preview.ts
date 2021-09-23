@@ -109,6 +109,13 @@ function generate_page_json(page: HTMLElement): Page {
               style_json[key] = value;
             });
 
+          if (kind == LayoutKind.Free) {
+            style_json.position = "absolute";
+          } else if (kind == LayoutKind.Grid) {
+            style_json.width = "100%";
+            style_json.height = "100%";
+          }
+
           const props: Props = {};
           let innerText: string | null = null;
 

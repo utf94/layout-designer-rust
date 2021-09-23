@@ -92,7 +92,35 @@ impl EditorState {
         target: &HtmlElement,
     ) {
         match kind {
-            MouseEventKind::Click => {}
+            MouseEventKind::Click => {
+                let add_btn = web_sys::window()
+                    .unwrap()
+                    .document()
+                    .unwrap()
+                    .get_element_by_id("add-page-btn")
+                    .unwrap();
+
+                if add_btn.contains(Some(&target)) {
+                    for page in self.workspace.pages() {
+                        page.html_element
+                            .style()
+                            .set_property("display", "none")
+                            .unwrap();
+                    }
+                    // Add a debug page
+                    {
+                        let mut page = Page::new("Home", 765);
+
+                        // Add some debug layouts
+                        page.insert_layout(Layout::new_flex(765, 76));
+                        page.insert_layout(Layout::new_grid(765, 225, 76));
+                        page.insert_layout(Layout::new_free(765, 255));
+
+                        self.workspace.insert_page(page);
+                        self.update_parameters_panel();
+                    }
+                }
+            }
             MouseEventKind::MouseDown => {
                 if self.drag_state.is_none() {
                     // If clicked element is in a workspace

@@ -4,6 +4,24 @@ layout-container {
   overflow: hidden;
 }
 
+layout-container.dragover {
+  display: block;
+  background-color: rgba(255, 100, 100, 0.5);
+}
+
+.layout-drop-area {
+  background-color: rgb(240, 240, 240);
+  background-image: url("/img/icons/plus.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+
+  height: 50px;
+}
+
+.layout-drop-area.dragover {
+  outline: 1px solid #0095f8;
+}
+
 #workspace layout-container {
   &:hover {
     outline: 1px solid #0095f8;
