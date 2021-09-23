@@ -1,7 +1,7 @@
 #![allow(unused)]
+/// Include relevent crates and modules
 use super::Workspace;
 use crate::page::Page;
-/// Include relevent crates and modules
 use gloo_events::EventListener;
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlElement};
@@ -63,16 +63,14 @@ impl Hierarchy {
             page_item_element.set_class_name("page-item");
 
             let page_item_header_element = document.create_element("header").unwrap();
-            let page_item_header_element: HtmlElement =
-                page_item_header_element.dyn_into().unwrap();
+            let page_item_header_element: HtmlElement = page_item_header_element.dyn_into().unwrap();
 
             let page_item_icon_element = document.create_element("div").unwrap();
             let page_item_icon_element: HtmlElement = page_item_icon_element.dyn_into().unwrap();
             page_item_icon_element.set_class_name("page-item__icon");
 
             let page_item_icon_img_element = document.create_element("img").unwrap();
-            let page_item_icon_img_element: HtmlElement =
-                page_item_icon_img_element.dyn_into().unwrap();
+            let page_item_icon_img_element: HtmlElement = page_item_icon_img_element.dyn_into().unwrap();
             page_item_icon_img_element.set_attribute(&"src", &"./img/icons/arrow_down.svg");
 
             let page_item_name_element = document.create_element("div").unwrap();
@@ -93,22 +91,18 @@ impl Hierarchy {
                 layout_item_element.set_class_name("page-item__children");
 
                 let layout_item_header_element = document.create_element("header").unwrap();
-                let layout_item_header_element: HtmlElement =
-                    layout_item_header_element.dyn_into().unwrap();
+                let layout_item_header_element: HtmlElement = layout_item_header_element.dyn_into().unwrap();
 
                 let layout_item_icon_element = document.create_element("div").unwrap();
-                let layout_item_icon_element: HtmlElement =
-                    layout_item_icon_element.dyn_into().unwrap();
+                let layout_item_icon_element: HtmlElement = layout_item_icon_element.dyn_into().unwrap();
                 layout_item_icon_element.set_class_name("page-item__icon");
 
                 let layout_item_icon_img_element = document.create_element("img").unwrap();
-                let layout_item_icon_img_element: HtmlElement =
-                    layout_item_icon_img_element.dyn_into().unwrap();
+                let layout_item_icon_img_element: HtmlElement = layout_item_icon_img_element.dyn_into().unwrap();
                 layout_item_icon_img_element.set_attribute(&"src", &"./img/icons/arrow_down.svg");
 
                 let layout_item_name_element = document.create_element("div").unwrap();
-                let layout_item_name_element: HtmlElement =
-                    layout_item_name_element.dyn_into().unwrap();
+                let layout_item_name_element: HtmlElement = layout_item_name_element.dyn_into().unwrap();
                 layout_item_name_element.set_inner_text(&layout.name());
 
                 // Add html elements of layout in page
@@ -117,39 +111,38 @@ impl Hierarchy {
                 layout_item_header_element.append_child(&layout_item_name_element);
                 layout_item_element.append_child(&layout_item_header_element);
 
-                let layout_children = document.create_element("div").unwrap();
-                let layout_children: HtmlElement = layout_children.dyn_into().unwrap();
-                layout_children
-                    .class_list()
-                    .add_1("page-item__layout__children");
+                // Add html element of layout children container
+                let layout_item_children_element = document.create_element("div").unwrap();
+                let layout_item_children_element: HtmlElement = layout_item_children_element.dyn_into().unwrap();
+                layout_item_children_element.class_list().add_1("page-item__layout__children");
 
                 // Add all components in layout
                 for component in layout.components().iter() {
-                    let component_item = document.create_element("div").unwrap();
-                    let component_item: HtmlElement = component_item.dyn_into().unwrap();
-                    component_item.class_list().add_1("page-item__component");
+                    let component_item_element = document.create_element("div").unwrap();
+                    let component_item_element: HtmlElement = component_item_element.dyn_into().unwrap();
+                    component_item_element.class_list().add_1("page-item__component");
 
-                    let icon_element = document.create_element("div").unwrap();
-                    let icon_element: HtmlElement = icon_element.dyn_into().unwrap();
-                    icon_element.set_class_name("page-item__component_icon");
-                    component_item.append_child(&icon_element);
+                    let component_item_icon_element = document.create_element("div").unwrap();
+                    let component_item_icon_element: HtmlElement = component_item_icon_element.dyn_into().unwrap();
+                    component_item_icon_element.set_class_name("page-item__component_icon");
 
-                    let icon_img_element = document.create_element("img").unwrap();
-                    let icon_img_element: HtmlElement = icon_img_element.dyn_into().unwrap();
-                    icon_img_element.set_attribute(&"src", &"./img/icons/check.svg");
+                    let component_item_icon_img_element = document.create_element("img").unwrap();
+                    let component_item_icon_img_element: HtmlElement = component_item_icon_img_element.dyn_into().unwrap();
+                    component_item_icon_img_element.set_attribute(&"src", &"./img/icons/check.svg");
 
-                    icon_element.append_child(&icon_img_element);
+                    let component_item_name_element = document.create_element("div").unwrap();
+                    let component_item_name_element: HtmlElement = component_item_name_element.dyn_into().unwrap();
+                    component_item_name_element.set_inner_text(&component.name());
 
-                    let component_title = document.create_element("div").unwrap();
-
-                    let component_title: HtmlElement = component_title.dyn_into().unwrap();
-                    component_title.set_inner_text(&component.name());
-                    component_item.append_child(&component_title);
-
-                    layout_children.append_child(&component_item);
+                    // Add html elements of component in layout children container
+                    component_item_icon_element.append_child(&component_item_icon_img_element);
+                    component_item_element.append_child(&component_item_icon_element);
+                    component_item_element.append_child(&component_item_name_element);
+                    layout_item_children_element.append_child(&component_item_element);
                 }
 
-                layout_item_element.append_child(&layout_children);
+                // Add layout children container in layout
+                layout_item_element.append_child(&layout_item_children_element);
 
                 // Add layout in page
                 page_item_element.append_child(&layout_item_element);
@@ -160,8 +153,7 @@ impl Hierarchy {
         }
 
         // Replace the html element for hierarchy
-        self.html_element
-            .replace_child(&new_inspector_tree, &inspector_tree);
+        self.html_element.replace_child(&new_inspector_tree, &inspector_tree);
     }
 
     /// Determines whether the tree contains a given html element
