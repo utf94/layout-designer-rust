@@ -28,6 +28,10 @@ layout-container.dragover {
   }
 }
 
+#workspace layout-container.selected {
+  outline: 1px solid #0095f8;
+}
+
 layout-container.flex {
   display: flex;
   justify-content: space-evenly;

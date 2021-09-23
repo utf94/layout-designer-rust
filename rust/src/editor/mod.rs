@@ -26,6 +26,8 @@ use crate::{
     html_elements::component::{ComponentDescriptor, EditorComponentSource},
 };
 
+use self::workspace::Selection;
+
 /// The main state of the whole editor
 pub struct EditorState {
     component_picker: ComponentPicker,
@@ -70,7 +72,7 @@ impl EditorState {
     }
 
     /// Let the parameters pannel know that something in the workspace has changed, and it should update
-    pub fn update_parameters_panel(&mut self) {
+    pub fn update_tree(&mut self) {
         self.parameters_panel
             .update_components_tree(&self.workspace);
         self.hierarchy.update(&self.workspace);
@@ -109,15 +111,27 @@ impl EditorState {
                     }
                     // Add a debug page
                     {
-                        let mut page = Page::new("Home", 765);
-
-                        // Add some debug layouts
-                        page.insert_layout(Layout::new_flex(765, 76));
-                        page.insert_layout(Layout::new_grid(765, 225, 76));
-                        page.insert_layout(Layout::new_free(765, 255));
+                        let page = Page::new("Home", 765);
 
                         self.workspace.insert_page(page);
-                        self.update_parameters_panel();
+                        self.update_tree();
+                    }
+                } else if self.workspace.contains(target) {
+                    // Finda a page that it belongs to
+                    let page = self
+                        .workspace
+                        .pages()
+                        .iter()
+                        .find(|page| page.contains(target));
+
+                    if let Some(page) = page {
+                        let layout = page.layouts().iter().find(|l| l == &target).cloned();
+
+                        if let Some(layout) = layout {
+                            if event.button() == 0 {
+                                self.workspace.set_selection(Selection::Layout(layout))
+                            }
+                        }
                     }
                 }
             }
@@ -213,7 +227,7 @@ impl EditorState {
                             }
                         }
 
-                        self.update_parameters_panel();
+                        self.update_tree();
                     }
                     DragState::Resize(drag) => {
                         drag.mouse_up(event);

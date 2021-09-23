@@ -134,6 +134,14 @@ impl Layout {
         }
     }
 
+    pub fn set_is_selected(&mut self, is: bool) {
+        if is {
+            self.html_element.class_list().add_1("selected").unwrap();
+        } else {
+            self.html_element.class_list().remove_1("selected").unwrap();
+        }
+    }
+
     pub fn hierarchy_data(&self) -> Ref<HierarchyItemData> {
         Ref::map(self.data.borrow(), |data| &data.hierarchy_data)
     }
