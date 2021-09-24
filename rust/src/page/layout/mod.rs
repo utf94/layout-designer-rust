@@ -134,6 +134,16 @@ impl Layout {
         }
     }
 
+    pub fn close_icon_element(&self) -> HtmlElement {
+        let close_icon_element = self
+            .html_element
+            .query_selector(".container__close-icon")
+            .unwrap()
+            .unwrap();
+        let close_icon_element: HtmlElement = close_icon_element.dyn_into().unwrap();
+        close_icon_element
+    }
+
     pub fn set_is_selected(&mut self, is: bool) {
         if is {
             self.html_element.class_list().add_1("selected").unwrap();
@@ -289,6 +299,14 @@ impl Layout {
                 grid.resize(grid_w, grid_h as usize);
             }
             _ => {}
+        }
+    }
+
+    pub fn remove(self) {
+        self.html_element.remove();
+
+        for component in self.data.borrow_mut().components.iter_mut() {
+            component.remove();
         }
     }
 }

@@ -142,6 +142,16 @@ impl Page {
         RefMut::map(self.data.borrow_mut(), |d| d.layouts.as_mut())
     }
 
+    pub fn remove_layout(&mut self, id: usize) -> Option<Layout> {
+        let mut data = self.data.borrow_mut();
+
+        if data.layouts.get(id).is_some() {
+            Some(data.layouts.remove(id))
+        } else {
+            None
+        }
+    }
+
     /// Insert a layout into a page
     pub fn insert_layout(&mut self, layout: Layout, index: Option<usize>) {
         if let Some(index) = index {

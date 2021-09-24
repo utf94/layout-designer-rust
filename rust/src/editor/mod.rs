@@ -120,8 +120,8 @@ impl EditorState {
                     // Finda a page that it belongs to
                     let page = self
                         .workspace
-                        .pages()
-                        .iter()
+                        .pages_mut()
+                        .iter_mut()
                         .find(|page| page.contains(target));
 
                     if let Some(page) = page {
@@ -130,6 +130,22 @@ impl EditorState {
                         if let Some(layout) = layout {
                             if event.button() == 0 {
                                 self.workspace.set_selection(Selection::Layout(layout))
+                            }
+                        } else {
+                            let layout = page
+                                .layouts()
+                                .iter()
+                                .position(|l| l.close_icon_element().contains(Some(target)));
+                            if let Some(id) = layout {
+                                if let Some(layout) = page.remove_layout(id) {
+                                    for component in layout.components().iter() {
+                                        component.remove();
+                                        self.workspace.components_mut().remove(component.index());
+                                    }
+
+                                    layout.remove();
+                                    self.update_tree();
+                                }
                             }
                         }
                     }

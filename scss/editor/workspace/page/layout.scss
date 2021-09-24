@@ -1,7 +1,6 @@
 layout-container {
   width: 100%;
   min-height: 76px;
-  overflow: hidden;
 }
 
 layout-container.dragover {
@@ -26,10 +25,39 @@ layout-container.dragover {
   &:hover {
     outline: 1px solid #0095f8;
   }
+
+  .container__close-icon {
+    position: absolute;
+    top: -16px;
+    right: 0px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 16px;
+    height: 16px;
+
+    border-radius: 4px;
+
+    visibility: hidden;
+
+    &:hover {
+      background-color: #ebebeb;
+
+      img {
+        filter: brightness(0.3);
+      }
+    }
+  }
 }
 
 #workspace layout-container.selected {
   outline: 1px solid #0095f8;
+
+  .container__close-icon {
+    visibility: visible;
+  }
 }
 
 layout-container.flex {
