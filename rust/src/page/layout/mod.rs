@@ -281,8 +281,6 @@ impl Layout {
                 let grid_w = 10;
                 let grid_h = (height as f64 / *cell_size as f64).round();
 
-                log::info!("{},{}", grid_w, grid_h);
-
                 self.html_element.style().set_property(
                     "grid-template-rows",
                     &format!("repeat(auto-fill, {}px)", cell_size),
