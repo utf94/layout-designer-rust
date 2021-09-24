@@ -65,7 +65,7 @@ struct Data {
 #[derive(Clone)]
 pub struct Layout {
     /// Root html element of a layout
-    html_element: HtmlElement,
+    pub html_element: HtmlElement,
     /// Inner ref counted data
     data: Rc<RefCell<Data>>,
 }

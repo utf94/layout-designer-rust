@@ -140,10 +140,22 @@ impl Page {
     }
 
     /// Insert a layout into a page
-    pub fn insert_layout(&mut self, layout: Layout) {
-        layout.append_to(&self.html_element);
-
-        self.data.borrow_mut().layouts.push(layout);
+    pub fn insert_layout(&mut self, layout: Layout, index: Option<usize>) {
+        if let Some(index) = index {
+            let mut data = self.data.borrow_mut();
+            if let Some(l) = data.layouts.get(index) {
+                l.html_element
+                    .before_with_node_1(&layout.html_element)
+                    .unwrap();
+                data.layouts.insert(index, layout);
+            } else {
+                layout.append_to(&self.html_element);
+                data.layouts.push(layout);
+            }
+        } else {
+            layout.append_to(&self.html_element);
+            self.data.borrow_mut().layouts.push(layout);
+        }
     }
 
     /// Insert a component into a layout inside of this page

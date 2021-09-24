@@ -146,116 +146,24 @@
             <div id="picker"></div>
             <div class="assets__title">Layouts</div>
             <div id="layout-picker">
-              <script>
-                var dragged;
-
-                /* events fired on the draggable target */
-                document.addEventListener("drag", function (event) {}, false);
-
-                document.addEventListener(
-                  "dragstart",
-                  function (event) {
-                    // store a ref. on the dragged elem
-                    dragged = event.target;
-                    // make it half transparent
-                    event.target.style.opacity = 0.5;
-
-                    {
-                      const elements =
-                        document.querySelectorAll("#workspace .page");
-
-                      elements.forEach((elm, id) => {
-                        const div = document.createElement("div");
-                        div.classList.add("layout-drop-area");
-                        elm.prepend(div);
-                      });
-                    }
-
-                    {
-                      const elements = document.querySelectorAll(
-                        "#workspace layout-container"
-                      );
-
-                      elements.forEach((elm, id) => {
-                        const div = document.createElement("div");
-                        div.classList.add("layout-drop-area");
-                        elm.after(div);
-                      });
-                    }
-                  },
-                  false
-                );
-
-                document.addEventListener(
-                  "dragend",
-                  function (event) {
-                    // reset the transparency
-                    event.target.style.opacity = "";
-
-                    const elements =
-                      document.querySelectorAll(".layout-drop-area");
-
-                    elements.forEach((elm) => elm.remove());
-                  },
-                  false
-                );
-
-                /* events fired on the drop targets */
-                document.addEventListener(
-                  "dragover",
-                  function (event) {
-                    // prevent default to allow drop
-                    event.preventDefault();
-                  },
-                  false
-                );
-
-                document.addEventListener(
-                  "dragenter",
-                  function (event) {
-                    // highlight potential drop target when the draggable element enters it
-                    if (event.target.classList.contains("layout-drop-area")) {
-                      event.target.classList.add("dragover");
-                    }
-                  },
-                  false
-                );
-
-                document.addEventListener(
-                  "dragleave",
-                  function (event) {
-                    // reset background of potential drop target when the draggable element leaves it
-                    if (event.target.classList.contains("layout-drop-area")) {
-                      event.target.classList.remove("dragover");
-                    }
-                  },
-                  false
-                );
-
-                document.addEventListener(
-                  "drop",
-                  function (event) {
-                    // prevent default action (open as link for some elements)
-                    event.preventDefault();
-                    // move dragged elem to the selected drop target
-                    if (event.target.classList.contains("layout-drop-area")) {
-                      event.target.classList.remove("dragover");
-                      // dragged.parentNode.removeChild(dragged);
-                      // event.target.appendChild(dragged);
-                    }
-                  },
-                  false
-                );
-              </script>
-
               <div
                 draggable="true"
-                ondragstart="event.dataTransfer.setData('text/plain',null)"
+                ondragstart="event.dataTransfer.setData('text/layout-type','grid')"
               >
                 Grid
               </div>
-              <div draggable="true">Flex</div>
-              <div draggable="true">Free</div>
+              <div
+                draggable="true"
+                ondragstart="event.dataTransfer.setData('text/layout-type','flex')"
+              >
+                Flex
+              </div>
+              <div
+                draggable="true"
+                ondragstart="event.dataTransfer.setData('text/layout-type','free')"
+              >
+                Free
+              </div>
             </div>
           </tab-panel>
         </tabs-controler>

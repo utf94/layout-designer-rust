@@ -50,9 +50,9 @@ impl EditorState {
             let mut page = Page::new("Home", 765);
 
             // Add some debug layouts
-            page.insert_layout(Layout::new_flex(765, 76));
-            page.insert_layout(Layout::new_grid(765, 225, 76));
-            page.insert_layout(Layout::new_free(765, 255));
+            page.insert_layout(Layout::new_flex(765, 76), None);
+            page.insert_layout(Layout::new_grid(765, 225, 76), None);
+            page.insert_layout(Layout::new_free(765, 255), None);
 
             workspace.insert_page(page);
         }
@@ -299,6 +299,28 @@ impl Editor {
                 page.resize(width);
             }
         })
+    }
+
+    pub fn add_layout_to_page(&mut self, page: &HtmlElement, id: usize, layout_kind: &str) {
+        with_editor_state(|editor| {
+            let page = editor.workspace.get_page_mut(page);
+            if let Some(page) = page {
+                match layout_kind {
+                    "grid" => {
+                        page.insert_layout(Layout::new_grid(765, 76, 76), Some(id));
+                    }
+                    "flex" => {
+                        page.insert_layout(Layout::new_flex(765, 76), Some(id));
+                    }
+                    "free" => {
+                        page.insert_layout(Layout::new_free(765, 76), Some(id));
+                    }
+                    _ => {}
+                }
+
+                editor.update_tree();
+            }
+        });
     }
 }
 
