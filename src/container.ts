@@ -16,7 +16,7 @@ class Grid {
               <rect
                 width="100%"
                 height="100%"
-                fill="url(#grid-id-facw9n)"
+                fill="url(#grid-pattern)"
               ></rect>`;
 
     this.placeholder = document.createElement("div");

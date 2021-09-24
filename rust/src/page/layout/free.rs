@@ -6,7 +6,7 @@ pub struct FreeLayout {
 }
 
 impl FreeLayout {
-    pub fn new(_width: usize, _height: usize) -> Self {
+    pub fn new(_width: u32, _height: u32) -> Self {
         Self {
             components: Vec::new(),
         }

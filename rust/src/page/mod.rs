@@ -18,7 +18,7 @@ struct Data {
     name: String,
 
     /// Width of a page
-    width: usize,
+    width: u32,
 
     /// List of layouts inside of a page,
     /// laid out one under the other
@@ -26,6 +26,8 @@ struct Data {
 
     /// Hierarchy related data
     hierarchy_data: HierarchyItemData,
+
+    grid_cell_size: u32,
 }
 
 /// The representation of a Paga
@@ -45,7 +47,7 @@ pub struct Page {
 
 impl Page {
     /// Create a new page, with given name
-    pub fn new(name: &str, width: usize) -> Self {
+    pub fn new(name: &str, width: u32) -> Self {
         let name = name.to_owned();
 
         let document = web_sys::window().unwrap().document().unwrap();
@@ -70,6 +72,7 @@ impl Page {
                 layouts: Vec::new(),
 
                 hierarchy_data: HierarchyItemData::new(),
+                grid_cell_size: 76,
             })),
         }
     }
@@ -176,8 +179,10 @@ impl Page {
     ///
     /// # Arguments
     /// * `width` - width of a page in px
-    pub fn resize(&mut self, width: usize) {
+    pub fn resize(&mut self, width: u32) {
         let mut data = self.data.borrow_mut();
+
+        data.grid_cell_size = width / 10;
 
         data.width = width;
 

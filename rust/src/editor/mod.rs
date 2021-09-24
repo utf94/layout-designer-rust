@@ -293,7 +293,29 @@ impl Editor {
     }
 
     /// Resize one of pages in workspace
-    pub fn resize_page(&mut self, page: &HtmlElement, width: usize) {
+    pub fn resize_page(&mut self, page: &HtmlElement, width: u32) {
+        let document = web_sys::window().unwrap().document().unwrap();
+
+        let gap = 4;
+
+        let cell_size = width / 10;
+
+        {
+            let cell_size = format!("{}", cell_size);
+
+            let pattern = document.get_element_by_id("grid-pattern").unwrap();
+            pattern.set_attribute("width", &cell_size).unwrap();
+            pattern.set_attribute("height", &cell_size).unwrap();
+        }
+
+        {
+            let cell_size = format!("{}", cell_size - gap * 2);
+
+            let rect = document.get_element_by_id("grid-pattern__rect").unwrap();
+            rect.set_attribute("width", &cell_size).unwrap();
+            rect.set_attribute("height", &cell_size).unwrap();
+        }
+
         with_editor_state(|editor| {
             if let Some(page) = editor.workspace.get_page_mut(page) {
                 page.resize(width);
