@@ -1,6 +1,10 @@
 layout-container {
   width: 100%;
   min-height: 76px;
+
+  .container__close-icon {
+    visibility: hidden;
+  }
 }
 
 layout-container.dragover {
