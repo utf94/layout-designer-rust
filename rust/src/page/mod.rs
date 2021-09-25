@@ -18,7 +18,7 @@ struct Data {
     name: String,
 
     /// Width of a page
-    width: usize,
+    width: u32,
 
     /// List of layouts inside of a page,
     /// laid out one under the other
@@ -26,6 +26,8 @@ struct Data {
 
     /// Hierarchy related data
     hierarchy_data: HierarchyItemData,
+
+    grid_cell_size: u32,
 }
 
 /// The representation of a Paga
@@ -37,7 +39,7 @@ pub struct Page {
     /// Root html element of a page
     ///
     /// Layouts are placed inside of it
-    html_element: HtmlElement,
+    pub html_element: HtmlElement,
 
     /// Inner ref counted data
     data: Rc<RefCell<Data>>,
@@ -45,7 +47,7 @@ pub struct Page {
 
 impl Page {
     /// Create a new page, with given name
-    pub fn new(name: &str, width: usize) -> Self {
+    pub fn new(name: &str, width: u32) -> Self {
         let name = name.to_owned();
 
         let document = web_sys::window().unwrap().document().unwrap();
@@ -70,6 +72,7 @@ impl Page {
                 layouts: Vec::new(),
 
                 hierarchy_data: HierarchyItemData::new(),
+                grid_cell_size: 76,
             })),
         }
     }
@@ -139,11 +142,33 @@ impl Page {
         RefMut::map(self.data.borrow_mut(), |d| d.layouts.as_mut())
     }
 
-    /// Insert a layout into a page
-    pub fn insert_layout(&mut self, layout: Layout) {
-        layout.append_to(&self.html_element);
+    pub fn remove_layout(&mut self, id: usize) -> Option<Layout> {
+        let mut data = self.data.borrow_mut();
 
-        self.data.borrow_mut().layouts.push(layout);
+        if data.layouts.get(id).is_some() {
+            Some(data.layouts.remove(id))
+        } else {
+            None
+        }
+    }
+
+    /// Insert a layout into a page
+    pub fn insert_layout(&mut self, layout: Layout, index: Option<usize>) {
+        if let Some(index) = index {
+            let mut data = self.data.borrow_mut();
+            if let Some(l) = data.layouts.get(index) {
+                l.html_element
+                    .before_with_node_1(&layout.html_element)
+                    .unwrap();
+                data.layouts.insert(index, layout);
+            } else {
+                layout.append_to(&self.html_element);
+                data.layouts.push(layout);
+            }
+        } else {
+            layout.append_to(&self.html_element);
+            self.data.borrow_mut().layouts.push(layout);
+        }
     }
 
     /// Insert a component into a layout inside of this page
@@ -164,8 +189,10 @@ impl Page {
     ///
     /// # Arguments
     /// * `width` - width of a page in px
-    pub fn resize(&mut self, width: usize) {
+    pub fn resize(&mut self, width: u32) {
         let mut data = self.data.borrow_mut();
+
+        data.grid_cell_size = width / 10;
 
         data.width = width;
 

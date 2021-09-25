@@ -7,6 +7,8 @@ import * as JsonPreview from "./json_preview";
 import * as ContextMenu from "./context_menu";
 import * as PageSettings from "./page_settings";
 
+import * as DragAndDrop from "./drag_drop";
+
 import "./container";
 import "./editor-ui/tab-controler";
 
@@ -93,4 +95,5 @@ export async function run() {
   Preview.connect();
   JsonPreview.connect();
   PageSettings.connect(editor);
+  DragAndDrop.connect(editor);
 }

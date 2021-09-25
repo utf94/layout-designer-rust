@@ -38,7 +38,7 @@ pub enum LayoutKind {
     /// CSS Grid based layout
     Grid {
         /// Size of a grid cell in px
-        cell_size: usize,
+        cell_size: u32,
         /// Data related to grid layout implementation
         grid_data: GridLayout,
     },
@@ -49,9 +49,9 @@ struct Data {
     name: String,
 
     /// Height of a layout
-    height: usize,
+    height: u32,
     /// Width of a layout
-    width: usize,
+    width: u32,
     /// Layout kind specyfic data
     kind: LayoutKind,
     /// Children of a layout
@@ -65,7 +65,7 @@ struct Data {
 #[derive(Clone)]
 pub struct Layout {
     /// Root html element of a layout
-    html_element: HtmlElement,
+    pub html_element: HtmlElement,
     /// Inner ref counted data
     data: Rc<RefCell<Data>>,
 }
@@ -76,7 +76,7 @@ impl Layout {
     ///
     /// It will initialize the layout data,
     /// and also create a new html element that represents the layout
-    pub fn new(width: usize, height: usize, kind: LayoutKind) -> Self {
+    pub fn new(width: u32, height: u32, kind: LayoutKind) -> Self {
         let document = web_sys::window().unwrap().document().unwrap();
 
         let html_element = document.create_element("layout-container").unwrap();
@@ -134,6 +134,24 @@ impl Layout {
         }
     }
 
+    pub fn close_icon_element(&self) -> HtmlElement {
+        let close_icon_element = self
+            .html_element
+            .query_selector(".container__close-icon")
+            .unwrap()
+            .unwrap();
+        let close_icon_element: HtmlElement = close_icon_element.dyn_into().unwrap();
+        close_icon_element
+    }
+
+    pub fn set_is_selected(&mut self, is: bool) {
+        if is {
+            self.html_element.class_list().add_1("selected").unwrap();
+        } else {
+            self.html_element.class_list().remove_1("selected").unwrap();
+        }
+    }
+
     pub fn hierarchy_data(&self) -> Ref<HierarchyItemData> {
         Ref::map(self.data.borrow(), |data| &data.hierarchy_data)
     }
@@ -147,7 +165,7 @@ impl Layout {
     }
 
     /// Creates a new free layout
-    pub fn new_free(width: usize, height: usize) -> Self {
+    pub fn new_free(width: u32, height: u32) -> Self {
         Self::new(
             width,
             height,
@@ -158,7 +176,7 @@ impl Layout {
     }
 
     /// Creates a new flex layout
-    pub fn new_flex(width: usize, height: usize) -> Self {
+    pub fn new_flex(width: u32, height: u32) -> Self {
         Self::new(
             width,
             height,
@@ -174,7 +192,7 @@ impl Layout {
     /// * `width` - width of a layout in px
     /// * `height` - height of a layout in px
     /// * `cell_size` - size of a grid cell in px
-    pub fn new_grid(width: usize, height: usize, cell_size: usize) -> Self {
+    pub fn new_grid(width: u32, height: u32, cell_size: u32) -> Self {
         let grid_w = (width as f64 / cell_size as f64).round();
         let grid_h = (height as f64 / cell_size as f64).round();
 
@@ -250,12 +268,12 @@ impl Layout {
         }
     }
 
-    pub fn size(&self) -> (usize, usize) {
+    pub fn size(&self) -> (u32, u32) {
         let data = self.data.borrow();
         (data.width, data.height)
     }
 
-    pub fn resize(&mut self, width: usize, height: usize) {
+    pub fn resize(&mut self, width: u32, height: u32) {
         let mut data = self.data.borrow_mut();
 
         data.width = width;
@@ -269,12 +287,26 @@ impl Layout {
                 grid_data: grid,
                 cell_size,
             } => {
-                let grid_w = (width as f64 / *cell_size as f64).round();
+                *cell_size = width / 10;
+                let grid_w = 10;
                 let grid_h = (height as f64 / *cell_size as f64).round();
 
-                grid.resize(width as usize, height as usize);
+                self.html_element.style().set_property(
+                    "grid-template-rows",
+                    &format!("repeat(auto-fill, {}px)", cell_size),
+                );
+
+                grid.resize(grid_w, grid_h as usize);
             }
             _ => {}
+        }
+    }
+
+    pub fn remove(self) {
+        self.html_element.remove();
+
+        for component in self.data.borrow_mut().components.iter_mut() {
+            component.remove();
         }
     }
 }

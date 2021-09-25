@@ -168,6 +168,8 @@ impl MoveController {
 
         self.component.set_is_dragged(false);
 
+        // TODO(poly): goddammit, there has to be a cleaner way to do all of this
+
         if let Some(drag_state) = self.drag_state.as_mut() {
             let component_rect = self.component.element().get_bounding_client_rect();
 
@@ -196,9 +198,7 @@ impl MoveController {
             let container = elements.first();
 
             if let Some(container) = container {
-                let new_absolute_pos = drag_state.stop();
-
-                if container.class_list().contains("grid") {
+                let new_absolute_pos = if container.class_list().contains("grid") {
                     let grid = self.grids.get_grid(container);
 
                     if !grid.red_overlay() {
@@ -208,15 +208,37 @@ impl MoveController {
                         self.component.set_grid_pos(grid.placeholder_pos());
                         self.component.set_grid_size(grid.placeholder_size());
                     }
+
+                    // The component does not have grid size, so this is initial drag and drop
+                    // And component was droped into ocupied spot
+                    if self.component.grid_pos().is_none() || self.component.grid_size().is_none() {
+                        self.grids.hide_placeholders();
+                        return MouseUpResult::Removed {
+                            component: self.component,
+                        };
+                    }
+
+                    drag_state.stop()
                 } else if container.class_list().contains("flex") {
                     self.component.unset_absolute_pos();
+
+                    drag_state.stop()
                 } else if container.class_list().contains("free") {
+                    let new_absolute_pos = drag_state.stop();
+
                     let rect = container.get_bounding_client_rect();
                     let offset = (rect.left() as i32, rect.top() as i32);
                     let pos = (new_absolute_pos.0 - offset.0, new_absolute_pos.1 - offset.1);
 
                     self.component.set_position(pos);
-                }
+
+                    new_absolute_pos
+                } else {
+                    self.grids.hide_placeholders();
+                    return MouseUpResult::Removed {
+                        component: self.component,
+                    };
+                };
 
                 self.grids.hide_placeholders();
 
@@ -237,7 +259,6 @@ impl MoveController {
                 }
             } else {
                 self.grids.hide_placeholders();
-
                 MouseUpResult::Removed {
                     component: self.component,
                 }
@@ -248,8 +269,8 @@ impl MoveController {
                 .style()
                 .remove_property("pointer-events")
                 .unwrap();
-            self.grids.hide_placeholders();
 
+            self.grids.hide_placeholders();
             MouseUpResult::NotStarted {
                 component: self.component,
             }
