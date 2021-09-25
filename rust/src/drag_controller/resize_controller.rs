@@ -36,8 +36,8 @@ impl ResizeState {
         // If so resize cell by cell
         // Otherwise just resize freely
         if let Some(_grid) = grid {
-            let (pos_x, pos_y) = self.component.grid_pos();
-            let (size_x, size_y) = self.component.grid_size();
+            let (pos_x, pos_y) = self.component.grid_pos().unwrap();
+            let (size_x, size_y) = self.component.grid_size().unwrap();
 
             if -dx > 76 {
                 self.last_x = x;

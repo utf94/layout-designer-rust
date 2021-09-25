@@ -14,7 +14,20 @@ layout-container.dragover {
   background-position: center;
   background-repeat: no-repeat;
 
+  animation: opacity-up 1s;
+
   height: 50px;
+}
+
+@keyframes opacity-up {
+  0% {
+    opacity: 0;
+    height: 0px;
+  }
+  100% {
+    opacity: 1;
+    height: 50px;
+  }
 }
 
 .layout-drop-area.dragover {

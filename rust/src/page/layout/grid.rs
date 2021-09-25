@@ -120,10 +120,10 @@ impl GridLayout {
         // Insert new or updated component back to mapping and update it on grid
         let new_grid_component_data = GridComponentData {
             ref_id,
-            x: component.grid_pos().0 as usize,
-            y: component.grid_pos().1 as usize,
-            width: component.grid_size().0 as usize,
-            height: component.grid_size().1 as usize,
+            x: component.grid_pos().unwrap().0 as usize,
+            y: component.grid_pos().unwrap().1 as usize,
+            width: component.grid_size().unwrap().0 as usize,
+            height: component.grid_size().unwrap().1 as usize,
             component: component.clone(),
         };
         let grid_component_block = Block {
@@ -206,10 +206,10 @@ impl GridLayout {
     /// * `component` - Component to check if its overlapping on another component on grid
     pub fn is_component_overlapping(&mut self, component: &mut Component) -> bool {
         let block = Block {
-            x: component.grid_pos().0 as usize,
-            y: component.grid_pos().1 as usize,
-            width: component.grid_size().0 as usize,
-            height: component.grid_size().1 as usize,
+            x: component.grid_pos().unwrap().0 as usize,
+            y: component.grid_pos().unwrap().1 as usize,
+            width: component.grid_size().unwrap().0 as usize,
+            height: component.grid_size().unwrap().1 as usize,
         };
         let mut ref_id = -1;
         if self.mapping.contains_key(&component.index()) {

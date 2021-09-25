@@ -14,8 +14,8 @@ use crate::{
 struct InnerData {
     name: String,
 
-    grid_size: (u32, u32),
-    grid_pos: (u32, u32),
+    grid_size: Option<(u32, u32)>,
+    grid_pos: Option<(u32, u32)>,
 
     /// The index of a componetn
     ///
@@ -46,8 +46,8 @@ impl Component {
             element,
             data: Rc::new(RefCell::new(InnerData {
                 name: "Component".into(),
-                grid_size: (1, 1),
-                grid_pos: (1, 1),
+                grid_size: None,
+                grid_pos: None,
                 index: None,
                 layout: None,
 
@@ -106,38 +106,35 @@ impl Component {
 
     fn update_grid_css_properties(&self) {
         let data = self.data.borrow();
-        self.element
-            .style()
-            .set_property(
-                "grid-column",
-                &format!("{}/span {}", data.grid_pos.0, data.grid_size.0),
-            )
-            .unwrap();
 
-        self.element
-            .style()
-            .set_property(
-                "grid-row",
-                &format!("{}/span {}", data.grid_pos.1, data.grid_size.1),
-            )
-            .unwrap();
+        if let (Some(pos), Some(size)) = (data.grid_pos, data.grid_size) {
+            self.element
+                .style()
+                .set_property("grid-column", &format!("{}/span {}", pos.0, size.0))
+                .unwrap();
+
+            self.element
+                .style()
+                .set_property("grid-row", &format!("{}/span {}", pos.1, size.1))
+                .unwrap();
+        }
     }
 
-    pub fn grid_pos(&self) -> (u32, u32) {
+    pub fn grid_pos(&self) -> Option<(u32, u32)> {
         self.data.borrow().grid_pos
     }
 
     pub fn set_grid_pos(&mut self, pos: (u32, u32)) {
-        self.data.borrow_mut().grid_pos = pos;
+        self.data.borrow_mut().grid_pos = Some(pos);
         self.update_grid_css_properties();
     }
 
-    pub fn grid_size(&self) -> (u32, u32) {
+    pub fn grid_size(&self) -> Option<(u32, u32)> {
         self.data.borrow().grid_size
     }
 
     pub fn set_grid_size(&mut self, size: (u32, u32)) {
-        self.data.borrow_mut().grid_size = size;
+        self.data.borrow_mut().grid_size = Some(size);
         self.update_grid_css_properties();
     }
 
