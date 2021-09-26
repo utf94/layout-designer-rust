@@ -16,7 +16,7 @@ class Grid {
               <rect
                 width="100%"
                 height="100%"
-                fill="url(#grid-id-facw9n)"
+                fill="url(#grid-pattern)"
               ></rect>`;
 
     this.placeholder = document.createElement("div");
@@ -44,6 +44,18 @@ class LayoutContainer extends HTMLElement {
 
   connectedCallback() {
     this.classList.add("container");
+
+    {
+      const div = document.createElement("div");
+      div.classList.add("container__close-icon");
+
+      const img = document.createElement("img");
+      img.src = "/img/icons/close.svg";
+
+      div.appendChild(img);
+
+      this.prepend(div);
+    }
 
     if (this.classList.contains("grid")) {
       this.grid.mount(this);

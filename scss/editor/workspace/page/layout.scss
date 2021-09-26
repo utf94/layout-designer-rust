@@ -1,12 +1,79 @@
 layout-container {
   width: 100%;
   min-height: 76px;
-  overflow: hidden;
+
+  .container__close-icon {
+    visibility: hidden;
+  }
+}
+
+layout-container.dragover {
+  display: block;
+  background-color: rgba(255, 100, 100, 0.5);
+}
+
+.layout-drop-area {
+  background-color: rgb(240, 240, 240);
+  background-image: url("/img/icons/plus.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+
+  animation: opacity-up 1s;
+
+  height: 50px;
+}
+
+@keyframes opacity-up {
+  0% {
+    opacity: 0;
+    height: 0px;
+  }
+  100% {
+    opacity: 1;
+    height: 50px;
+  }
+}
+
+.layout-drop-area.dragover {
+  outline: 1px solid #0095f8;
 }
 
 #workspace layout-container {
   &:hover {
     outline: 1px solid #0095f8;
+  }
+
+  .container__close-icon {
+    position: absolute;
+    top: -16px;
+    right: 0px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 16px;
+    height: 16px;
+
+    border-radius: 4px;
+
+    visibility: hidden;
+
+    &:hover {
+      background-color: #ebebeb;
+
+      img {
+        filter: brightness(0.3);
+      }
+    }
+  }
+}
+
+#workspace layout-container.selected {
+  outline: 1px solid #0095f8;
+
+  .container__close-icon {
+    visibility: visible;
   }
 }
 
@@ -20,7 +87,7 @@ layout-container.flex {
 layout-container.grid {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(auto-fill, 76px);
+  // grid-template-columns: repeat(auto-fill, 76px);
   grid-template-rows: repeat(auto-fill, 76px);
   justify-items: center;
   align-items: center;

@@ -20,7 +20,7 @@
     >
       <defs>
         <pattern
-          id="grid-id-facw9n"
+          id="grid-pattern"
           width="76"
           height="76"
           patternUnits="userSpaceOnUse"
@@ -31,7 +31,7 @@
             width="68"
             height="68"
             fill="rgba(0,0,0,.02)"
-            class="gridbox"
+            id="grid-pattern__rect"
           ></rect>
         </pattern>
       </defs>
@@ -83,7 +83,7 @@
         </section>
       </nav>
 
-      <aside class="editor__left-panel">
+      <aside class="editor__left-panel" style="overflow-y: scroll">
         <tabs-controler selectedId="layers">
           <header>
             <tab-label tabId="layers">Layers</tab-label>
@@ -146,9 +146,24 @@
             <div id="picker"></div>
             <div class="assets__title">Layouts</div>
             <div id="layout-picker">
-              <div>Grid</div>
-              <div>Flex</div>
-              <div>Free</div>
+              <div
+                draggable="true"
+                ondragstart="event.dataTransfer.setData('text/layout-type','grid')"
+              >
+                Grid
+              </div>
+              <div
+                draggable="true"
+                ondragstart="event.dataTransfer.setData('text/layout-type','flex')"
+              >
+                Flex
+              </div>
+              <div
+                draggable="true"
+                ondragstart="event.dataTransfer.setData('text/layout-type','free')"
+              >
+                Free
+              </div>
             </div>
           </tab-panel>
         </tabs-controler>

@@ -26,6 +26,8 @@ use crate::{
     html_elements::component::{ComponentDescriptor, EditorComponentSource},
 };
 
+use self::workspace::Selection;
+
 /// The main state of the whole editor
 pub struct EditorState {
     component_picker: ComponentPicker,
@@ -48,9 +50,9 @@ impl EditorState {
             let mut page = Page::new("Home", 765);
 
             // Add some debug layouts
-            page.insert_layout(Layout::new_flex(765, 76));
-            page.insert_layout(Layout::new_grid(765, 225, 76));
-            page.insert_layout(Layout::new_free(765, 255));
+            page.insert_layout(Layout::new_flex(765, 76), None);
+            page.insert_layout(Layout::new_grid(765, 225, 76), None);
+            page.insert_layout(Layout::new_free(765, 255), None);
 
             workspace.insert_page(page);
         }
@@ -70,7 +72,7 @@ impl EditorState {
     }
 
     /// Let the parameters pannel know that something in the workspace has changed, and it should update
-    pub fn update_parameters_panel(&mut self) {
+    pub fn update_tree(&mut self) {
         self.parameters_panel
             .update_components_tree(&self.workspace);
         self.hierarchy.update(&self.workspace);
@@ -92,7 +94,63 @@ impl EditorState {
         target: &HtmlElement,
     ) {
         match kind {
-            MouseEventKind::Click => {}
+            MouseEventKind::Click => {
+                let add_btn = web_sys::window()
+                    .unwrap()
+                    .document()
+                    .unwrap()
+                    .get_element_by_id("add-page-btn")
+                    .unwrap();
+
+                if add_btn.contains(Some(&target)) {
+                    for page in self.workspace.pages() {
+                        page.html_element
+                            .style()
+                            .set_property("display", "none")
+                            .unwrap();
+                    }
+                    // Add a debug page
+                    {
+                        let page = Page::new("Home", 765);
+
+                        self.workspace.insert_page(page);
+                        self.update_tree();
+                    }
+                } else if self.workspace.contains(target) {
+                    // Finda a page that it belongs to
+                    let page = self
+                        .workspace
+                        .pages_mut()
+                        .iter_mut()
+                        .find(|page| page.contains(target));
+
+                    if let Some(page) = page {
+                        let layout = page.layouts().iter().find(|l| l == &target).cloned();
+
+                        if let Some(layout) = layout {
+                            if event.button() == 0 {
+                                self.workspace.set_selection(Selection::Layout(layout))
+                            }
+                        } else {
+                            let layout = page
+                                .layouts()
+                                .iter()
+                                .position(|l| l.close_icon_element().contains(Some(target)));
+                            if let Some(id) = layout {
+                                if let Some(layout) = page.remove_layout(id) {
+                                    for component in layout.components().iter() {
+                                        component.remove();
+                                        self.workspace.components_mut().remove(component.index());
+                                    }
+
+                                    layout.remove();
+                                    self.update_tree();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             MouseEventKind::MouseDown => {
                 if self.drag_state.is_none() {
                     // If clicked element is in a workspace
@@ -185,7 +243,7 @@ impl EditorState {
                             }
                         }
 
-                        self.update_parameters_panel();
+                        self.update_tree();
                     }
                     DragState::Resize(drag) => {
                         drag.mouse_up(event);
@@ -251,12 +309,56 @@ impl Editor {
     }
 
     /// Resize one of pages in workspace
-    pub fn resize_page(&mut self, page: &HtmlElement, width: usize) {
+    pub fn resize_page(&mut self, page: &HtmlElement, width: u32) {
+        let document = web_sys::window().unwrap().document().unwrap();
+
+        let gap = 4;
+
+        let cell_size = width / 10;
+
+        {
+            let cell_size = format!("{}", cell_size);
+
+            let pattern = document.get_element_by_id("grid-pattern").unwrap();
+            pattern.set_attribute("width", &cell_size).unwrap();
+            pattern.set_attribute("height", &cell_size).unwrap();
+        }
+
+        {
+            let cell_size = format!("{}", cell_size - gap * 2);
+
+            let rect = document.get_element_by_id("grid-pattern__rect").unwrap();
+            rect.set_attribute("width", &cell_size).unwrap();
+            rect.set_attribute("height", &cell_size).unwrap();
+        }
+
         with_editor_state(|editor| {
             if let Some(page) = editor.workspace.get_page_mut(page) {
                 page.resize(width);
             }
         })
+    }
+
+    pub fn add_layout_to_page(&mut self, page: &HtmlElement, id: usize, layout_kind: &str) {
+        with_editor_state(|editor| {
+            let page = editor.workspace.get_page_mut(page);
+            if let Some(page) = page {
+                match layout_kind {
+                    "grid" => {
+                        page.insert_layout(Layout::new_grid(765, 76, 76), Some(id));
+                    }
+                    "flex" => {
+                        page.insert_layout(Layout::new_flex(765, 76), Some(id));
+                    }
+                    "free" => {
+                        page.insert_layout(Layout::new_free(765, 76), Some(id));
+                    }
+                    _ => {}
+                }
+
+                editor.update_tree();
+            }
+        });
     }
 }
 

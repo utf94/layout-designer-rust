@@ -7,6 +7,7 @@ type Attributes = { [key: string]: string };
 interface ComponentData {
   props: Props;
   styles: Styles;
+  classes: string[];
   attributes: Attributes;
   innerText: string | null;
 }
@@ -98,6 +99,7 @@ function generate_page_json(page: HTMLElement): Page {
           const style = ch.getAttribute("style").split(";");
 
           const style_json: Styles = {};
+          const classes: string[] = [];
 
           style
             .filter((item) => item.length > 0)
@@ -108,6 +110,25 @@ function generate_page_json(page: HTMLElement): Page {
             .forEach(({ key, value }) => {
               style_json[key] = value;
             });
+
+          if (kind == LayoutKind.Free) {
+            classes.push("absolute");
+
+            // if (style_json["top"]) {
+            //   classes.push(`top-${style_json["top"]}`);
+            // } else {
+            //   classes.push("top-0");
+            // }
+
+            // if (style_json["left"]) {
+            //   classes.push(`left-${style_json["left"]}`);
+            // } else {
+            //   classes.push("left-0");
+            // }
+          } else if (kind == LayoutKind.Grid) {
+            classes.push("w-full");
+            classes.push("h-full");
+          }
 
           const props: Props = {};
           let innerText: string | null = null;
@@ -136,6 +157,7 @@ function generate_page_json(page: HTMLElement): Page {
             data: {
               props,
               styles: style_json,
+              classes,
               attributes: {},
               innerText,
             },

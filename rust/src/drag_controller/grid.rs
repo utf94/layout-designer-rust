@@ -93,7 +93,7 @@ impl Grid {
         let grid_y = div_y.floor() as u32 + 1;
 
         let grid_x = grid_x.min(grid_w - self.placeholder_size.0 + 1).max(0);
-        let grid_y = grid_y.min(grid_h + 1).max(0);
+        let grid_y = grid_y.min(grid_h - self.placeholder_size.1 + 2).max(0);
 
         self.placeholder_pos = (grid_x, grid_y);
 
