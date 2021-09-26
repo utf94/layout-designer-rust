@@ -5,6 +5,7 @@ use ndarray::Array2;
 use std::collections::HashMap;
 
 /// Block Struct to represent position and size of block on grid
+#[derive(Debug)]
 pub struct Block {
     /// Top left X starting cell position of block
     pub x: usize,
@@ -78,16 +79,45 @@ impl GridLayout {
     /// # Arguments
     /// * `width` - Width of a grid in cells
     /// * `height` - Height of a grid in cells
-    pub fn resize(&mut self, width: usize, height: usize) {
-        let mut new_data = Array2::<i32>::zeros((width, height));
+    pub fn resize(&mut self, width: usize, height: usize) -> bool {
         let old_rows = self.data.nrows();
         let old_cols = self.data.ncols();
-        for i in 0..old_rows {
-            for j in 0..old_cols {
+        let mut min_width = old_rows;
+        let mut min_height = old_cols;
+        if(old_rows > width) {
+            min_width = width;
+            let row_diff = old_rows - width;
+            let overflow_block = Block {
+                x: width+1,
+                y: 1,
+                width: row_diff,
+                height: old_cols,
+            };
+            if !self.is_data_block_empty(overflow_block) {
+                return false
+            }
+        }
+        if(old_cols > height) {
+            min_height = height;
+            let col_diff = old_cols - height;
+            let overflow_block = Block {
+                x: 1,
+                y: height+1,
+                width: old_rows,
+                height: col_diff,
+            };
+            if !self.is_data_block_empty(overflow_block) {
+                return false
+            }
+        }
+        let mut new_data = Array2::<i32>::zeros((width, height));
+        for i in 0..min_width {
+            for j in 0..min_height {
                 new_data[[i, j]] = self.data[[i, j]];
             }
         }
         self.data = new_data;
+        true
     }
 
     /// Insert new or update (position or size) component into the grid
