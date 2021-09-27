@@ -14,8 +14,8 @@ use crate::{
 struct InnerData {
     name: String,
 
-    grid_size: Option<(u32, u32)>,
-    grid_pos: Option<(u32, u32)>,
+    grid_size: Option<(usize, usize)>,
+    grid_pos: Option<(usize, usize)>,
 
     /// The index of a componetn
     ///
@@ -120,20 +120,20 @@ impl Component {
         }
     }
 
-    pub fn grid_pos(&self) -> Option<(u32, u32)> {
+    pub fn grid_pos(&self) -> Option<(usize, usize)> {
         self.data.borrow().grid_pos
     }
 
-    pub fn set_grid_pos(&mut self, pos: (u32, u32)) {
+    pub fn set_grid_pos(&mut self, pos: (usize, usize)) {
         self.data.borrow_mut().grid_pos = Some(pos);
         self.update_grid_css_properties();
     }
 
-    pub fn grid_size(&self) -> Option<(u32, u32)> {
+    pub fn grid_size(&self) -> Option<(usize, usize)> {
         self.data.borrow().grid_size
     }
 
-    pub fn set_grid_size(&mut self, size: (u32, u32)) {
+    pub fn set_grid_size(&mut self, size: (usize, usize)) {
         self.data.borrow_mut().grid_size = Some(size);
         self.update_grid_css_properties();
     }

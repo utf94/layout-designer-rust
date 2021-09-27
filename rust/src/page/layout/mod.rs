@@ -20,6 +20,8 @@ use flex::FlexLayout;
 
 use crate::{component::Component, editor::hierarchy::HierarchyItemData};
 
+use self::grid::background::GridBackground;
+
 /// Type of a layout
 pub enum LayoutKind {
     /// Layout based on absolute position
@@ -39,8 +41,10 @@ pub enum LayoutKind {
     Grid {
         /// Size of a grid cell in px
         cell_size: u32,
+        /// Grid background
+        grid_background: GridBackground,
         /// Data related to grid layout implementation
-        grid_data: GridLayout,
+        grid_data: Box<GridLayout>,
     },
 }
 
@@ -94,7 +98,7 @@ impl Layout {
                     .unwrap();
                 "Flex"
             }
-            LayoutKind::Grid { .. } => {
+            LayoutKind::Grid { cell_size, .. } => {
                 html_element
                     .class_list()
                     .add_4(
@@ -104,6 +108,12 @@ impl Layout {
                         "items-center",
                     )
                     .unwrap();
+
+                html_element.style().set_property(
+                    "grid-template-rows",
+                    &format!("repeat(auto-fill, {}px)", cell_size),
+                );
+
                 "Grid"
             }
         };
@@ -192,16 +202,20 @@ impl Layout {
     /// * `width` - width of a layout in px
     /// * `height` - height of a layout in px
     /// * `cell_size` - size of a grid cell in px
-    pub fn new_grid(width: u32, height: u32, cell_size: u32) -> Self {
+    pub fn new_grid(width: u32) -> Self {
+        let cell_size = width / 10;
         let grid_w = (width as f64 / cell_size as f64).round();
-        let grid_h = (height as f64 / cell_size as f64).round();
+
+        let height = cell_size * 3;
+        let grid_h = 3;
 
         Self::new(
             width,
             height,
             LayoutKind::Grid {
                 cell_size,
-                grid_data: GridLayout::new(grid_w as usize, grid_h as usize),
+                grid_background: GridBackground::new(),
+                grid_data: Box::new(GridLayout::new(grid_w as usize, grid_h as usize)),
             },
         )
     }
@@ -210,6 +224,15 @@ impl Layout {
     ///
     /// Used to append layout to the page
     pub fn append_to(&self, parent: &Element) {
+        let mut data = self.data.borrow_mut();
+
+        if let LayoutKind::Grid {
+            grid_background, ..
+        } = &data.kind
+        {
+            grid_background.append_to(&self.html_element);
+        }
+
         parent.append_child(&self.html_element).unwrap();
     }
 }
@@ -217,6 +240,15 @@ impl Layout {
 impl Layout {
     pub fn kind(&self) -> Ref<LayoutKind> {
         Ref::map(self.data.borrow(), |r| &r.kind)
+    }
+
+    pub fn kind_mut(&self) -> RefMut<LayoutKind> {
+        RefMut::map(self.data.borrow_mut(), |r| &mut r.kind)
+    }
+
+    pub fn bounding_client_rect(&self) -> ((f64, f64), (f64, f64)) {
+        let bbox = self.html_element.get_bounding_client_rect();
+        ((bbox.left(), bbox.top()), (bbox.width(), bbox.height()))
     }
 
     /// Determines whether the layout contains a given html element
@@ -286,10 +318,16 @@ impl Layout {
             LayoutKind::Grid {
                 grid_data: grid,
                 cell_size,
+                ..
             } => {
                 *cell_size = width / 10;
                 let grid_w = 10;
-                let grid_h = (height as f64 / *cell_size as f64).round();
+                let grid_h = 3;
+
+                self.html_element
+                    .style()
+                    .set_property("height", &format!("{}px", *cell_size * 3))
+                    .unwrap();
 
                 self.html_element.style().set_property(
                     "grid-template-rows",
@@ -314,5 +352,11 @@ impl Layout {
 impl PartialEq<HtmlElement> for Layout {
     fn eq(&self, html_element: &HtmlElement) -> bool {
         &self.html_element == html_element
+    }
+}
+
+impl PartialEq<Layout> for Layout {
+    fn eq(&self, layout: &Layout) -> bool {
+        self.html_element == layout.html_element
     }
 }

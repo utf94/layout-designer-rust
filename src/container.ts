@@ -5,32 +5,29 @@ class Grid {
   private placeholder: HTMLElement;
 
   constructor() {
-    this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-
-    this.svg.classList.add("grid-svg");
-    this.svg.setAttribute("width", "100%");
-    this.svg.setAttribute("height", "100%");
-    this.svg.setAttribute("style", "position: absolute; pointer-events: none");
-
-    this.svg.innerHTML = `
-              <rect
-                width="100%"
-                height="100%"
-                fill="url(#grid-pattern)"
-              ></rect>`;
-
-    this.placeholder = document.createElement("div");
-    this.placeholder.className = "grid-placeholder";
+    // this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    // this.svg.classList.add("grid-svg");
+    // this.svg.setAttribute("width", "100%");
+    // this.svg.setAttribute("height", "100%");
+    // this.svg.setAttribute("style", "position: absolute; pointer-events: none");
+    // this.svg.innerHTML = `
+    //           <rect
+    //             width="100%"
+    //             height="100%"
+    //             fill="url(#grid-pattern)"
+    //           ></rect>`;
+    // this.placeholder = document.createElement("div");
+    // this.placeholder.className = "grid-placeholder";
   }
 
   mount(root) {
-    root.prepend(this.placeholder);
-    root.prepend(this.svg);
+    // root.prepend(this.placeholder);
+    // root.prepend(this.svg);
   }
 
   remove() {
-    this.svg.remove();
-    this.placeholder.remove();
+    // this.svg.remove();
+    // this.placeholder.remove();
   }
 }
 
@@ -143,7 +140,7 @@ class LayoutContainer extends HTMLElement {
           <option value="space-around">Space Around</option>
           <option value="space-evenly" selected>Space Evenly</option>
         </optgroup>
-      `;
+       `;
 
         const justify = this.style.justifyContent;
         select.value = justify.length !== 0 ? justify : "space-evenly";

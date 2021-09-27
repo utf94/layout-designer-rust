@@ -1,11 +1,10 @@
 use wasm_bindgen::JsCast;
 use web_sys::{Document, HtmlElement};
 
-use super::grid::Grids;
 use crate::{
     component::Component,
     editor::workspace::Workspace,
-    page::layout::{grid::Block, LayoutKind},
+    page::layout::{Layout, LayoutKind},
 };
 
 mod css_transform;
@@ -29,8 +28,9 @@ pub struct MoveController {
     document: Document,
 
     component: Component,
+
     drag_state: Option<CssMoveTransform>,
-    grids: Grids,
+    layout: Option<Layout>,
 }
 
 impl MoveController {
@@ -43,8 +43,9 @@ impl MoveController {
             document,
 
             component,
+
             drag_state: None,
-            grids: Grids::new(),
+            layout: None,
         }
     }
 
@@ -109,60 +110,91 @@ impl MoveController {
                     .collect();
 
                 if let Some(container) = elements.first() {
-                    if container.class_list().contains("grid") {
-                        let grid = self.grids.get_grid_mut(container);
-                        let component = &self.component;
+                    let component = &self.component;
 
-                        grid.resize_placeholder(component_rect.width(), component_rect.height());
-                        grid.move_placeholder(component_x, component_y);
-                        grid.set_red_overlay(false);
-                        grid.set_placeholder_visible(true);
+                    // Finda a page that it belongs to
+                    let page = workspace
+                        .pages()
+                        .iter()
+                        .find(|page| page.contains(container));
 
-                        {
-                            let (x, y) = grid.placeholder_pos();
-                            let (w, h) = grid.placeholder_size();
-                            // Finda a page that it belongs to
-                            let page = workspace
-                                .pages()
-                                .iter()
-                                .find(|page| page.contains(container));
+                    if let Some(page) = page {
+                        if let Some(layout) = page.find_layout_by_element(container) {
+                            let (bbox_pos, _bbox_size) = layout.bounding_client_rect();
 
-                            if let Some(page) = page {
-                                if let Some(layout) = page.find_layout_by_element(container) {
-                                    match &*layout.kind() {
-                                        LayoutKind::Grid { grid_data, .. } => {
-                                            let is = grid_data.get_block_component_indices(Block {
-                                                x: x as usize,
-                                                y: y as usize,
-                                                width: w as usize,
-                                                height: h as usize,
-                                            });
+                            if let LayoutKind::Grid {
+                                grid_data,
+                                grid_background,
+                                cell_size,
+                                ..
+                            } = &mut *layout.kind_mut()
+                            {
+                                let grid_w = grid_data.width();
+                                let grid_h = grid_data.height();
 
-                                            let is = is.iter().any(|i| {
-                                                workspace.components().get(*i) != Some(component)
-                                            });
+                                let sub_x = component_x - bbox_pos.0;
+                                let sub_y = component_y - bbox_pos.1;
 
-                                            if is {
-                                                grid.set_red_overlay(true);
-                                            }
-                                        }
-                                        _ => {}
+                                let div_x = sub_x / *cell_size as f64;
+                                let div_y = sub_y / *cell_size as f64;
+
+                                let grid_x = div_x.floor() as usize + 1;
+                                let grid_y = div_y.floor() as usize + 1;
+
+                                let placeholder_size =
+                                    self.component.grid_size().unwrap_or_else(|| {
+                                        let width = component_rect.width();
+                                        let height = component_rect.height();
+
+                                        let w = width / *cell_size as f64;
+                                        let h = height / *cell_size as f64;
+
+                                        let w = w.ceil() as usize;
+                                        let h = h.ceil() as usize;
+
+                                        (w, h)
+                                    });
+
+                                let grid_x = grid_x.min(grid_w - placeholder_size.0 + 1).max(0);
+                                let grid_y = grid_y.min(grid_h - placeholder_size.1 + 1).max(0);
+
+                                grid_background.update_placeholder(
+                                    workspace,
+                                    grid_data,
+                                    component,
+                                    (grid_x, grid_y),
+                                    placeholder_size,
+                                );
+                            }
+
+                            if let Some(l) = self.layout.take() {
+                                if l != layout {
+                                    if let LayoutKind::Grid {
+                                        grid_background, ..
+                                    } = &mut *l.kind_mut()
+                                    {
+                                        grid_background.set_placeholder_visible(false);
                                     }
                                 }
                             }
 
-                            grid.placeholder_pos();
+                            self.layout = Some(layout);
                         }
                     }
                 }
             }
         } else {
             self.drag_start(event);
+            self.mouse_move(workspace, event);
         }
     }
 
     /// Called when mouse is up
-    pub fn mouse_up(mut self, _event: &web_sys::MouseEvent) -> MouseUpResult {
+    pub fn mouse_up(
+        mut self,
+        _workspace: &mut Workspace,
+        _event: &web_sys::MouseEvent,
+    ) -> MouseUpResult {
         self.document.set_onmousemove(None);
         self.document.set_onmouseup(None);
 
@@ -197,22 +229,38 @@ impl MoveController {
 
             let container = elements.first();
 
+            if let Some(layout) = self.layout.as_ref() {
+                if let LayoutKind::Grid {
+                    grid_background, ..
+                } = &mut *layout.kind_mut()
+                {
+                    grid_background.set_placeholder_visible(false);
+                }
+            }
+
             if let Some(container) = container {
                 let new_absolute_pos = if container.class_list().contains("grid") {
-                    let grid = self.grids.get_grid(container);
+                    if let Some(layout) = self.layout.as_ref() {
+                        if let LayoutKind::Grid {
+                            grid_background, ..
+                        } = &*layout.kind()
+                        {
+                            let placeholder_pos = grid_background.placeholder_pos();
+                            let placeholder_size = grid_background.placeholder_size();
 
-                    if !grid.red_overlay() {
-                        self.component.unset_absolute_pos();
-                        self.component.unset_size();
+                            if !grid_background.is_placeholder_denied() {
+                                self.component.unset_absolute_pos();
+                                self.component.unset_size();
 
-                        self.component.set_grid_pos(grid.placeholder_pos());
-                        self.component.set_grid_size(grid.placeholder_size());
+                                self.component.set_grid_pos(placeholder_pos);
+                                self.component.set_grid_size(placeholder_size);
+                            }
+                        }
                     }
 
                     // The component does not have grid size, so this is initial drag and drop
                     // And component was droped into ocupied spot
                     if self.component.grid_pos().is_none() || self.component.grid_size().is_none() {
-                        self.grids.hide_placeholders();
                         return MouseUpResult::Removed {
                             component: self.component,
                         };
@@ -234,13 +282,10 @@ impl MoveController {
 
                     new_absolute_pos
                 } else {
-                    self.grids.hide_placeholders();
                     return MouseUpResult::Removed {
                         component: self.component,
                     };
                 };
-
-                self.grids.hide_placeholders();
 
                 // Move has ended so now the layout is responsible for positioning
                 // So we remove the position property
@@ -258,7 +303,6 @@ impl MoveController {
                     absolute_pos: new_absolute_pos,
                 }
             } else {
-                self.grids.hide_placeholders();
                 MouseUpResult::Removed {
                     component: self.component,
                 }
@@ -270,7 +314,6 @@ impl MoveController {
                 .remove_property("pointer-events")
                 .unwrap();
 
-            self.grids.hide_placeholders();
             MouseUpResult::NotStarted {
                 component: self.component,
             }

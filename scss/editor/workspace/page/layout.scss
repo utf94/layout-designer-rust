@@ -93,6 +93,9 @@ layout-container.grid {
   align-items: center;
 
   .grid-svg {
+    position: absolute;
+    pointer-events: none;
+
     visibility: hidden;
     opacity: 0;
     transition: visibility 0.3s, opacity 0.3s;
@@ -106,7 +109,7 @@ layout-container.grid {
     width: 100%;
     height: 100%;
 
-    transition: visibility 0.5s, opacity 0.5s, background-color 0.5s;
+    transition: visibility 0.3s, opacity 0.3s, background-color 0.2s;
 
     z-index: 0;
   }

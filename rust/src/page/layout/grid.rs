@@ -4,6 +4,8 @@ use generational_arena::Index;
 use ndarray::Array2;
 use std::collections::HashMap;
 
+pub mod background;
+
 /// Block Struct to represent position and size of block on grid
 #[derive(Debug)]
 pub struct Block {
@@ -74,6 +76,16 @@ impl GridLayout {
         }
     }
 
+    /// Total width of the grid in cells
+    pub fn width(&self) -> usize {
+        self.width
+    }
+
+    /// Total height of the grid in cells
+    pub fn height(&self) -> usize {
+        self.height
+    }
+
     /// Resize the grid, called when html layout element gets resized
     ///
     /// # Arguments
@@ -84,30 +96,30 @@ impl GridLayout {
         let old_cols = self.data.ncols();
         let mut min_width = old_rows;
         let mut min_height = old_cols;
-        if(old_rows > width) {
+        if (old_rows > width) {
             min_width = width;
             let row_diff = old_rows - width;
             let overflow_block = Block {
-                x: width+1,
+                x: width + 1,
                 y: 1,
                 width: row_diff,
                 height: old_cols,
             };
             if !self.is_data_block_empty(overflow_block) {
-                return false
+                return false;
             }
         }
-        if(old_cols > height) {
+        if (old_cols > height) {
             min_height = height;
             let col_diff = old_cols - height;
             let overflow_block = Block {
                 x: 1,
-                y: height+1,
+                y: height + 1,
                 width: old_rows,
                 height: col_diff,
             };
             if !self.is_data_block_empty(overflow_block) {
-                return false
+                return false;
             }
         }
         let mut new_data = Array2::<i32>::zeros((width, height));
