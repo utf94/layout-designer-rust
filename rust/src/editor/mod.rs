@@ -47,12 +47,12 @@ impl EditorState {
         let mut workspace = Workspace::new();
         // Add a debug page
         {
-            let mut page = Page::new("Home", 765);
+            let mut page = Page::new("Home", 908);
 
             // Add some debug layouts
-            page.insert_layout(Layout::new_flex(765, 76), None);
-            page.insert_layout(Layout::new_grid(765, 225, 76), None);
-            page.insert_layout(Layout::new_free(765, 255), None);
+            page.insert_layout(Layout::new_flex(908, 76), None);
+            page.insert_layout(Layout::new_grid(908), None);
+            page.insert_layout(Layout::new_free(908, 255), None);
 
             workspace.insert_page(page);
         }
@@ -68,6 +68,35 @@ impl EditorState {
             hierarchy,
 
             drag_state: DragState::None,
+        }
+    }
+
+    /// Resize one of pages in workspace
+    pub fn resize_page(&mut self, page: &HtmlElement, width: u32) {
+        let document = web_sys::window().unwrap().document().unwrap();
+
+        let gap = 4;
+
+        let cell_size = width / 10;
+
+        {
+            let cell_size = format!("{}", cell_size);
+
+            let pattern = document.get_element_by_id("grid-pattern").unwrap();
+            pattern.set_attribute("width", &cell_size).unwrap();
+            pattern.set_attribute("height", &cell_size).unwrap();
+        }
+
+        {
+            let cell_size = format!("{}", cell_size - gap * 2);
+
+            let rect = document.get_element_by_id("grid-pattern__rect").unwrap();
+            rect.set_attribute("width", &cell_size).unwrap();
+            rect.set_attribute("height", &cell_size).unwrap();
+        }
+
+        if let Some(page) = self.workspace.get_page_mut(page) {
+            page.resize(width);
         }
     }
 
@@ -102,7 +131,7 @@ impl EditorState {
                     .get_element_by_id("add-page-btn")
                     .unwrap();
 
-                if add_btn.contains(Some(&target)) {
+                if add_btn.contains(Some(target)) {
                     for page in self.workspace.pages() {
                         page.html_element
                             .style()
@@ -111,7 +140,7 @@ impl EditorState {
                     }
                     // Add a debug page
                     {
-                        let page = Page::new("Home", 765);
+                        let page = Page::new("Home", 908);
 
                         self.workspace.insert_page(page);
                         self.update_tree();
@@ -166,10 +195,10 @@ impl EditorState {
                             if let Some(component) = page.find_component_by_element(target) {
                                 if event.button() == 0 {
                                     self.drag_state =
-                                        DragState::Move(MoveController::new(component.clone()));
+                                        DragState::Move(MoveController::new(component));
                                 } else if event.button() == 2 {
                                     self.drag_state =
-                                        DragState::Resize(ResizeController::new(component.clone()));
+                                        DragState::Resize(ResizeController::new(component));
                                 }
                             }
                         }
@@ -196,14 +225,14 @@ impl EditorState {
             MouseEventKind::MouseMove => {
                 match &mut self.drag_state {
                     DragState::Move(s) => s.mouse_move(&mut self.workspace, event),
-                    DragState::Resize(s) => s.mouse_move(event),
+                    DragState::Resize(s) => s.mouse_move(&mut self.workspace, event),
                     _ => {}
                 };
             }
             MouseEventKind::MouseUp => {
                 match self.drag_state.take() {
                     DragState::Move(drag) => {
-                        let res = drag.mouse_up(event);
+                        let res = drag.mouse_up(&mut self.workspace, event);
 
                         match res {
                             MouseUpResult::MovedToLayout {
@@ -310,32 +339,8 @@ impl Editor {
 
     /// Resize one of pages in workspace
     pub fn resize_page(&mut self, page: &HtmlElement, width: u32) {
-        let document = web_sys::window().unwrap().document().unwrap();
-
-        let gap = 4;
-
-        let cell_size = width / 10;
-
-        {
-            let cell_size = format!("{}", cell_size);
-
-            let pattern = document.get_element_by_id("grid-pattern").unwrap();
-            pattern.set_attribute("width", &cell_size).unwrap();
-            pattern.set_attribute("height", &cell_size).unwrap();
-        }
-
-        {
-            let cell_size = format!("{}", cell_size - gap * 2);
-
-            let rect = document.get_element_by_id("grid-pattern__rect").unwrap();
-            rect.set_attribute("width", &cell_size).unwrap();
-            rect.set_attribute("height", &cell_size).unwrap();
-        }
-
         with_editor_state(|editor| {
-            if let Some(page) = editor.workspace.get_page_mut(page) {
-                page.resize(width);
-            }
+            editor.resize_page(page, width);
         })
     }
 
@@ -345,13 +350,13 @@ impl Editor {
             if let Some(page) = page {
                 match layout_kind {
                     "grid" => {
-                        page.insert_layout(Layout::new_grid(765, 76, 76), Some(id));
+                        page.insert_layout(Layout::new_grid(908), Some(id));
                     }
                     "flex" => {
-                        page.insert_layout(Layout::new_flex(765, 76), Some(id));
+                        page.insert_layout(Layout::new_flex(908, 76), Some(id));
                     }
                     "free" => {
-                        page.insert_layout(Layout::new_free(765, 76), Some(id));
+                        page.insert_layout(Layout::new_free(908, 76), Some(id));
                     }
                     _ => {}
                 }

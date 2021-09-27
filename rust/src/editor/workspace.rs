@@ -16,7 +16,7 @@ impl Selection {
     pub fn set_is_selected(&mut self, is: bool) {
         match self {
             Self::Layout(layout) => layout.set_is_selected(is),
-            _ => {}
+            Self::None => {}
         }
     }
 }
