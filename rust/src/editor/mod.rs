@@ -385,13 +385,13 @@ impl Editor {
             if let Some(page) = page {
                 match layout_kind {
                     "grid" => {
-                        page.insert_layout(Layout::new_grid(908), Some(id));
+                        page.insert_layout(Layout::new_grid(page.width()), Some(id));
                     }
                     "flex" => {
-                        page.insert_layout(Layout::new_flex(908, 76), Some(id));
+                        page.insert_layout(Layout::new_flex(page.width(), 76), Some(id));
                     }
                     "free" => {
-                        page.insert_layout(Layout::new_free(908, 76), Some(id));
+                        page.insert_layout(Layout::new_free(page.width(), 76), Some(id));
                     }
                     _ => {}
                 }

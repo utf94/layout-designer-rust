@@ -89,6 +89,10 @@ impl Page {
         Ref::map(self.data.borrow(), |data| data.name.as_ref())
     }
 
+    pub fn width(&self) -> u32 {
+        self.data.borrow().width
+    }
+
     #[allow(unused)]
     pub fn set_is_selected(&mut self, is: bool) {
         if is {
