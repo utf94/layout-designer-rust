@@ -1,16 +1,48 @@
 #![allow(unused)]
 /// Include relevent crates and modules
 use super::Workspace;
-use crate::page::Page;
 use gloo_events::EventListener;
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlElement};
+use crate::{
+    component::Component,
+    page::{layout::Layout, Page},
+};
 
-pub struct HierarchyItemData {}
+/// Enum to identify the type of html element
+enum ElementType {
+    PageElement,
+    LayoutElement,
+    ComponentElement,
+    None
+}
 
+/// Enum to return the result for on click event on html element inside hirarchy tree
+enum ClickResult {
+    Page(Page),
+    Layout(Layout),
+    Component(Component),
+    None
+}
+
+/// Hierarchy Item Data Struct to represent hierarchy tree related data
+pub struct HierarchyItemData {
+     /// Html element of the item
+     item_html_element: HtmlElement,
+     /// Intialization status of the item
+     init_status: bool,
+}
+
+/// Methods for Hierarchy Item Data Struct
 impl HierarchyItemData {
+    /// Create new instance of the Hierarchy Item Data
     pub fn new() -> Self {
-        Self {}
+        let document = web_sys::window().unwrap().document().unwrap();
+        let item_html_element = document.create_element("div").unwrap().dyn_into().unwrap();
+        Self {
+            item_html_element,
+            init_status: false
+        }
     }
 }
 
