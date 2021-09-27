@@ -101,17 +101,16 @@ impl Layout {
             LayoutKind::Grid { cell_size, .. } => {
                 html_element
                     .class_list()
-                    .add_4(
-                        "grid",
-                        "grid-cols-10",
-                        "justify-items-center",
-                        "items-center",
-                    )
+                    .add_3("grid", "justify-items-center", "items-center")
                     .unwrap();
 
                 html_element.style().set_property(
+                    "grid-template-columns",
+                    &format!("repeat({}, {}px)", 10, cell_size),
+                );
+                html_element.style().set_property(
                     "grid-template-rows",
-                    &format!("repeat(auto-fill, {}px)", cell_size),
+                    &format!("repeat({}, {}px)", 3, cell_size),
                 );
 
                 "Grid"
@@ -317,11 +316,16 @@ impl Layout {
                 cell_size,
                 ..
             } => {
-                *cell_size = data.width / 10;
+                let new_cell_size = if let Some(width) = width {
+                    width / 10
+                } else {
+                    *cell_size
+                };
+
                 let grid_w = 10;
 
                 let grid_h = if let Some(height) = height {
-                    let h = (height as f64) / *cell_size as f64;
+                    let h = (height as f64) / new_cell_size as f64;
                     h.floor() as usize
                 } else {
                     grid_data.height()
@@ -335,14 +339,20 @@ impl Layout {
                         data.height = height;
                     }
 
+                    *cell_size = new_cell_size;
+
                     self.html_element
                         .style()
                         .set_property("height", &format!("{}px", *cell_size as usize * grid_h))
                         .unwrap();
 
                     self.html_element.style().set_property(
+                        "grid-template-columns",
+                        &format!("repeat({}, {}px)", grid_w, cell_size),
+                    );
+                    self.html_element.style().set_property(
                         "grid-template-rows",
-                        &format!("repeat(auto-fill, {}px)", cell_size),
+                        &format!("repeat({}, {}px)", grid_h, cell_size),
                     );
                 }
             }
