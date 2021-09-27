@@ -202,8 +202,7 @@ impl Page {
             .unwrap();
 
         for layout in data.layouts.iter_mut() {
-            let (_, height) = layout.size();
-            layout.resize(width, height)
+            layout.resize(Some(width), None);
         }
     }
 }

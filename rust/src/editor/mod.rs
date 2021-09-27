@@ -100,6 +100,25 @@ impl EditorState {
         }
     }
 
+    /// Resize one of layouts in workspace
+    pub fn resize_layout(&mut self, layout: &HtmlElement, height: u32) {
+        // Finda a page that it belongs to
+        let page = self
+            .workspace
+            .pages_mut()
+            .iter_mut()
+            .find(|page| page.contains(layout));
+
+        if let Some(page) = page {
+            let mut layouts = page.layouts_mut();
+            let layout = layouts.iter_mut().find(|l| *l == layout);
+
+            if let Some(layout) = layout {
+                layout.resize(None, Some(height));
+            }
+        }
+    }
+
     /// Let the parameters pannel know that something in the workspace has changed, and it should update
     pub fn update_tree(&mut self) {
         self.parameters_panel
@@ -146,6 +165,8 @@ impl EditorState {
                         self.update_tree();
                     }
                 } else if self.workspace.contains(target) {
+                    self.workspace.set_selection(Selection::None);
+
                     // Finda a page that it belongs to
                     let page = self
                         .workspace
@@ -341,6 +362,13 @@ impl Editor {
     pub fn resize_page(&mut self, page: &HtmlElement, width: u32) {
         with_editor_state(|editor| {
             editor.resize_page(page, width);
+        })
+    }
+
+    /// Resize one of layouts in workspace
+    pub fn resize_layout(&mut self, layout: &HtmlElement, height: u32) {
+        with_editor_state(|editor| {
+            editor.resize_layout(layout, height);
         })
     }
 

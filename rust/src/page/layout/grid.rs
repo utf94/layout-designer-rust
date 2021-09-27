@@ -129,6 +129,8 @@ impl GridLayout {
             }
         }
         self.data = new_data;
+        self.width = width;
+        self.height = height;
         true
     }
 

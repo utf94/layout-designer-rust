@@ -1,3 +1,6 @@
+import { LayoutContainer } from "./container";
+import { Editor } from "./index";
+
 export class ContextMenu extends HTMLElement {
   constructor() {
     super();
@@ -23,29 +26,26 @@ export class ContextMenu extends HTMLElement {
 
 customElements.define("context-menu", ContextMenu);
 
-export function connect() {
+export function connect(editor: Editor) {
   document.addEventListener(
     "contextmenu",
     (event) => {
       event.preventDefault();
 
-      // @ts-ignore
-      if (event.target.open_contextmenu) {
-        // @ts-ignore
-        event.target.open_contextmenu(event);
+      const target = event.target as LayoutContainer;
+      if (target.open_contextmenu) {
+        target.open_contextmenu(editor, event);
       }
     },
     false
   );
 
   document.addEventListener("click", (event) => {
-    const context_menu = document.querySelector("context-menu");
+    const context_menu = document.querySelector("context-menu") as ContextMenu;
 
-    // @ts-ignore
-    if (context_menu.contains(event.target)) {
+    if (context_menu.contains(event.target as Node)) {
       //
     } else {
-      // @ts-ignore
       context_menu.close();
     }
   });
