@@ -223,13 +223,9 @@ impl ResizeController {
     }
 
     /// Called when mouse moves
-    pub fn mouse_up(mut self, _event: &web_sys::MouseEvent) -> DragResizeResult {
+    pub fn mouse_up(self, _event: &web_sys::MouseEvent) -> DragResizeResult {
         self.document.set_onmousemove(None);
         self.document.set_onmouseup(None);
-
-        if let Some(drag_state) = self.drag_state.as_mut() {
-            drag_state.stop();
-        }
 
         self.component.set_is_selected(false);
 
@@ -239,6 +235,15 @@ impl ResizeController {
             .remove_property("pointer-events")
             .unwrap();
 
-        DragResizeResult::NotResized
+        if let Some(mut drag_state) = self.drag_state {
+            drag_state.stop();
+
+            DragResizeResult::Resized {
+                component: self.component,
+                layout: drag_state.layout,
+            }
+        } else {
+            DragResizeResult::NotResized
+        }
     }
 }

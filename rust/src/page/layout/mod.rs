@@ -261,7 +261,7 @@ impl Layout {
         Ref::map(self.data.borrow(), |r| r.components.as_ref())
     }
 
-    pub fn insert_component(&mut self, component: &mut Component) {
+    pub fn insert_component(&mut self, mut component: Component) {
         self.html_element.append_child(component.element());
 
         let mut data = self.data.borrow_mut();

@@ -138,7 +138,7 @@ impl GridLayout {
     ///
     /// # Arguments
     /// * `component` - Component to add or update
-    pub fn insert_component(&mut self, component: &mut Component) {
+    pub fn insert_component(&mut self, component: Component) {
         let ref_id: i32;
         // If component already exists then remove it to insert it again with updated data
         if self.mapping.contains_key(&component.index()) {

@@ -18,6 +18,7 @@ pub mod hierarchy;
 use hierarchy::Hierarchy;
 
 use crate::drag_controller::move_controller::{DragMoveResult, MoveController};
+use crate::drag_controller::resize_controller::DragResizeResult;
 use crate::drag_controller::resize_controller::ResizeController;
 use crate::page::layout::Layout;
 use crate::page::Page;
@@ -279,7 +280,7 @@ impl EditorState {
                                     }
                                 }
 
-                                layout.insert_component(&mut component);
+                                layout.insert_component(component);
                             }
                             DragMoveResult::Removed { mut component } => {
                                 component.remove();
@@ -295,7 +296,14 @@ impl EditorState {
                         self.update_tree();
                     }
                     DragState::Resize(drag) => {
-                        drag.mouse_up(event);
+                        if let DragResizeResult::Resized {
+                            mut layout,
+                            component,
+                        } = drag.mouse_up(event)
+                        {
+                            // Reinsert component with new size
+                            layout.insert_component(component);
+                        }
                     }
                     _ => {}
                 };
