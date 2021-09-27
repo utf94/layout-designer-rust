@@ -7,6 +7,14 @@ use crate::{
     page::layout::{Layout, LayoutKind},
 };
 
+pub enum DragResizeResult {
+    Resized {
+        layout: Layout,
+        component: Component,
+    },
+    NotResized,
+}
+
 struct ResizeState {
     layout: Layout,
     component: Component,
@@ -215,7 +223,7 @@ impl ResizeController {
     }
 
     /// Called when mouse moves
-    pub fn mouse_up(mut self, _event: &web_sys::MouseEvent) {
+    pub fn mouse_up(mut self, _event: &web_sys::MouseEvent) -> DragResizeResult {
         self.document.set_onmousemove(None);
         self.document.set_onmouseup(None);
 
@@ -230,5 +238,7 @@ impl ResizeController {
             .style()
             .remove_property("pointer-events")
             .unwrap();
+
+        DragResizeResult::NotResized
     }
 }
