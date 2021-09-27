@@ -134,7 +134,7 @@ impl GridBackground {
             .iter()
             .any(|i| workspace.components().get(*i) != Some(component));
 
-        // self.set_placeholder_deny(is);
+        self.set_placeholder_deny(is);
         self.set_placeholder_visible(true);
 
         self.placeholder_pos = (x, y);
