@@ -1,3 +1,4 @@
+import { Editor } from "./index";
 import { ContextMenu } from "./context_menu";
 
 class Grid {
@@ -31,7 +32,7 @@ class Grid {
   }
 }
 
-class LayoutContainer extends HTMLElement {
+export class LayoutContainer extends HTMLElement {
   private grid: Grid;
 
   constructor() {
@@ -61,7 +62,7 @@ class LayoutContainer extends HTMLElement {
     }
   }
 
-  open_contextmenu(event) {
+  open_contextmenu(editor: Editor, event) {
     const context_menu = document.querySelector("context-menu") as ContextMenu;
 
     const root = document.createElement("div");
@@ -179,8 +180,10 @@ class LayoutContainer extends HTMLElement {
       input_y.value = height ? height : "75";
 
       input_y.addEventListener("input", (event) => {
-        // @ts-ignore
-        this.style.height = event.target.value + "px";
+        const target = event.target as HTMLInputElement;
+        const value = parseFloat(target.value);
+
+        editor.resize_layout(this, value);
       });
 
       sizer.appendChild(input_y);

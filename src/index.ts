@@ -90,7 +90,7 @@ export async function run() {
     parameters: {},
   });
 
-  ContextMenu.connect();
+  ContextMenu.connect(editor);
 
   Preview.connect();
   JsonPreview.connect();

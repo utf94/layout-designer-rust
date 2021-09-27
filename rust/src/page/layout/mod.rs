@@ -305,38 +305,60 @@ impl Layout {
         (data.width, data.height)
     }
 
-    pub fn resize(&mut self, width: u32, height: u32) {
-        let mut data = self.data.borrow_mut();
-
-        data.width = width;
-        data.height = height;
+    pub fn resize(&mut self, width: Option<u32>, height: Option<u32>) {
+        let data = &mut *self.data.borrow_mut();
 
         // Disabling the "redundand single branch match" lint
         // because we will want to extend this match in future
         #[allow(clippy::single_match)]
         match &mut data.kind {
             LayoutKind::Grid {
-                grid_data: grid,
+                grid_data,
                 cell_size,
                 ..
             } => {
-                *cell_size = width / 10;
+                *cell_size = data.width / 10;
                 let grid_w = 10;
-                let grid_h = 3;
 
-                self.html_element
-                    .style()
-                    .set_property("height", &format!("{}px", *cell_size * 3))
-                    .unwrap();
+                let grid_h = if let Some(height) = height {
+                    let h = (height as f64) / *cell_size as f64;
+                    h.floor() as usize
+                } else {
+                    grid_data.height()
+                };
 
-                self.html_element.style().set_property(
-                    "grid-template-rows",
-                    &format!("repeat(auto-fill, {}px)", cell_size),
-                );
+                if grid_data.resize(grid_w, grid_h) {
+                    if let Some(width) = width {
+                        data.width = width;
+                    }
+                    if let Some(height) = height {
+                        data.height = height;
+                    }
 
-                grid.resize(grid_w, grid_h as usize);
+                    self.html_element
+                        .style()
+                        .set_property("height", &format!("{}px", *cell_size as usize * grid_h))
+                        .unwrap();
+
+                    self.html_element.style().set_property(
+                        "grid-template-rows",
+                        &format!("repeat(auto-fill, {}px)", cell_size),
+                    );
+                }
             }
-            _ => {}
+            _ => {
+                if let Some(width) = width {
+                    data.width = width;
+                }
+                if let Some(height) = height {
+                    data.height = height;
+
+                    self.html_element
+                        .style()
+                        .set_property("height", &format!("{}px", height))
+                        .unwrap();
+                }
+            }
         }
     }
 
