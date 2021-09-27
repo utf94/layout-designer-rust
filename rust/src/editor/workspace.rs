@@ -1,4 +1,4 @@
-use generational_arena::{Arena, Index};
+use generational_arena::Arena;
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlElement};
 
@@ -136,24 +136,6 @@ impl Workspace {
         }
 
         self.components.remove(component.index())
-    }
-
-    /// Insert component into a layout
-    pub fn insert_component_into_layout(&mut self, layou_elm: &HtmlElement, id: Index) {
-        // Try to find a page that contains suplied layout
-        let page = self
-            .pages
-            .iter_mut()
-            .find(|page| page.layouts().iter().any(|layout| layout == layou_elm));
-
-        // Get component from id
-        // This should always succeed, as long as component is alive
-        let component = self.components.get_mut(id);
-
-        // If both page and component were found:
-        if let (Some(page), Some(component)) = (page, component) {
-            page.insert_component_into_layout(layou_elm, component);
-        }
     }
 
     /// Remove all components that are no longer in the DOM tree

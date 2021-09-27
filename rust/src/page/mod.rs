@@ -171,20 +171,6 @@ impl Page {
         }
     }
 
-    /// Insert a component into a layout inside of this page
-    pub fn insert_component_into_layout(
-        &mut self,
-        layou_elm: &HtmlElement,
-        component: &mut Component,
-    ) {
-        let mut data = self.data.borrow_mut();
-        let layout = data.layouts.iter_mut().find(|l| l == &layou_elm);
-
-        if let Some(layout) = layout {
-            layout.insert_component(component);
-        }
-    }
-
     /// Resize the page
     ///
     /// # Arguments

@@ -13,8 +13,7 @@ use css_transform::CssMoveTransform;
 pub enum DragMoveResult {
     MovedToLayout {
         component: Component,
-        absolute_pos: (i32, i32),
-        layout: HtmlElement,
+        layout: Layout,
     },
     Removed {
         component: Component,
@@ -29,7 +28,7 @@ pub struct MoveController {
 
     component: Component,
 
-    drag_state: Option<CssMoveTransform>,
+    drag_css_transform: Option<CssMoveTransform>,
     layout: Option<Layout>,
 }
 
@@ -44,7 +43,7 @@ impl MoveController {
 
             component,
 
-            drag_state: None,
+            drag_css_transform: None,
             layout: None,
         }
     }
@@ -78,7 +77,7 @@ impl MoveController {
             .set_property("position", "absolute")
             .unwrap();
 
-        self.drag_state = Some(CssMoveTransform::start(
+        self.drag_css_transform = Some(CssMoveTransform::start(
             self.component.clone(),
             event.client_x(),
             event.client_y(),
@@ -87,29 +86,26 @@ impl MoveController {
 
     /// Called when mouse moves
     pub fn mouse_move(&mut self, workspace: &mut Workspace, event: &web_sys::MouseEvent) {
-        if let Some(drag_state) = self.drag_state.as_mut() {
-            drag_state.drag(event.client_x(), event.client_y());
+        if let Some(drag_transform) = self.drag_css_transform.as_mut() {
+            drag_transform.drag(event.client_x(), event.client_y());
 
             {
-                let component_rect = self.component.element().get_bounding_client_rect();
+                let (component_bbox_pos, component_bbox_size) =
+                    self.component.bounding_client_rect();
 
-                let component_x = component_rect.left();
-                let component_y = component_rect.top();
-                let component_w = component_rect.width();
-                let component_h = component_rect.height();
-
-                let elements = self.document.elements_from_point(
-                    (component_x + component_w / 2.0) as f32,
-                    (component_y + component_h / 2.0) as f32,
-                );
-
-                let elements: Vec<_> = elements
+                let containers: Vec<_> = self
+                    .document
+                    .elements_from_point(
+                        (component_bbox_pos.0 + component_bbox_size.0 / 2.0) as f32,
+                        (component_bbox_pos.1 + component_bbox_size.1 / 2.0) as f32,
+                    )
                     .iter()
                     .filter_map(|elm| elm.dyn_into::<HtmlElement>().ok())
                     .filter(|elm| elm.class_list().contains("container"))
                     .collect();
+                let container = containers.first();
 
-                if let Some(container) = elements.first() {
+                if let Some(container) = container {
                     let component = &self.component;
 
                     // Finda a page that it belongs to
@@ -132,8 +128,8 @@ impl MoveController {
                                 let grid_w = grid_data.width();
                                 let grid_h = grid_data.height();
 
-                                let sub_x = component_x - bbox_pos.0;
-                                let sub_y = component_y - bbox_pos.1;
+                                let sub_x = component_bbox_pos.0 - bbox_pos.0;
+                                let sub_y = component_bbox_pos.1 - bbox_pos.1;
 
                                 let div_x = sub_x / *cell_size as f64;
                                 let div_y = sub_y / *cell_size as f64;
@@ -143,8 +139,8 @@ impl MoveController {
 
                                 let placeholder_size =
                                     self.component.grid_size().unwrap_or_else(|| {
-                                        let width = component_rect.width();
-                                        let height = component_rect.height();
+                                        let width = component_bbox_size.0;
+                                        let height = component_bbox_size.1;
 
                                         let w = width / *cell_size as f64;
                                         let h = height / *cell_size as f64;
@@ -200,20 +196,29 @@ impl MoveController {
 
         self.component.set_is_dragged(false);
 
-        // TODO(poly): goddammit, there has to be a cleaner way to do all of this
+        if let Some(layout) = self.layout.as_ref() {
+            if let LayoutKind::Grid {
+                grid_background, ..
+            } = &mut *layout.kind_mut()
+            {
+                grid_background.set_placeholder_visible(false);
+            }
+        }
 
-        if let Some(drag_state) = self.drag_state.as_mut() {
-            let component_rect = self.component.element().get_bounding_client_rect();
+        if let Some(drag_transform) = self.drag_css_transform.as_mut() {
+            let (component_bbox_pos, component_bbox_size) = self.component.bounding_client_rect();
 
-            let component_x = component_rect.left();
-            let component_y = component_rect.top();
-            let component_w = component_rect.width();
-            let component_h = component_rect.height();
-
-            let elements = self.document.elements_from_point(
-                (component_x + component_w / 2.0) as f32,
-                (component_y + component_h / 2.0) as f32,
-            );
+            let containers: Vec<_> = self
+                .document
+                .elements_from_point(
+                    (component_bbox_pos.0 + component_bbox_size.0 / 2.0) as f32,
+                    (component_bbox_pos.1 + component_bbox_size.1 / 2.0) as f32,
+                )
+                .iter()
+                .filter_map(|elm| elm.dyn_into::<HtmlElement>().ok())
+                .filter(|elm| elm.class_list().contains("container"))
+                .collect();
+            let container = containers.first();
 
             self.component
                 .element()
@@ -221,70 +226,48 @@ impl MoveController {
                 .remove_property("pointer-events")
                 .unwrap();
 
-            let elements: Vec<_> = elements
-                .iter()
-                .filter_map(|elm| elm.dyn_into::<HtmlElement>().ok())
-                .filter(|elm| elm.class_list().contains("container"))
-                .collect();
+            if let (Some(layout), true) = (self.layout, container.is_some()) {
+                match &*layout.kind() {
+                    LayoutKind::Grid {
+                        grid_background, ..
+                    } => {
+                        let placeholder_pos = grid_background.placeholder_pos();
+                        let placeholder_size = grid_background.placeholder_size();
 
-            let container = elements.first();
+                        if !grid_background.is_placeholder_denied() {
+                            self.component.unset_absolute_pos();
+                            self.component.unset_size();
 
-            if let Some(layout) = self.layout.as_ref() {
-                if let LayoutKind::Grid {
-                    grid_background, ..
-                } = &mut *layout.kind_mut()
-                {
-                    grid_background.set_placeholder_visible(false);
-                }
-            }
-
-            if let Some(container) = container {
-                let new_absolute_pos = if container.class_list().contains("grid") {
-                    if let Some(layout) = self.layout.as_ref() {
-                        if let LayoutKind::Grid {
-                            grid_background, ..
-                        } = &*layout.kind()
-                        {
-                            let placeholder_pos = grid_background.placeholder_pos();
-                            let placeholder_size = grid_background.placeholder_size();
-
-                            if !grid_background.is_placeholder_denied() {
-                                self.component.unset_absolute_pos();
-                                self.component.unset_size();
-
-                                self.component.set_grid_pos(placeholder_pos);
-                                self.component.set_grid_size(placeholder_size);
-                            }
+                            self.component.set_grid_pos(placeholder_pos);
+                            self.component.set_grid_size(placeholder_size);
                         }
+
+                        // The component does not have grid size, so this is initial drag and drop
+                        // And component was droped into ocupied spot
+                        if self.component.grid_pos().is_none()
+                            || self.component.grid_size().is_none()
+                        {
+                            return DragMoveResult::Removed {
+                                component: self.component,
+                            };
+                        }
+
+                        drag_transform.stop();
                     }
-
-                    // The component does not have grid size, so this is initial drag and drop
-                    // And component was droped into ocupied spot
-                    if self.component.grid_pos().is_none() || self.component.grid_size().is_none() {
-                        return DragMoveResult::Removed {
-                            component: self.component,
-                        };
+                    LayoutKind::Flex { .. } => {
+                        drag_transform.stop();
+                        self.component.unset_absolute_pos();
                     }
+                    LayoutKind::Free { .. } => {
+                        let new_absolute_pos = drag_transform.stop();
 
-                    drag_state.stop()
-                } else if container.class_list().contains("flex") {
-                    self.component.unset_absolute_pos();
+                        let (bpos, _) = layout.bounding_client_rect();
 
-                    drag_state.stop()
-                } else if container.class_list().contains("free") {
-                    let new_absolute_pos = drag_state.stop();
+                        let offset = (bpos.0 as i32, bpos.1 as i32);
+                        let pos = (new_absolute_pos.0 - offset.0, new_absolute_pos.1 - offset.1);
 
-                    let rect = container.get_bounding_client_rect();
-                    let offset = (rect.left() as i32, rect.top() as i32);
-                    let pos = (new_absolute_pos.0 - offset.0, new_absolute_pos.1 - offset.1);
-
-                    self.component.set_position(pos);
-
-                    new_absolute_pos
-                } else {
-                    return DragMoveResult::Removed {
-                        component: self.component,
-                    };
+                        self.component.set_position(pos);
+                    }
                 };
 
                 // Move has ended so now the layout is responsible for positioning
@@ -295,12 +278,9 @@ impl MoveController {
                     .remove_property("position")
                     .unwrap();
 
-                container.append_child(self.component.element()).unwrap();
-
                 DragMoveResult::MovedToLayout {
                     component: self.component,
-                    layout: container.clone(),
-                    absolute_pos: new_absolute_pos,
+                    layout,
                 }
             } else {
                 DragMoveResult::Removed {
@@ -308,12 +288,6 @@ impl MoveController {
                 }
             }
         } else {
-            self.component
-                .element()
-                .style()
-                .remove_property("pointer-events")
-                .unwrap();
-
             DragMoveResult::NotStarted {
                 component: self.component,
             }

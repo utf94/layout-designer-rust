@@ -258,7 +258,7 @@ impl EditorState {
                         match res {
                             DragMoveResult::MovedToLayout {
                                 mut component,
-                                layout,
+                                mut layout,
                                 ..
                             } => {
                                 if let Some(layout) = component.layout() {
@@ -279,8 +279,7 @@ impl EditorState {
                                     }
                                 }
 
-                                self.workspace
-                                    .insert_component_into_layout(&layout, component.index());
+                                layout.insert_component(&mut component);
                             }
                             DragMoveResult::Removed { mut component } => {
                                 component.remove();

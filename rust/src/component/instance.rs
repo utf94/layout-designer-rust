@@ -89,6 +89,11 @@ impl Component {
         self.data.borrow().index.unwrap()
     }
 
+    pub fn bounding_client_rect(&self) -> ((f64, f64), (f64, f64)) {
+        let bbox = self.element.get_bounding_client_rect();
+        ((bbox.left(), bbox.top()), (bbox.width(), bbox.height()))
+    }
+
     pub fn element(&self) -> &EditorComponent {
         &self.element
     }
