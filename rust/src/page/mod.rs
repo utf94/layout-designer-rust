@@ -15,19 +15,19 @@ struct Data {
     /// The name of a page
     ///
     /// For example `Home`, `Contact`, `News`
-    name: String,
+    name: RefCell<String>,
 
     /// Width of a page
-    width: u32,
+    width: RefCell<u32>,
 
     /// List of layouts inside of a page,
     /// laid out one under the other
-    layouts: Vec<Layout>,
+    layouts: RefCell<Vec<Layout>>,
 
     /// Hierarchy related data
-    hierarchy_data: HierarchyItemData,
+    hierarchy_data: RefCell<HierarchyItemData>,
 
-    grid_cell_size: u32,
+    grid_cell_size: RefCell<u32>,
 }
 
 /// The representation of a Paga
@@ -42,7 +42,7 @@ pub struct Page {
     pub html_element: HtmlElement,
 
     /// Inner ref counted data
-    data: Rc<RefCell<Data>>,
+    data: Rc<Data>,
 }
 
 impl Page {
@@ -65,32 +65,32 @@ impl Page {
         Self {
             html_element,
 
-            data: Rc::new(RefCell::new(Data {
-                name,
-                width,
+            data: Rc::new(Data {
+                name: RefCell::new(name),
+                width: RefCell::new(width),
 
-                layouts: Vec::new(),
+                layouts: Default::default(),
 
-                hierarchy_data: HierarchyItemData::new(),
-                grid_cell_size: 76,
-            })),
+                hierarchy_data: RefCell::new(HierarchyItemData::new()),
+                grid_cell_size: RefCell::new(76),
+            }),
         }
     }
 
     pub fn hierarchy_data(&self) -> Ref<HierarchyItemData> {
-        Ref::map(self.data.borrow(), |data| &data.hierarchy_data)
+        self.data.hierarchy_data.borrow()
     }
 
     pub fn hierarchy_data_mut(&self) -> RefMut<HierarchyItemData> {
-        RefMut::map(self.data.borrow_mut(), |data| &mut data.hierarchy_data)
+        self.data.hierarchy_data.borrow_mut()
     }
 
     pub fn name(&self) -> Ref<str> {
-        Ref::map(self.data.borrow(), |data| data.name.as_ref())
+        Ref::map(self.data.name.borrow(), |name| name.as_ref())
     }
 
     pub fn width(&self) -> u32 {
-        self.data.borrow().width
+        *self.data.width.borrow()
     }
 
     #[allow(unused)]
@@ -110,8 +110,8 @@ impl Page {
     ///  Fina layout on a page
     pub fn find_layout_by_element(&self, elm: &Element) -> Option<Layout> {
         self.data
-            .borrow()
             .layouts
+            .borrow()
             .iter()
             .find(|layout| layout.contains(elm))
             .cloned()
@@ -138,19 +138,19 @@ impl Page {
 
     /// Get unmutable list of all layouts in a page
     pub fn layouts(&self) -> Ref<[Layout]> {
-        Ref::map(self.data.borrow(), |d| d.layouts.as_ref())
+        Ref::map(self.data.layouts.borrow(), |l| l.as_ref())
     }
 
     /// Get mutable list of all layouts in a page
     pub fn layouts_mut(&mut self) -> RefMut<[Layout]> {
-        RefMut::map(self.data.borrow_mut(), |d| d.layouts.as_mut())
+        RefMut::map(self.data.layouts.borrow_mut(), |l| l.as_mut())
     }
 
     pub fn remove_layout(&mut self, id: usize) -> Option<Layout> {
-        let mut data = self.data.borrow_mut();
+        let mut layouts = self.data.layouts.borrow_mut();
 
-        if data.layouts.get(id).is_some() {
-            Some(data.layouts.remove(id))
+        if layouts.get(id).is_some() {
+            Some(layouts.remove(id))
         } else {
             None
         }
@@ -159,19 +159,19 @@ impl Page {
     /// Insert a layout into a page
     pub fn insert_layout(&mut self, layout: Layout, index: Option<usize>) {
         if let Some(index) = index {
-            let mut data = self.data.borrow_mut();
-            if let Some(l) = data.layouts.get(index) {
+            let mut layouts = self.data.layouts.borrow_mut();
+            if let Some(l) = layouts.get(index) {
                 l.html_element
                     .before_with_node_1(&layout.html_element)
                     .unwrap();
-                data.layouts.insert(index, layout);
+                layouts.insert(index, layout);
             } else {
                 layout.append_to(&self.html_element);
-                data.layouts.push(layout);
+                layouts.push(layout);
             }
         } else {
             layout.append_to(&self.html_element);
-            self.data.borrow_mut().layouts.push(layout);
+            self.data.layouts.borrow_mut().push(layout);
         }
     }
 
@@ -180,18 +180,15 @@ impl Page {
     /// # Arguments
     /// * `width` - width of a page in px
     pub fn resize(&mut self, width: u32) {
-        let mut data = self.data.borrow_mut();
-
-        data.grid_cell_size = width / 10;
-
-        data.width = width;
+        self.data.grid_cell_size.replace(width / 10);
+        self.data.width.replace(width);
 
         self.html_element
             .style()
             .set_property("width", &format!("{}px", width))
             .unwrap();
 
-        for layout in data.layouts.iter_mut() {
+        for layout in self.data.layouts.borrow_mut().iter_mut() {
             layout.resize(Some(width), None);
         }
     }
