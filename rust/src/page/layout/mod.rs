@@ -1,6 +1,7 @@
 #![allow(unused)]
 
 use std::{
+    borrow::Borrow,
     cell::{Ref, RefCell, RefMut},
     rc::Rc,
 };
@@ -50,19 +51,19 @@ pub enum LayoutKind {
 
 struct Data {
     /// Name of a layout
-    name: String,
+    name: RefCell<String>,
 
     /// Height of a layout
-    height: u32,
+    height: RefCell<u32>,
     /// Width of a layout
-    width: u32,
+    width: RefCell<u32>,
     /// Layout kind specyfic data
-    kind: LayoutKind,
+    kind: RefCell<LayoutKind>,
     /// Children of a layout
-    components: Vec<Component>,
+    components: RefCell<Vec<Component>>,
 
     /// Hierarchy related data
-    hierarchy_data: HierarchyItemData,
+    hierarchy_data: RefCell<HierarchyItemData>,
 }
 
 /// Layout struct that represents layout node
@@ -71,7 +72,7 @@ pub struct Layout {
     /// Root html element of a layout
     pub html_element: HtmlElement,
     /// Inner ref counted data
-    data: Rc<RefCell<Data>>,
+    data: Rc<Data>,
 }
 
 // Init related methods:
@@ -130,16 +131,16 @@ impl Layout {
 
         Self {
             html_element,
-            data: Rc::new(RefCell::new(Data {
-                name: name.into(),
-                height,
-                width,
-                kind,
+            data: Rc::new(Data {
+                name: RefCell::new(name.into()),
+                height: RefCell::new(height),
+                width: RefCell::new(width),
+                kind: RefCell::new(kind),
 
-                components: Vec::new(),
+                components: Default::default(),
 
-                hierarchy_data: HierarchyItemData::new(),
-            })),
+                hierarchy_data: RefCell::new(HierarchyItemData::new()),
+            }),
         }
     }
 
@@ -162,15 +163,15 @@ impl Layout {
     }
 
     pub fn hierarchy_data(&self) -> Ref<HierarchyItemData> {
-        Ref::map(self.data.borrow(), |data| &data.hierarchy_data)
+        self.data.hierarchy_data.borrow()
     }
 
     pub fn hierarchy_data_mut(&self) -> RefMut<HierarchyItemData> {
-        RefMut::map(self.data.borrow_mut(), |data| &mut data.hierarchy_data)
+        self.data.hierarchy_data.borrow_mut()
     }
 
     pub fn name(&self) -> Ref<str> {
-        Ref::map(self.data.borrow(), |data| data.name.as_ref())
+        Ref::map(self.data.name.borrow(), |name| name.as_ref())
     }
 
     /// Creates a new free layout
@@ -223,11 +224,11 @@ impl Layout {
     ///
     /// Used to append layout to the page
     pub fn append_to(&self, parent: &Element) {
-        let mut data = self.data.borrow_mut();
+        let kind = self.data.kind.borrow();
 
         if let LayoutKind::Grid {
             grid_background, ..
-        } = &data.kind
+        } = &*kind
         {
             grid_background.append_to(&self.html_element);
         }
@@ -238,11 +239,11 @@ impl Layout {
 
 impl Layout {
     pub fn kind(&self) -> Ref<LayoutKind> {
-        Ref::map(self.data.borrow(), |r| &r.kind)
+        self.data.kind.borrow()
     }
 
     pub fn kind_mut(&self) -> RefMut<LayoutKind> {
-        RefMut::map(self.data.borrow_mut(), |r| &mut r.kind)
+        self.data.kind.borrow_mut()
     }
 
     pub fn bounding_client_rect(&self) -> ((f64, f64), (f64, f64)) {
@@ -257,21 +258,22 @@ impl Layout {
 
     /// Get list of components stored in a layout
     pub fn components(&self) -> Ref<[Component]> {
-        Ref::map(self.data.borrow(), |r| r.components.as_ref())
+        Ref::map(self.data.components.borrow(), |components| {
+            components.as_ref()
+        })
     }
 
     pub fn insert_component(&mut self, mut component: Component) {
         self.html_element.append_child(component.element());
 
-        let mut data = self.data.borrow_mut();
-        data.components.push(component.clone());
+        self.data.components.borrow_mut().push(component.clone());
 
         component.set_layout(Some(self.html_element.clone()));
 
         // Disabling the "redundand single branch match" lint
         // because we will want to extend this match in future
         #[allow(clippy::single_match)]
-        match &mut data.kind {
+        match &mut *self.data.kind.borrow_mut() {
             LayoutKind::Grid {
                 grid_data: grid, ..
             } => grid.insert_component(component),
@@ -280,17 +282,17 @@ impl Layout {
     }
 
     pub fn remove_component(&mut self, component: &mut Component) {
-        let mut data = self.data.borrow_mut();
+        let mut components = self.data.components.borrow_mut();
 
-        let index = data.components.iter().position(|c| c == &*component);
+        let index = components.iter().position(|c| c == &*component);
 
         if let Some(index) = index {
-            data.components.remove(index);
+            components.remove(index);
 
             // Disabling the "redundand single branch match" lint
             // because we will want to extend this match in future
             #[allow(clippy::single_match)]
-            match &mut data.kind {
+            match &mut *self.data.kind.borrow_mut() {
                 LayoutKind::Grid {
                     grid_data: grid, ..
                 } => grid.remove_component(component),
@@ -300,17 +302,14 @@ impl Layout {
     }
 
     pub fn size(&self) -> (u32, u32) {
-        let data = self.data.borrow();
-        (data.width, data.height)
+        (*self.data.width.borrow(), *self.data.height.borrow())
     }
 
     pub fn resize(&mut self, width: Option<u32>, height: Option<u32>) {
-        let data = &mut *self.data.borrow_mut();
-
         // Disabling the "redundand single branch match" lint
         // because we will want to extend this match in future
         #[allow(clippy::single_match)]
-        match &mut data.kind {
+        match &mut *self.data.kind.borrow_mut() {
             LayoutKind::Grid {
                 grid_data,
                 cell_size,
@@ -333,10 +332,10 @@ impl Layout {
 
                 if grid_data.resize(grid_w, grid_h) {
                     if let Some(width) = width {
-                        data.width = width;
+                        self.data.width.replace(width);
                     }
                     if let Some(height) = height {
-                        data.height = height;
+                        self.data.height.replace(height);
                     }
 
                     *cell_size = new_cell_size;
@@ -358,10 +357,10 @@ impl Layout {
             }
             _ => {
                 if let Some(width) = width {
-                    data.width = width;
+                    self.data.width.replace(width);
                 }
                 if let Some(height) = height {
-                    data.height = height;
+                    self.data.height.replace(height);
 
                     self.html_element
                         .style()
@@ -375,7 +374,7 @@ impl Layout {
     pub fn remove(self) {
         self.html_element.remove();
 
-        for component in self.data.borrow_mut().components.iter_mut() {
+        for component in self.data.components.borrow_mut().iter_mut() {
             component.remove();
         }
     }
