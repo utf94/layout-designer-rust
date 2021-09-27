@@ -17,7 +17,7 @@ use component_picker::ComponentPicker;
 pub mod hierarchy;
 use hierarchy::Hierarchy;
 
-use crate::drag_controller::move_controller::{MouseUpResult, MoveController};
+use crate::drag_controller::move_controller::{DragMoveResult, MoveController};
 use crate::drag_controller::resize_controller::ResizeController;
 use crate::page::layout::Layout;
 use crate::page::Page;
@@ -256,7 +256,7 @@ impl EditorState {
                         let res = drag.mouse_up(&mut self.workspace, event);
 
                         match res {
-                            MouseUpResult::MovedToLayout {
+                            DragMoveResult::MovedToLayout {
                                 mut component,
                                 layout,
                                 ..
@@ -282,11 +282,11 @@ impl EditorState {
                                 self.workspace
                                     .insert_component_into_layout(&layout, component.index());
                             }
-                            MouseUpResult::Removed { mut component } => {
+                            DragMoveResult::Removed { mut component } => {
                                 component.remove();
                                 self.workspace.remove_component(&mut component);
                             }
-                            MouseUpResult::NotStarted { component } => {
+                            DragMoveResult::NotStarted { component } => {
                                 if !self.workspace.contains(component.element()) {
                                     component.remove();
                                 }

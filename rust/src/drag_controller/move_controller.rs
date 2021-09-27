@@ -10,7 +10,7 @@ use crate::{
 mod css_transform;
 use css_transform::CssMoveTransform;
 
-pub enum MouseUpResult {
+pub enum DragMoveResult {
     MovedToLayout {
         component: Component,
         absolute_pos: (i32, i32),
@@ -194,7 +194,7 @@ impl MoveController {
         mut self,
         _workspace: &mut Workspace,
         _event: &web_sys::MouseEvent,
-    ) -> MouseUpResult {
+    ) -> DragMoveResult {
         self.document.set_onmousemove(None);
         self.document.set_onmouseup(None);
 
@@ -261,7 +261,7 @@ impl MoveController {
                     // The component does not have grid size, so this is initial drag and drop
                     // And component was droped into ocupied spot
                     if self.component.grid_pos().is_none() || self.component.grid_size().is_none() {
-                        return MouseUpResult::Removed {
+                        return DragMoveResult::Removed {
                             component: self.component,
                         };
                     }
@@ -282,7 +282,7 @@ impl MoveController {
 
                     new_absolute_pos
                 } else {
-                    return MouseUpResult::Removed {
+                    return DragMoveResult::Removed {
                         component: self.component,
                     };
                 };
@@ -297,13 +297,13 @@ impl MoveController {
 
                 container.append_child(self.component.element()).unwrap();
 
-                MouseUpResult::MovedToLayout {
+                DragMoveResult::MovedToLayout {
                     component: self.component,
                     layout: container.clone(),
                     absolute_pos: new_absolute_pos,
                 }
             } else {
-                MouseUpResult::Removed {
+                DragMoveResult::Removed {
                     component: self.component,
                 }
             }
@@ -314,7 +314,7 @@ impl MoveController {
                 .remove_property("pointer-events")
                 .unwrap();
 
-            MouseUpResult::NotStarted {
+            DragMoveResult::NotStarted {
                 component: self.component,
             }
         }
