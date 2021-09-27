@@ -32,6 +32,7 @@ enum LayoutKind {
 }
 interface Layout {
   classes: string[];
+  styles: Styles;
   kind: LayoutKind;
   height: string;
   components: Component[];
@@ -173,9 +174,21 @@ function generate_page_json(page: HTMLElement): Page {
         }
       });
 
+      const styles: Styles = {};
+      if (kind == LayoutKind.Grid) {
+        styles["grid-template-columns"] = ch.style.getPropertyValue(
+          "grid-template-columns"
+        );
+        styles["grid-template-rows"] =
+          ch.style.getPropertyValue("grid-template-rows");
+      }
+
       const layout: Layout = {
-        classes,
         kind,
+
+        classes,
+        styles,
+
         height,
         components,
         padding: {
