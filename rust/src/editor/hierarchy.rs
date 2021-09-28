@@ -18,7 +18,7 @@ enum ElementType {
 }
 
 /// Enum to return the result for on click event on html element inside hirarchy tree
-enum ClickResult {
+pub enum ClickResult {
     Page(Page),
     Layout(Layout),
     Component(Component),
@@ -228,7 +228,7 @@ impl Hierarchy {
     }
 
     /// On click event when any element inside hierarchy tree is clicked
-    fn on_click(&mut self, workspace: &Workspace, target: &HtmlElement) -> ClickResult {
+    pub fn on_click(&mut self, workspace: &Workspace, target: &HtmlElement) -> ClickResult {
         ClickResult::None
     }
 }
