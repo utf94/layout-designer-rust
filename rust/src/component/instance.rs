@@ -207,7 +207,7 @@ impl Component {
 
         let onanimationend =
             utils::new_listener(self.clone(), |component, event: web_sys::AnimationEvent| {
-                if event.animation_name() == "death-animation" {
+                if event.animation_name() == "component-death-animation" {
                     component.element().remove();
                 }
             });

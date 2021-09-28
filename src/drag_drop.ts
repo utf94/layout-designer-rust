@@ -51,7 +51,16 @@ export function connect(editor: Editor) {
 
       const elements = document.querySelectorAll(".layout-drop-area");
 
-      elements.forEach((elm) => elm.remove());
+      elements.forEach((elm) => {
+        elm.classList.add("death-animation");
+        elm.addEventListener("animationend", (event) => {
+          let e = event as AnimationEvent;
+          console.log(e.animationName);
+          if (e.animationName == "layout-death-animation") {
+            elm.remove();
+          }
+        });
+      });
     },
     false
   );

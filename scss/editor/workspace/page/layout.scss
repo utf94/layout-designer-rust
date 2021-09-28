@@ -18,12 +18,27 @@ layout-container.dragover {
   background-position: center;
   background-repeat: no-repeat;
 
-  animation: opacity-up 1s;
+  animation: layout-spawn-animation 0.3s;
 
   height: 50px;
 }
 
-@keyframes opacity-up {
+.layout-drop-area.death-animation {
+  animation: layout-death-animation 0.3s;
+}
+
+@keyframes layout-death-animation {
+  0% {
+    opacity: 1;
+    height: 50px;
+  }
+  100% {
+    opacity: 0;
+    height: 0px;
+  }
+}
+
+@keyframes layout-spawn-animation {
   0% {
     opacity: 0;
     height: 0px;
@@ -79,8 +94,6 @@ layout-container.dragover {
 
 layout-container.flex {
   display: flex;
-  justify-content: space-evenly;
-  align-items: center;
   flex-wrap: wrap;
 }
 

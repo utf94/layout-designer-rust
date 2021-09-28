@@ -27,7 +27,20 @@ use crate::{
     html_elements::component::{ComponentDescriptor, EditorComponentSource},
 };
 
-use self::workspace::Selection;
+#[derive(Clone, PartialEq)]
+pub enum Selection {
+    Layout(Layout),
+    None,
+}
+
+impl Selection {
+    pub fn set_is_selected(&mut self, is: bool) {
+        match self {
+            Self::Layout(layout) => layout.set_is_selected(is),
+            Self::None => {}
+        }
+    }
+}
 
 /// The main state of the whole editor
 pub struct EditorState {
@@ -39,6 +52,9 @@ pub struct EditorState {
     parameters_panel: ParametersPanel,
 
     drag_state: DragState,
+
+    /// Currently selected item
+    selection: Selection,
 }
 
 impl EditorState {
@@ -69,11 +85,12 @@ impl EditorState {
             hierarchy,
 
             drag_state: DragState::None,
+            selection: Selection::None,
         }
     }
 
     /// Resize one of pages in workspace
-    pub fn resize_page(&mut self, page: &HtmlElement, width: u32) {
+    fn resize_page(&mut self, page: &HtmlElement, width: u32) {
         let document = web_sys::window().unwrap().document().unwrap();
 
         let gap = 4;
@@ -102,7 +119,7 @@ impl EditorState {
     }
 
     /// Resize one of layouts in workspace
-    pub fn resize_layout(&mut self, layout: &HtmlElement, height: u32) {
+    fn resize_layout(&mut self, layout: &HtmlElement, height: u32) {
         // Finda a page that it belongs to
         let page = self
             .workspace
@@ -121,10 +138,19 @@ impl EditorState {
     }
 
     /// Let the parameters pannel know that something in the workspace has changed, and it should update
-    pub fn update_tree(&mut self) {
+    fn update_tree(&mut self) {
         self.parameters_panel
-            .update_components_tree(&self.workspace);
+            .update_debug_components_tree(&self.workspace);
         self.hierarchy.update(&self.workspace);
+    }
+
+    fn set_selection(&mut self, mut selection: Selection) {
+        self.selection.set_is_selected(false);
+
+        selection.set_is_selected(true);
+
+        self.parameters_panel.set_selected(&selection);
+        self.selection = selection;
     }
 
     fn on_mouse_event(&mut self, kind: MouseEventKind, event: &web_sys::MouseEvent) {
@@ -166,8 +192,6 @@ impl EditorState {
                         self.update_tree();
                     }
                 } else if self.workspace.contains(target) {
-                    self.workspace.set_selection(Selection::None);
-
                     // Finda a page that it belongs to
                     let page = self
                         .workspace
@@ -180,7 +204,8 @@ impl EditorState {
 
                         if let Some(layout) = layout {
                             if event.button() == 0 {
-                                self.workspace.set_selection(Selection::Layout(layout))
+                                let selection = Selection::Layout(layout);
+                                self.set_selection(selection)
                             }
                         } else {
                             let layout = page
@@ -198,7 +223,11 @@ impl EditorState {
                                     self.update_tree();
                                 }
                             }
+
+                            self.set_selection(Selection::None);
                         }
+                    } else {
+                        self.set_selection(Selection::None);
                     }
                 }
             }

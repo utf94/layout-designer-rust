@@ -95,7 +95,7 @@ impl Layout {
             LayoutKind::Flex { .. } => {
                 html_element
                     .class_list()
-                    .add_4("flex", "items-center", "justify-evenly", "flex-wrap")
+                    .add_4("flex", "items-center", "justify-center", "flex-wrap")
                     .unwrap();
                 "Flex"
             }
@@ -142,36 +142,6 @@ impl Layout {
                 hierarchy_data: RefCell::new(HierarchyItemData::new()),
             }),
         }
-    }
-
-    pub fn close_icon_element(&self) -> HtmlElement {
-        let close_icon_element = self
-            .html_element
-            .query_selector(".container__close-icon")
-            .unwrap()
-            .unwrap();
-        let close_icon_element: HtmlElement = close_icon_element.dyn_into().unwrap();
-        close_icon_element
-    }
-
-    pub fn set_is_selected(&mut self, is: bool) {
-        if is {
-            self.html_element.class_list().add_1("selected").unwrap();
-        } else {
-            self.html_element.class_list().remove_1("selected").unwrap();
-        }
-    }
-
-    pub fn hierarchy_data(&self) -> Ref<HierarchyItemData> {
-        self.data.hierarchy_data.borrow()
-    }
-
-    pub fn hierarchy_data_mut(&self) -> RefMut<HierarchyItemData> {
-        self.data.hierarchy_data.borrow_mut()
-    }
-
-    pub fn name(&self) -> Ref<str> {
-        Ref::map(self.data.name.borrow(), |name| name.as_ref())
     }
 
     /// Creates a new free layout
@@ -238,6 +208,36 @@ impl Layout {
 }
 
 impl Layout {
+    pub fn close_icon_element(&self) -> HtmlElement {
+        let close_icon_element = self
+            .html_element
+            .query_selector(".container__close-icon")
+            .unwrap()
+            .unwrap();
+        let close_icon_element: HtmlElement = close_icon_element.dyn_into().unwrap();
+        close_icon_element
+    }
+
+    pub fn set_is_selected(&mut self, is: bool) {
+        if is {
+            self.html_element.class_list().add_1("selected").unwrap();
+        } else {
+            self.html_element.class_list().remove_1("selected").unwrap();
+        }
+    }
+
+    pub fn hierarchy_data(&self) -> Ref<HierarchyItemData> {
+        self.data.hierarchy_data.borrow()
+    }
+
+    pub fn hierarchy_data_mut(&self) -> RefMut<HierarchyItemData> {
+        self.data.hierarchy_data.borrow_mut()
+    }
+
+    pub fn name(&self) -> Ref<str> {
+        Ref::map(self.data.name.borrow(), |name| name.as_ref())
+    }
+
     pub fn kind(&self) -> Ref<LayoutKind> {
         self.data.kind.borrow()
     }
@@ -376,6 +376,34 @@ impl Layout {
 
         for component in self.data.components.borrow_mut().iter_mut() {
             component.remove();
+        }
+    }
+}
+
+impl Layout {
+    pub fn set_flex_justify(&self, class: &str) {
+        match &*self.kind() {
+            LayoutKind::Flex { .. } => {
+                self.html_element.class_list().remove_3(
+                    "justify-start",
+                    "justify-center",
+                    "justify-end",
+                );
+                self.html_element.class_list().add_1(class);
+            }
+            _ => {}
+        }
+    }
+
+    pub fn set_flex_align(&self, class: &str) {
+        match &*self.kind() {
+            LayoutKind::Flex { .. } => {
+                self.html_element
+                    .class_list()
+                    .remove_3("items-start", "items-center", "items-end");
+                self.html_element.class_list().add_1(class);
+            }
+            _ => {}
         }
     }
 }
