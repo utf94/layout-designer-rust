@@ -8,9 +8,12 @@ mod free;
 mod grid;
 
 use flex::FlexSettings;
+use grid::GridSettings;
 
 trait SettingsData {}
-impl<T> SettingsData for T {}
+impl SettingsData for FlexSettings {}
+impl SettingsData for GridSettings {}
+impl SettingsData for () {}
 
 fn title(title: &str) -> HtmlElement {
     let document = web_sys::window().unwrap().document().unwrap();
@@ -55,8 +58,22 @@ impl LayoutSettings {
                 (data.root.clone(), Box::new(data))
             }
             LayoutKind::Grid { .. } => {
-                let root = grid::settings();
-                (root, Box::new(()))
+                let mut data = GridSettings::new(&layout);
+
+                let mut layout = layout.clone();
+                data.connect_height(move |value| {
+                    let cell_size = if let LayoutKind::Grid { cell_size, .. } = &*layout.kind() {
+                        Some(*cell_size)
+                    } else {
+                        None
+                    };
+
+                    if let Some(cell_size) = cell_size {
+                        layout.resize(None, Some(value * cell_size));
+                    }
+                });
+
+                (data.root.clone(), Box::new(data))
             }
         };
 
