@@ -118,6 +118,7 @@ export function connect(editor: Editor) {
             }
           }
         }
+        target.remove();
       }
     },
     false
