@@ -124,13 +124,12 @@ impl Hierarchy {
 
             // Process Hierarchy Item Data for Page
             let mut page_hierarchy_item_data = page.hierarchy_data_mut();
-            if page_hierarchy_item_data.init_status {
-
-            }
-            else {
+            if !page_hierarchy_item_data.init_status {
                 page_hierarchy_item_data.init_status = true;
-                // page_hierarchy_item_data.item_html_element = Some(page_item_element);
             }
+            page_hierarchy_item_data.item_html_element = Some(page_item_header_element);
+            page_hierarchy_item_data.icon_html_element = Some(page_item_icon_element);
+            page_hierarchy_item_data.element_type = ElementType::PageElement;
 
             // Add all layouts in page
             for layout in page.layouts().iter() {
@@ -160,6 +159,15 @@ impl Hierarchy {
                 layout_item_header_element.append_child(&layout_item_name_element);
                 layout_item_element.append_child(&layout_item_header_element);
 
+                // Process Hierarchy Item Data for Layout
+                let mut layout_hierarchy_item_data = layout.hierarchy_data_mut();
+                if !layout_hierarchy_item_data.init_status {
+                    layout_hierarchy_item_data.init_status = true;
+                }
+                layout_hierarchy_item_data.item_html_element = Some(layout_item_header_element);
+                layout_hierarchy_item_data.icon_html_element = Some(layout_item_icon_element);
+                layout_hierarchy_item_data.element_type = ElementType::LayoutElement;
+
                 // Add html element of layout children container
                 let layout_item_children_element = document.create_element("div").unwrap();
                 let layout_item_children_element: HtmlElement = layout_item_children_element.dyn_into().unwrap();
@@ -188,6 +196,15 @@ impl Hierarchy {
                     component_item_element.append_child(&component_item_icon_element);
                     component_item_element.append_child(&component_item_name_element);
                     layout_item_children_element.append_child(&component_item_element);
+
+                    // Process Hierarchy Item Data for Component
+                    let mut component_hierarchy_item_data = component.hierarchy_data_mut();
+                    if !component_hierarchy_item_data.init_status {
+                        component_hierarchy_item_data.init_status = true;
+                    }
+                    component_hierarchy_item_data.item_html_element = Some(component_item_element);
+                    component_hierarchy_item_data.icon_html_element = Some(component_item_icon_element);
+                    component_hierarchy_item_data.element_type = ElementType::ComponentElement;
                 }
 
                 // Add layout children container in layout
@@ -208,6 +225,11 @@ impl Hierarchy {
     /// Determines whether the tree contains a given html element
     pub fn contains(&self, elm: &Element) -> bool {
         self.html_element.contains(Some(elm))
+    }
+
+    /// On click event when any element inside hierarchy tree is clicked
+    fn on_click(&mut self, workspace: &Workspace, target: &HtmlElement) -> ClickResult {
+        ClickResult::None
     }
 }
 
