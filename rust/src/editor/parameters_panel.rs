@@ -1,12 +1,22 @@
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlElement, HtmlInputElement, HtmlTextAreaElement};
 
-use crate::{editor::Workspace, html_elements::component::ComponentPropertie, utils};
+use crate::{
+    editor::{Selection, Workspace},
+    html_elements::component::ComponentPropertie,
+    utils,
+};
+
+use self::layout_settings::LayoutSettings;
+
+mod layout_settings;
 
 /// The panel on the right side of the editor
 pub struct ParametersPanel {
-    _root: HtmlElement,
+    root: HtmlElement,
     component_list: HtmlElement,
+
+    selected_settings: Option<LayoutSettings>,
 }
 
 impl ParametersPanel {
@@ -19,13 +29,37 @@ impl ParametersPanel {
         let component_list = document.get_element_by_id("component-list").unwrap();
         let component_list: HtmlElement = component_list.dyn_into().unwrap();
         Self {
-            _root: root,
+            root,
             component_list,
+            selected_settings: None,
+        }
+    }
+
+    pub fn set_selected(&mut self, selection: &Selection) {
+        match selection {
+            Selection::Layout(layout) => {
+                if Some(layout) != self.selected_settings.as_ref().map(|s| &s.layout) {
+                    let settings = LayoutSettings::new(layout.clone());
+
+                    if let Some(old) = self.selected_settings.take() {
+                        self.root.replace_child(&settings.root, &old.root).unwrap();
+                    } else {
+                        self.root.append_child(&settings.root).unwrap();
+                    }
+
+                    self.selected_settings = Some(settings);
+                }
+            }
+            _ => {
+                if let Some(old) = self.selected_settings.take() {
+                    old.root.remove();
+                }
+            }
         }
     }
 
     /// Update the list of components
-    pub fn update_components_tree(&self, workspace: &Workspace) {
+    pub fn update_debug_components_tree(&self, workspace: &Workspace) {
         self.component_list.set_inner_html("");
 
         let document = web_sys::window().unwrap().document().unwrap();
