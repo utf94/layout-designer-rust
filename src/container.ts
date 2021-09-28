@@ -74,33 +74,33 @@ export class LayoutContainer extends HTMLElement {
     free_btn.innerText = "Free";
 
     free_btn.addEventListener("click", () => {
-      this.classList.add("free");
-      this.classList.remove("flex");
-      this.classList.remove("grid");
-      this.grid.remove();
-      context_menu.close();
+      // this.classList.add("free");
+      // this.classList.remove("flex");
+      // this.classList.remove("grid");
+      // this.grid.remove();
+      // context_menu.close();
     });
 
     const flex_btn = document.createElement("button");
     flex_btn.innerText = "Flex";
 
     flex_btn.addEventListener("click", () => {
-      this.classList.remove("free");
-      this.classList.add("flex");
-      this.classList.remove("grid");
-      this.grid.remove();
-      context_menu.close();
+      // this.classList.remove("free");
+      // this.classList.add("flex");
+      // this.classList.remove("grid");
+      // this.grid.remove();
+      // context_menu.close();
     });
 
     const grid_btn = document.createElement("button");
     grid_btn.innerText = "Grid";
 
     grid_btn.addEventListener("click", () => {
-      this.classList.remove("free");
-      this.classList.remove("flex");
-      this.classList.add("grid");
-      this.grid.mount(this);
-      context_menu.close();
+      // this.classList.remove("free");
+      // this.classList.remove("flex");
+      // this.classList.add("grid");
+      // this.grid.mount(this);
+      // context_menu.close();
     });
 
     select.appendChild(free_btn);
@@ -113,49 +113,6 @@ export class LayoutContainer extends HTMLElement {
       free_btn.classList.add("active");
     } else if (this.classList.contains("flex")) {
       flex_btn.classList.add("active");
-
-      const div = document.createElement("div");
-      div.style.display = "flex";
-      div.style.marginTop = "10px";
-
-      {
-        const label = document.createElement("span");
-        label.innerText = "Justify: ";
-        label.style.marginRight = "5px";
-        label.style.fontSize = "13px";
-        div.appendChild(label);
-      }
-
-      {
-        const select = document.createElement("select");
-
-        select.innerHTML = `
-        <optgroup>
-          <option value="flex-start">Start</option>
-          <option value="center">Center</option>
-          <option value="flex-end">End</option>
-        </optgroup>
-
-        <optgroup>
-          <option value="space-between">Space Between</option>
-          <option value="space-around">Space Around</option>
-          <option value="space-evenly" selected>Space Evenly</option>
-        </optgroup>
-       `;
-
-        const justify = this.style.justifyContent;
-        select.value = justify.length !== 0 ? justify : "space-evenly";
-
-        select.addEventListener("change", (event) => {
-          // @ts-ignore
-          this.style.justifyContent = event.target.value;
-          context_menu.close();
-        });
-
-        div.appendChild(select);
-      }
-
-      root.appendChild(div);
     } else if (this.classList.contains("grid")) {
       grid_btn.classList.add("active");
     }

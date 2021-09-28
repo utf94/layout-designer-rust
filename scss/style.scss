@@ -36,7 +36,8 @@ body {
   cursor: pointer;
 }
 
-.icon-btn-container:hover {
+.icon-btn-container:hover,
+.icon-btn-container.active {
   background-color: #ebebeb;
 
   img {
@@ -76,10 +77,13 @@ context-menu {
   cursor: pointer;
 
   border-bottom: 1px solid transparent;
+
+  color: grey;
 }
 
 .layout-select > button.active {
   border-bottom: 1px solid rgba(0, 0, 255, 0.5);
+  color: black;
 }
 
 .layout-select > button:hover:not(button[disabled]) {
@@ -142,42 +146,4 @@ context-menu {
 ::-webkit-scrollbar-thumb {
   background: rgb(200, 200, 200);
   border-radius: 10px;
-}
-
-/*  */
-/* Animations  */
-/*  */
-
-.spawn-animation {
-  animation: spawn-animation 0.2s;
-}
-
-.death-animation {
-  animation: death-animation 0.5s;
-  pointer-events: none;
-  z-index: 999;
-}
-
-@keyframes death-animation {
-  from {
-    /* transform: scale(1); */
-    opacity: 1;
-  }
-
-  to {
-    /* transform: scale(0); */
-    opacity: 0;
-  }
-}
-
-@keyframes spawn-animation {
-  from {
-    opacity: 0;
-    /* transform: scale(0); */
-  }
-
-  to {
-    opacity: 1;
-    /* transform: scale(1); */
-  }
 }

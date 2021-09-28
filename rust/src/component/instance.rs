@@ -12,28 +12,28 @@ use crate::{
 };
 
 struct InnerData {
-    name: String,
+    name: RefCell<String>,
 
-    grid_size: Option<(usize, usize)>,
-    grid_pos: Option<(usize, usize)>,
+    grid_size: RefCell<Option<(usize, usize)>>,
+    grid_pos: RefCell<Option<(usize, usize)>>,
 
     /// The index of a componetn
     ///
     /// Despite the fact that this is an `Option`, it is guaranteed to be initialized
     /// It is Option because we don't know the Index when Component is initialized, we get the id after initialization
-    index: Option<Index>,
+    index: RefCell<Option<Index>>,
 
-    layout: Option<HtmlElement>,
+    layout: RefCell<Option<HtmlElement>>,
 
     /// Hierarchy related data
-    hierarchy_data: HierarchyItemData,
+    hierarchy_data: RefCell<HierarchyItemData>,
 }
 
 /// Instance of a component
 #[derive(Clone)]
 pub struct Component {
     element: EditorComponent,
-    data: Rc<RefCell<InnerData>>,
+    data: Rc<InnerData>,
 }
 
 impl Component {
@@ -44,24 +44,24 @@ impl Component {
 
         Self {
             element,
-            data: Rc::new(RefCell::new(InnerData {
-                name: "Component".into(),
-                grid_size: None,
-                grid_pos: None,
-                index: None,
-                layout: None,
+            data: Rc::new(InnerData {
+                name: RefCell::new("Component".into()),
+                grid_size: Default::default(),
+                grid_pos: Default::default(),
+                index: Default::default(),
+                layout: Default::default(),
 
-                hierarchy_data: HierarchyItemData::new(),
-            })),
+                hierarchy_data: RefCell::new(HierarchyItemData::new()),
+            }),
         }
     }
 
     pub fn hierarchy_data(&self) -> Ref<HierarchyItemData> {
-        Ref::map(self.data.borrow(), |data| &data.hierarchy_data)
+        self.data.hierarchy_data.borrow()
     }
 
     pub fn hierarchy_data_mut(&self) -> RefMut<HierarchyItemData> {
-        RefMut::map(self.data.borrow_mut(), |data| &mut data.hierarchy_data)
+        self.data.hierarchy_data.borrow_mut()
     }
 
     pub fn set_id(&mut self, id: Index) {
@@ -70,23 +70,23 @@ impl Component {
         self.element()
             .set_id(&format!("component-{}-{}", number, generation));
 
-        self.data.borrow_mut().index = Some(id);
+        self.data.index.replace(Some(id));
     }
 
     pub fn name(&self) -> Ref<str> {
-        Ref::map(self.data.borrow(), |data| data.name.as_ref())
+        Ref::map(self.data.name.borrow(), |name| name.as_ref())
     }
 
     pub fn layout(&self) -> Option<HtmlElement> {
-        self.data.borrow().layout.clone()
+        self.data.layout.borrow().clone()
     }
 
     pub fn set_layout(&mut self, layout: Option<HtmlElement>) {
-        self.data.borrow_mut().layout = layout;
+        self.data.layout.replace(layout);
     }
 
     pub fn index(&self) -> Index {
-        self.data.borrow().index.unwrap()
+        self.data.index.borrow().unwrap()
     }
 
     pub fn bounding_client_rect(&self) -> ((f64, f64), (f64, f64)) {
@@ -110,9 +110,10 @@ impl Component {
     }
 
     fn update_grid_css_properties(&self) {
-        let data = self.data.borrow();
+        let grid_pos = &*self.data.grid_pos.borrow();
+        let grid_size = &*self.data.grid_size.borrow();
 
-        if let (Some(pos), Some(size)) = (data.grid_pos, data.grid_size) {
+        if let (Some(pos), Some(size)) = (grid_pos, grid_size) {
             self.element
                 .style()
                 .set_property("grid-column", &format!("{}/span {}", pos.0, size.0))
@@ -126,20 +127,20 @@ impl Component {
     }
 
     pub fn grid_pos(&self) -> Option<(usize, usize)> {
-        self.data.borrow().grid_pos
+        self.data.grid_pos.borrow().clone()
     }
 
     pub fn set_grid_pos(&mut self, pos: (usize, usize)) {
-        self.data.borrow_mut().grid_pos = Some(pos);
+        self.data.grid_pos.replace(Some(pos));
         self.update_grid_css_properties();
     }
 
     pub fn grid_size(&self) -> Option<(usize, usize)> {
-        self.data.borrow().grid_size
+        self.data.grid_size.borrow().clone()
     }
 
     pub fn set_grid_size(&mut self, size: (usize, usize)) {
-        self.data.borrow_mut().grid_size = Some(size);
+        self.data.grid_size.replace(Some(size));
         self.update_grid_css_properties();
     }
 
@@ -206,7 +207,7 @@ impl Component {
 
         let onanimationend =
             utils::new_listener(self.clone(), |component, event: web_sys::AnimationEvent| {
-                if event.animation_name() == "death-animation" {
+                if event.animation_name() == "component-death-animation" {
                     component.element().remove();
                 }
             });

@@ -2,24 +2,7 @@ use generational_arena::Arena;
 use wasm_bindgen::JsCast;
 use web_sys::{Element, HtmlElement};
 
-use crate::{
-    component::Component,
-    page::{layout::Layout, Page},
-};
-
-pub enum Selection {
-    Layout(Layout),
-    None,
-}
-
-impl Selection {
-    pub fn set_is_selected(&mut self, is: bool) {
-        match self {
-            Self::Layout(layout) => layout.set_is_selected(is),
-            Self::None => {}
-        }
-    }
-}
+use crate::{component::Component, page::Page};
 
 /// Workspace is an area in the middle of the editor.
 ///
@@ -33,9 +16,6 @@ pub struct Workspace {
 
     /// List of all pages in the workspace
     pages: Vec<Page>,
-
-    /// Currently selected item
-    selection: Selection,
 }
 
 impl Workspace {
@@ -50,15 +30,7 @@ impl Workspace {
             html_element,
             components: Arena::new(),
             pages: Vec::new(),
-            selection: Selection::None,
         }
-    }
-
-    pub fn set_selection(&mut self, mut selection: Selection) {
-        self.selection.set_is_selected(false);
-
-        selection.set_is_selected(true);
-        self.selection = selection;
     }
 
     pub fn insert_page(&mut self, page: Page) {
