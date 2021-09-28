@@ -227,12 +227,10 @@ impl Hierarchy {
             let page_arrow_html_element = page_hierarchy_item_data.arrow_html_element.as_ref();
             if page_item_html_element.unwrap().contains(Some(target)) {
                 if page_arrow_html_element.unwrap().contains(Some(target)) {
-                    log::debug!("PAGE ARROW CLICKED");
                     return ClickResult::None
                 }
                 else {
-                    log::debug!("PAGE ITEM CLICKED");
-                    return ClickResult::None
+                    return ClickResult::Page(page.clone())
                 }
             }
             // Check if a layout is clicked
@@ -242,12 +240,10 @@ impl Hierarchy {
                 let layout_arrow_html_element = layout_hierarchy_item_data.arrow_html_element.as_ref();
                 if layout_item_html_element.unwrap().contains(Some(target)) {
                     if layout_arrow_html_element.unwrap().contains(Some(target)) {
-                        log::debug!("LAYOUT ARROW CLICKED");
                         return ClickResult::None
                     }
                     else {
-                        log::debug!("LAYOUT ITEM CLICKED");
-                        return ClickResult::None
+                        return ClickResult::Layout(layout.clone())
                     }
                 }
                 // Check if a component is clicked
@@ -257,12 +253,10 @@ impl Hierarchy {
                     let component_arrow_html_element = component_hierarchy_item_data.arrow_html_element.as_ref();
                     if component_item_html_element.unwrap().contains(Some(target)) {
                         if component_arrow_html_element.unwrap().contains(Some(target)) {
-                            log::debug!("COMPONENT ARROW CLICKED");
                             return ClickResult::None
                         }
                         else {
-                            log::debug!("COMPONENT ITEM CLICKED");
-                            return ClickResult::None
+                            return ClickResult::Component(component.clone())
                         }
                     }
                 }
