@@ -36,7 +36,8 @@ body {
   cursor: pointer;
 }
 
-.icon-btn-container:hover {
+.icon-btn-container:hover,
+.icon-btn-container.active {
   background-color: #ebebeb;
 
   img {
@@ -76,10 +77,13 @@ context-menu {
   cursor: pointer;
 
   border-bottom: 1px solid transparent;
+
+  color: grey;
 }
 
 .layout-select > button.active {
   border-bottom: 1px solid rgba(0, 0, 255, 0.5);
+  color: black;
 }
 
 .layout-select > button:hover:not(button[disabled]) {
