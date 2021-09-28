@@ -32,7 +32,7 @@ pub struct HierarchyItemData {
      /// Html element of the icon
      icon_html_element: Option<HtmlElement>,
      /// Intialization status of the item
-    init_status: bool,
+     init_status: bool,
      /// Collapse status of the item
      collapse_status: bool,
      /// Type of element
@@ -121,6 +121,16 @@ impl Hierarchy {
             page_item_header_element.append_child(&page_item_icon_element);
             page_item_header_element.append_child(&page_item_name_element);
             page_item_element.append_child(&page_item_header_element);
+
+            // Process Hierarchy Item Data for Page
+            let mut page_hierarchy_item_data = page.hierarchy_data_mut();
+            if page_hierarchy_item_data.init_status {
+
+            }
+            else {
+                page_hierarchy_item_data.init_status = true;
+                // page_hierarchy_item_data.item_html_element = Some(page_item_element);
+            }
 
             // Add all layouts in page
             for layout in page.layouts().iter() {
