@@ -170,6 +170,9 @@ impl EditorState {
     ) {
         match kind {
             MouseEventKind::Click => {
+                if self.hierarchy.contains(&target) {
+                    self.hierarchy.on_click(&self.workspace, &target);
+                }
                 let add_btn = web_sys::window()
                     .unwrap()
                     .document()
