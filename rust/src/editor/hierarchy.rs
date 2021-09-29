@@ -31,8 +31,6 @@ pub struct HierarchyItemData {
      item_html_element: Option<HtmlElement>,
      /// Html element of the arrow
      arrow_html_element: Option<HtmlElement>,
-     /// Intialization status of the item
-     init_status: bool,
      /// Collapse status of the item
      collapse_status: bool,
      /// Type of element
@@ -46,7 +44,6 @@ impl HierarchyItemData {
         Self {
             item_html_element: None,
             arrow_html_element: None,
-            init_status: false,
             collapse_status: false,
             element_type: ElementType::None
         }
@@ -104,9 +101,12 @@ impl Hierarchy {
             let page_item_header_element = document.create_element("header").unwrap();
             let page_item_header_element: HtmlElement = page_item_header_element.dyn_into().unwrap();
 
+            let page_item_children_element = document.create_element("div").unwrap();
+            let page_item_children_element: HtmlElement = page_item_children_element.dyn_into().unwrap();
+
             let page_item_arrow_element = document.create_element("div").unwrap();
             let page_item_arrow_element: HtmlElement = page_item_arrow_element.dyn_into().unwrap();
-            page_item_arrow_element.set_class_name("page-item__icon");
+            page_item_arrow_element.set_class_name("page-item__icon expanded");
 
             let page_item_arrow_img_element = document.create_element("img").unwrap();
             let page_item_arrow_img_element: HtmlElement = page_item_arrow_img_element.dyn_into().unwrap();
@@ -121,9 +121,13 @@ impl Hierarchy {
             page_item_header_element.append_child(&page_item_arrow_element);
             page_item_header_element.append_child(&page_item_name_element);
             page_item_element.append_child(&page_item_header_element);
+            page_item_element.append_child(&page_item_children_element);
 
-            // Process Hierarchy Item Data for Page
+            // Process Hierarchy Item Data for Page (using previous states if needed)
             let mut page_hierarchy_item_data = page.hierarchy_data_mut();
+            if(page_hierarchy_item_data.collapse_status) {
+                page_item_arrow_element.set_class_name("page-item__icon");
+            }
             page_hierarchy_item_data.item_html_element = Some(page_item_header_element);
             page_hierarchy_item_data.arrow_html_element = Some(page_item_arrow_element);
             page_hierarchy_item_data.element_type = ElementType::PageElement;
@@ -140,7 +144,7 @@ impl Hierarchy {
 
                 let layout_item_arrow_element = document.create_element("div").unwrap();
                 let layout_item_arrow_element: HtmlElement = layout_item_arrow_element.dyn_into().unwrap();
-                layout_item_arrow_element.set_class_name("page-item__icon");
+                layout_item_arrow_element.set_class_name("page-item__icon expanded");
 
                 let layout_item_arrow_img_element = document.create_element("img").unwrap();
                 let layout_item_arrow_img_element: HtmlElement = layout_item_arrow_img_element.dyn_into().unwrap();
@@ -156,8 +160,11 @@ impl Hierarchy {
                 layout_item_header_element.append_child(&layout_item_name_element);
                 layout_item_element.append_child(&layout_item_header_element);
 
-                // Process Hierarchy Item Data for Layout
+                // Process Hierarchy Item Data for Layout (using previous states if needed)
                 let mut layout_hierarchy_item_data = layout.hierarchy_data_mut();
+                if(layout_hierarchy_item_data.collapse_status) {
+                    layout_item_arrow_element.set_class_name("page-item__icon");
+                }
                 layout_hierarchy_item_data.item_html_element = Some(layout_item_header_element);
                 layout_hierarchy_item_data.arrow_html_element = Some(layout_item_arrow_element);
                 layout_hierarchy_item_data.element_type = ElementType::LayoutElement;
@@ -202,7 +209,7 @@ impl Hierarchy {
                 layout_item_element.append_child(&layout_item_children_element);
 
                 // Add layout in page
-                page_item_element.append_child(&layout_item_element);
+                page_item_children_element.append_child(&layout_item_element);
             }
 
             // Add page in hierarchy
@@ -226,7 +233,14 @@ impl Hierarchy {
             let page_item_html_element = page_hierarchy_item_data.item_html_element.as_ref();
             let page_arrow_html_element = page_hierarchy_item_data.arrow_html_element.as_ref();
             if page_item_html_element.unwrap().contains(Some(target)) {
+                // If arrow icon is clicked, then expand/collapse the page and update its collapse status state
                 if page_arrow_html_element.unwrap().contains(Some(target)) {
+                    if page_hierarchy_item_data.collapse_status {
+                        page_arrow_html_element.unwrap().set_class_name("page-item__icon expanded");
+                    } else {
+                        page_arrow_html_element.unwrap().set_class_name("page-item__icon");
+                    }
+                    page_hierarchy_item_data.collapse_status = !page_hierarchy_item_data.collapse_status;
                     return ClickResult::None
                 }
                 else {
@@ -239,7 +253,14 @@ impl Hierarchy {
                 let layout_item_html_element = layout_hierarchy_item_data.item_html_element.as_ref();
                 let layout_arrow_html_element = layout_hierarchy_item_data.arrow_html_element.as_ref();
                 if layout_item_html_element.unwrap().contains(Some(target)) {
+                    // If arrow icon is clicked, then expand/collapse the layout and update its collapse status state
                     if layout_arrow_html_element.unwrap().contains(Some(target)) {
+                        if layout_hierarchy_item_data.collapse_status {
+                            layout_arrow_html_element.unwrap().set_class_name("page-item__icon expanded");
+                        } else {
+                            layout_arrow_html_element.unwrap().set_class_name("page-item__icon");
+                        }
+                        layout_hierarchy_item_data.collapse_status = !layout_hierarchy_item_data.collapse_status;
                         return ClickResult::None
                     }
                     else {
