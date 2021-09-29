@@ -199,3 +199,9 @@ impl PartialEq<HtmlElement> for Page {
         &self.html_element == html_element
     }
 }
+
+impl PartialEq<Page> for Page {
+    fn eq(&self, layout: &Page) -> bool {
+        self.html_element == layout.html_element
+    }
+}
