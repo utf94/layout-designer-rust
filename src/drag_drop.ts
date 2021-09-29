@@ -55,7 +55,6 @@ export function connect(editor: Editor) {
         elm.classList.add("death-animation");
         elm.addEventListener("animationend", (event) => {
           let e = event as AnimationEvent;
-          console.log(e.animationName);
           if (e.animationName == "layout-death-animation") {
             elm.remove();
           }
