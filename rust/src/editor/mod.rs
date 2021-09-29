@@ -27,6 +27,8 @@ use crate::{
     html_elements::component::{ComponentDescriptor, EditorComponentSource},
 };
 
+use self::hierarchy::ClickResult;
+
 #[derive(Clone, PartialEq)]
 pub enum Selection {
     Layout(Layout),
@@ -191,7 +193,20 @@ impl EditorState {
                         self.workspace.insert_page(page);
                         self.update_tree();
                     }
-                } else if self.workspace.contains(target) {
+                }
+                // Hierarchy
+                else if self.hierarchy.contains(&target) {
+                    let res = self.hierarchy.on_click(&self.workspace, &target);
+
+                    match res {
+                        ClickResult::Layout(layout) => {
+                            self.set_selection(Selection::Layout(layout));
+                        }
+                        _ => {}
+                    }
+                }
+                // Workspace
+                else if self.workspace.contains(target) {
                     // Finda a page that it belongs to
                     let page = self
                         .workspace

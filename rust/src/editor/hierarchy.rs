@@ -10,7 +10,7 @@ use crate::{
 };
 
 /// Enum to identify the type of html element
-enum ElementType {
+pub enum ElementType {
     PageElement,
     LayoutElement,
     ComponentElement,
@@ -18,7 +18,7 @@ enum ElementType {
 }
 
 /// Enum to return the result for on click event on html element inside hirarchy tree
-enum ClickResult {
+pub enum ClickResult {
     Page(Page),
     Layout(Layout),
     Component(Component),
@@ -29,10 +29,10 @@ enum ClickResult {
 pub struct HierarchyItemData {
      /// Html element of the item
      item_html_element: Option<HtmlElement>,
-     /// Html element of the icon
-     icon_html_element: Option<HtmlElement>,
+     /// Html element of the arrow
+     arrow_html_element: Option<HtmlElement>,
      /// Intialization status of the item
-    init_status: bool,
+     init_status: bool,
      /// Collapse status of the item
      collapse_status: bool,
      /// Type of element
@@ -45,7 +45,7 @@ impl HierarchyItemData {
     pub fn new() -> Self {
         Self {
             item_html_element: None,
-            icon_html_element: None,
+            arrow_html_element: None,
             init_status: false,
             collapse_status: false,
             element_type: ElementType::None
@@ -104,23 +104,29 @@ impl Hierarchy {
             let page_item_header_element = document.create_element("header").unwrap();
             let page_item_header_element: HtmlElement = page_item_header_element.dyn_into().unwrap();
 
-            let page_item_icon_element = document.create_element("div").unwrap();
-            let page_item_icon_element: HtmlElement = page_item_icon_element.dyn_into().unwrap();
-            page_item_icon_element.set_class_name("page-item__icon");
+            let page_item_arrow_element = document.create_element("div").unwrap();
+            let page_item_arrow_element: HtmlElement = page_item_arrow_element.dyn_into().unwrap();
+            page_item_arrow_element.set_class_name("page-item__icon");
 
-            let page_item_icon_img_element = document.create_element("img").unwrap();
-            let page_item_icon_img_element: HtmlElement = page_item_icon_img_element.dyn_into().unwrap();
-            page_item_icon_img_element.set_attribute(&"src", &"./img/icons/arrow_down.svg");
+            let page_item_arrow_img_element = document.create_element("img").unwrap();
+            let page_item_arrow_img_element: HtmlElement = page_item_arrow_img_element.dyn_into().unwrap();
+            page_item_arrow_img_element.set_attribute(&"src", &"./img/icons/arrow_down.svg");
 
             let page_item_name_element = document.create_element("div").unwrap();
             let page_item_name_element: HtmlElement = page_item_name_element.dyn_into().unwrap();
             page_item_name_element.set_inner_text(&page.name());
 
             // Add html elements of page in hierarchy
-            page_item_icon_element.append_child(&page_item_icon_img_element);
-            page_item_header_element.append_child(&page_item_icon_element);
+            page_item_arrow_element.append_child(&page_item_arrow_img_element);
+            page_item_header_element.append_child(&page_item_arrow_element);
             page_item_header_element.append_child(&page_item_name_element);
             page_item_element.append_child(&page_item_header_element);
+
+            // Process Hierarchy Item Data for Page
+            let mut page_hierarchy_item_data = page.hierarchy_data_mut();
+            page_hierarchy_item_data.item_html_element = Some(page_item_header_element);
+            page_hierarchy_item_data.arrow_html_element = Some(page_item_arrow_element);
+            page_hierarchy_item_data.element_type = ElementType::PageElement;
 
             // Add all layouts in page
             for layout in page.layouts().iter() {
@@ -132,23 +138,29 @@ impl Hierarchy {
                 let layout_item_header_element = document.create_element("header").unwrap();
                 let layout_item_header_element: HtmlElement = layout_item_header_element.dyn_into().unwrap();
 
-                let layout_item_icon_element = document.create_element("div").unwrap();
-                let layout_item_icon_element: HtmlElement = layout_item_icon_element.dyn_into().unwrap();
-                layout_item_icon_element.set_class_name("page-item__icon");
+                let layout_item_arrow_element = document.create_element("div").unwrap();
+                let layout_item_arrow_element: HtmlElement = layout_item_arrow_element.dyn_into().unwrap();
+                layout_item_arrow_element.set_class_name("page-item__icon");
 
-                let layout_item_icon_img_element = document.create_element("img").unwrap();
-                let layout_item_icon_img_element: HtmlElement = layout_item_icon_img_element.dyn_into().unwrap();
-                layout_item_icon_img_element.set_attribute(&"src", &"./img/icons/arrow_down.svg");
+                let layout_item_arrow_img_element = document.create_element("img").unwrap();
+                let layout_item_arrow_img_element: HtmlElement = layout_item_arrow_img_element.dyn_into().unwrap();
+                layout_item_arrow_img_element.set_attribute(&"src", &"./img/icons/arrow_down.svg");
 
                 let layout_item_name_element = document.create_element("div").unwrap();
                 let layout_item_name_element: HtmlElement = layout_item_name_element.dyn_into().unwrap();
                 layout_item_name_element.set_inner_text(&layout.name());
 
                 // Add html elements of layout in page
-                layout_item_icon_element.append_child(&layout_item_icon_img_element);
-                layout_item_header_element.append_child(&layout_item_icon_element);
+                layout_item_arrow_element.append_child(&layout_item_arrow_img_element);
+                layout_item_header_element.append_child(&layout_item_arrow_element);
                 layout_item_header_element.append_child(&layout_item_name_element);
                 layout_item_element.append_child(&layout_item_header_element);
+
+                // Process Hierarchy Item Data for Layout
+                let mut layout_hierarchy_item_data = layout.hierarchy_data_mut();
+                layout_hierarchy_item_data.item_html_element = Some(layout_item_header_element);
+                layout_hierarchy_item_data.arrow_html_element = Some(layout_item_arrow_element);
+                layout_hierarchy_item_data.element_type = ElementType::LayoutElement;
 
                 // Add html element of layout children container
                 let layout_item_children_element = document.create_element("div").unwrap();
@@ -161,23 +173,29 @@ impl Hierarchy {
                     let component_item_element: HtmlElement = component_item_element.dyn_into().unwrap();
                     component_item_element.class_list().add_1("page-item__component");
 
-                    let component_item_icon_element = document.create_element("div").unwrap();
-                    let component_item_icon_element: HtmlElement = component_item_icon_element.dyn_into().unwrap();
-                    component_item_icon_element.set_class_name("page-item__component_icon");
+                    let component_item_arrow_element = document.create_element("div").unwrap();
+                    let component_item_arrow_element: HtmlElement = component_item_arrow_element.dyn_into().unwrap();
+                    component_item_arrow_element.set_class_name("page-item__component_icon");
 
-                    let component_item_icon_img_element = document.create_element("img").unwrap();
-                    let component_item_icon_img_element: HtmlElement = component_item_icon_img_element.dyn_into().unwrap();
-                    component_item_icon_img_element.set_attribute(&"src", &"./img/icons/check.svg");
+                    let component_item_arrow_img_element = document.create_element("img").unwrap();
+                    let component_item_arrow_img_element: HtmlElement = component_item_arrow_img_element.dyn_into().unwrap();
+                    component_item_arrow_img_element.set_attribute(&"src", &"./img/icons/check.svg");
 
                     let component_item_name_element = document.create_element("div").unwrap();
                     let component_item_name_element: HtmlElement = component_item_name_element.dyn_into().unwrap();
                     component_item_name_element.set_inner_text(&component.name());
 
                     // Add html elements of component in layout children container
-                    component_item_icon_element.append_child(&component_item_icon_img_element);
-                    component_item_element.append_child(&component_item_icon_element);
+                    component_item_arrow_element.append_child(&component_item_arrow_img_element);
+                    component_item_element.append_child(&component_item_arrow_element);
                     component_item_element.append_child(&component_item_name_element);
                     layout_item_children_element.append_child(&component_item_element);
+
+                    // Process Hierarchy Item Data for Component
+                    let mut component_hierarchy_item_data = component.hierarchy_data_mut();
+                    component_hierarchy_item_data.item_html_element = Some(component_item_element);
+                    component_hierarchy_item_data.arrow_html_element = Some(component_item_arrow_element);
+                    component_hierarchy_item_data.element_type = ElementType::ComponentElement;
                 }
 
                 // Add layout children container in layout
@@ -198,6 +216,53 @@ impl Hierarchy {
     /// Determines whether the tree contains a given html element
     pub fn contains(&self, elm: &Element) -> bool {
         self.html_element.contains(Some(elm))
+    }
+
+    /// On click event when any element inside hierarchy tree is clicked
+    pub fn on_click(&mut self, workspace: &Workspace, target: &HtmlElement) -> ClickResult {
+        // Check if a page is clicked
+        for page in workspace.pages() {
+            let mut page_hierarchy_item_data = page.hierarchy_data_mut();
+            let page_item_html_element = page_hierarchy_item_data.item_html_element.as_ref();
+            let page_arrow_html_element = page_hierarchy_item_data.arrow_html_element.as_ref();
+            if page_item_html_element.unwrap().contains(Some(target)) {
+                if page_arrow_html_element.unwrap().contains(Some(target)) {
+                    return ClickResult::None
+                }
+                else {
+                    return ClickResult::Page(page.clone())
+                }
+            }
+            // Check if a layout is clicked
+            for layout in page.layouts().iter() {
+                let mut layout_hierarchy_item_data = layout.hierarchy_data_mut();
+                let layout_item_html_element = layout_hierarchy_item_data.item_html_element.as_ref();
+                let layout_arrow_html_element = layout_hierarchy_item_data.arrow_html_element.as_ref();
+                if layout_item_html_element.unwrap().contains(Some(target)) {
+                    if layout_arrow_html_element.unwrap().contains(Some(target)) {
+                        return ClickResult::None
+                    }
+                    else {
+                        return ClickResult::Layout(layout.clone())
+                    }
+                }
+                // Check if a component is clicked
+                for component in layout.components().iter() {
+                    let mut component_hierarchy_item_data = component.hierarchy_data_mut();
+                    let component_item_html_element = component_hierarchy_item_data.item_html_element.as_ref();
+                    let component_arrow_html_element = component_hierarchy_item_data.arrow_html_element.as_ref();
+                    if component_item_html_element.unwrap().contains(Some(target)) {
+                        if component_arrow_html_element.unwrap().contains(Some(target)) {
+                            return ClickResult::None
+                        }
+                        else {
+                            return ClickResult::Component(component.clone())
+                        }
+                    }
+                }
+            }
+        }
+        ClickResult::None
     }
 }
 

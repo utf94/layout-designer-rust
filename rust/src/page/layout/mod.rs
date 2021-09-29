@@ -89,7 +89,10 @@ impl Layout {
 
         let name = match &kind {
             LayoutKind::Free { .. } => {
-                html_element.class_list().add_2("free", "block").unwrap();
+                html_element
+                    .class_list()
+                    .add_3("free", "block", "relative")
+                    .unwrap();
                 "Free"
             }
             LayoutKind::Flex { .. } => {
