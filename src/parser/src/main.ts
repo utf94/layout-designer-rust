@@ -1,21 +1,24 @@
-import { convertCss } from "./parser/parser";
-import { cssToTailWind } from "./parser/wip";
-
-// {
-//   let out = cssToTailWind("background-color", "#f00");
-//   console.log(out);
-// }
+import { ColorPalette } from "./colorPalette";
+import { SpacingScale } from "./spacingScale";
 
 {
-  let p = "width";
-  let v = "14px";
-  let s: string[] = [];
-  let e: string[] = [];
-  convertCss(p, v, s, e, {
-    autoConvertColor: true,
-    autoConvertSpacing: true,
-    remConversion: 16,
-  });
+  const colorPalette = new ColorPalette();
+  {
+    let tailwind = colorPalette.getColorName("#faffff");
+    console.log(tailwind);
+  }
+  // {
+  //   let tailwind = colorPalette.getColorName("#F00");
+  //   console.log(tailwind);
+  // }
 
-  console.log(s);
+  const spacingScale = new SpacingScale();
+  console.log(spacingScale.getSpacingName(10));
+
+  const config = {
+    color: colorPalette.getTailwindConfig(),
+    spacing: spacingScale.getTailwindConfig(),
+  };
+
+  console.log(config);
 }

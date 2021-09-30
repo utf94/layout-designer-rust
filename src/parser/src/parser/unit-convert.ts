@@ -116,7 +116,7 @@ const updateTailwind = (
       numericVal
     ] = `${rem}rem`;
 
-    console.log(tailwind);
+    console.log(tailwind.theme);
     // const directoryPath = path.join("./tailwind.config.js");
     // fs.writeFile(
     //   directoryPath,
