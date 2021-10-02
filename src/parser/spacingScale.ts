@@ -18,7 +18,7 @@ export class SpacingScale {
       const remSpacing = spacing / 16.0;
       const name = remSpacing * 4.0;
 
-      this.customSpacings[name] = spacing + "rem";
+      this.customSpacings[name] = remSpacing + "rem";
       return name.toString();
     }
   }
