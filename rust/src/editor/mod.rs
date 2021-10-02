@@ -17,28 +17,31 @@ use component_picker::ComponentPicker;
 pub mod hierarchy;
 use hierarchy::Hierarchy;
 
-use crate::drag_controller::move_controller::{DragMoveResult, MoveController};
-use crate::drag_controller::resize_controller::DragResizeResult;
-use crate::drag_controller::resize_controller::ResizeController;
-use crate::page::layout::Layout;
-use crate::page::Page;
 use crate::{
-    component::ComponentSource,
+    component::{Component, ComponentSource},
+    drag_controller::move_controller::{DragMoveResult, MoveController},
+    drag_controller::resize_controller::{DragResizeResult, ResizeController},
     html_elements::component::{ComponentDescriptor, EditorComponentSource},
+    page::layout::Layout,
+    page::Page,
 };
 
 use self::hierarchy::ClickResult;
 
 #[derive(Clone, PartialEq)]
 pub enum Selection {
+    Page(Page),
     Layout(Layout),
+    Component(Component),
     None,
 }
 
 impl Selection {
     pub fn set_is_selected(&mut self, is: bool) {
         match self {
+            Self::Page(page) => page.set_is_selected(is),
             Self::Layout(layout) => layout.set_is_selected(is),
+            Self::Component(component) => component.set_is_selected(is),
             Self::None => {}
         }
     }
@@ -199,8 +202,14 @@ impl EditorState {
                     let res = self.hierarchy.on_click(&self.workspace, &target);
 
                     match res {
+                        ClickResult::Page(page) => {
+                            self.set_selection(Selection::Page(page));
+                        }
                         ClickResult::Layout(layout) => {
                             self.set_selection(Selection::Layout(layout));
+                        }
+                        ClickResult::Component(component) => {
+                            self.set_selection(Selection::Component(component))
                         }
                         _ => {}
                     }

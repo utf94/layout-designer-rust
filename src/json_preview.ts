@@ -1,4 +1,5 @@
 import { DataType } from "./index";
+import { TailwindConfig } from "./parser/parser";
 
 type Props = { [key: string]: string };
 type Styles = { [key: string]: string };
@@ -6,7 +7,6 @@ type Attributes = { [key: string]: string };
 
 interface ComponentData {
   props: Props;
-  styles: Styles;
   classes: string[];
   attributes: Attributes;
   innerText: string | null;
@@ -26,16 +26,13 @@ enum LayoutKind {
 
 interface Layout {
   classes: string[];
-  styles: Styles;
   kind: LayoutKind;
-  height: string;
   components: Component[];
 }
 
 interface Page {
   title: string;
-  width: string;
-  backgroundColor: string;
+  classes: string[];
   layouts: Layout[];
 }
 
@@ -43,6 +40,7 @@ interface JsonOutput {
   framework: string;
   components: string;
   pages: Page[];
+  tailwindConfig: any;
 }
 
 //
@@ -65,39 +63,22 @@ interface EditorComponent extends HTMLElement {
 
 function generate_component_json(
   component: EditorComponent,
-  layout_kind: LayoutKind
+  layout_kind: LayoutKind,
+  config: TailwindConfig
 ): Component {
   const desc = component.descriptor;
 
-  const style = component.getAttribute("style").split(";");
-
-  const style_json: Styles = {};
   const classes: string[] = [];
-
-  style
-    .filter((item) => item.length > 0)
-    .map((item) => {
-      let [key, value] = item.split(":");
-      return { key: key.trim(), value: value.trim() };
-    })
-    .forEach(({ key, value }) => {
-      style_json[key] = value;
-    });
 
   if (layout_kind == LayoutKind.Free) {
     classes.push("absolute");
 
-    // if (style_json["top"]) {
-    //   classes.push(`top-${style_json["top"]}`);
-    // } else {
-    //   classes.push("top-0");
-    // }
+    const computedStyle = window.getComputedStyle(component);
+    const top = parseInt(computedStyle.top);
+    const left = parseInt(computedStyle.left);
 
-    // if (style_json["left"]) {
-    //   classes.push(`left-${style_json["left"]}`);
-    // } else {
-    //   classes.push("left-0");
-    // }
+    classes.push("top-" + config.getSpacingName(top));
+    classes.push("left-" + config.getSpacingName(left));
   } else if (layout_kind == LayoutKind.Grid) {
     classes.push("w-full");
     classes.push("h-full");
@@ -126,10 +107,6 @@ function generate_component_json(
           rowSpan = split[1];
         }
       }
-    }
-
-    if (style_json["grid-area"]) {
-      delete style_json["grid-area"];
     }
 
     classes.push(
@@ -168,7 +145,6 @@ function generate_component_json(
     id: component.id,
     data: {
       props,
-      styles: style_json,
       classes,
       attributes: {},
       innerText,
@@ -176,7 +152,10 @@ function generate_component_json(
   };
 }
 
-function generate_layout_json(layout: HTMLElement): Layout {
+function generate_layout_json(
+  layout: HTMLElement,
+  config: TailwindConfig
+): Layout {
   let kind: LayoutKind;
 
   if (layout.classList.contains("free")) {
@@ -189,67 +168,90 @@ function generate_layout_json(layout: HTMLElement): Layout {
     kind = LayoutKind.Free;
   }
 
-  const height = window.getComputedStyle(layout).height;
-
   const components = [...layout.children]
     .filter((ch) => ch.classList.contains("component"))
     .map((ch) => ch as EditorComponent)
-    .map((c) => generate_component_json(c, kind));
+    .map((c) => generate_component_json(c, kind, config));
 
-  const classes: string[] = [];
+  const height = parseInt(window.getComputedStyle(layout).height);
+  const classes: string[] = ["h-" + config.getSpacingName(height)];
+
   layout.classList.forEach((value) => {
     if (value !== "free" && value !== "container") {
       classes.push(value);
     }
   });
 
-  const styles: Styles = {};
   if (kind == LayoutKind.Grid) {
-    styles["grid-template-columns"] = layout.style.getPropertyValue(
-      "grid-template-columns"
-    );
-    styles["grid-template-rows"] =
-      layout.style.getPropertyValue("grid-template-rows");
+    const col = layout.style.getPropertyValue("grid-template-columns");
+    const colVal = parseInt(col.split(",")[1].split("px")[0]);
+
+    const colName = config.getGridColName(colVal);
+    classes.push("grid-cols-" + colName);
+
+    const row = layout.style.getPropertyValue("grid-template-rows");
+    const rowVal = parseInt(row.split(",")[1].split("px")[0]);
+
+    const rowName = config.getGridRowName(rowVal);
+    classes.push("grid-rows-" + rowName);
   }
 
   return {
     kind,
 
     classes,
-    styles,
 
-    height,
     components,
   };
 }
 
-function generate_page_json(page: HTMLElement): Page {
+function generate_page_json(page: HTMLElement, config: TailwindConfig): Page {
   const children = [...page.children];
 
   const layouts = children
     .filter((ch) => ch.classList.contains("container"))
     .map((ch) => ch as HTMLElement)
-    .map(generate_layout_json);
+    .map((ch) => generate_layout_json(ch, config));
 
   const page_computed_style = window.getComputedStyle(page);
+  const width = parseInt(page_computed_style.width);
+
+  function rgbToHex(r: number, g: number, b: number) {
+    function componentToHex(c: number) {
+      var hex = c.toString(16);
+      return hex.length == 1 ? "0" + hex : hex;
+    }
+    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+  }
+
+  // TODO: Replace this temporary color getter
+  const bg = page_computed_style.backgroundColor.substr(4).split(",");
+  const r = parseInt(bg[0]);
+  const g = parseInt(bg[1]);
+  const b = parseInt(bg[2]);
 
   return {
     title: "Home",
-    width: page_computed_style.width,
-    backgroundColor: page_computed_style.backgroundColor,
+    classes: [
+      "w-" + config.getSpacingName(width),
+      "bg-" + config.getColorName(rgbToHex(r, g, b)),
+    ],
     layouts,
   };
 }
 
 export function generate_json(): JsonOutput {
+  let config = new TailwindConfig();
+
   const pages = [...document.querySelectorAll(".page")].map((page_elm) =>
-    generate_page_json(page_elm as HTMLElement)
+    generate_page_json(page_elm as HTMLElement, config)
   );
 
   return {
     framework: "solidjs",
     components: "solidui",
     pages,
+    tailwindConfig: config.getTailwindConfig(),
   };
 }
 
