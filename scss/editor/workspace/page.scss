@@ -1,4 +1,6 @@
 .page {
+  margin: 50px auto;
+
   position: relative;
 
   display: flex;
@@ -11,7 +13,6 @@
 
   // Layouts are used in debug preview as well, so for now this file is imported from style.scss
   // @import "./page/layout";
-
 }
 
 .page.selected {
