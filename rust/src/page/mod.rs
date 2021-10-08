@@ -60,7 +60,7 @@ impl Page {
             .set_property("width", &format!("{}px", width))
             .unwrap();
 
-        html_element.class_list().add_1("page").unwrap();
+        html_element.class_list().add_2("page", "visible").unwrap();
 
         Self {
             html_element,
@@ -83,6 +83,14 @@ impl Page {
 
     pub fn hierarchy_data_mut(&self) -> RefMut<HierarchyItemData> {
         self.data.hierarchy_data.borrow_mut()
+    }
+
+    pub fn set_visible(&mut self, is: bool) {
+        if is {
+            self.html_element.class_list().add_1("visible").unwrap();
+        } else {
+            self.html_element.class_list().remove_1("visible").unwrap();
+        }
     }
 
     pub fn name(&self) -> Ref<str> {

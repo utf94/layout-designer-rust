@@ -183,12 +183,6 @@ impl EditorState {
                     .unwrap();
 
                 if add_btn.contains(Some(target)) {
-                    for page in self.workspace.pages() {
-                        page.html_element
-                            .style()
-                            .set_property("display", "none")
-                            .unwrap();
-                    }
                     // Add a debug page
                     {
                         let page = Page::new("Home", 908);
@@ -202,7 +196,14 @@ impl EditorState {
                     let res = self.hierarchy.on_click(&self.workspace, &target);
 
                     match res {
-                        ClickResult::Page(page) => {
+                        ClickResult::Page(mut page) => {
+                            if let Some(page) = self.workspace.current_page() {
+                                page.clone().set_visible(false);
+                            }
+
+                            page.set_visible(true);
+
+                            self.workspace.set_current_page(page.clone());
                             self.set_selection(Selection::Page(page));
                         }
                         ClickResult::Layout(layout) => {

@@ -13,7 +13,7 @@ export function connect(editor: Editor) {
       dragged.style.opacity = "0.5";
 
       {
-        const elements = document.querySelectorAll("#workspace .page");
+        const elements = document.querySelectorAll("#workspace .page.visible");
 
         elements.forEach((elm) => {
           const div = document.createElement("div");
@@ -27,7 +27,7 @@ export function connect(editor: Editor) {
 
       {
         const elements = document.querySelectorAll(
-          "#workspace layout-container"
+          "#workspace .page.visible layout-container"
         );
 
         elements.forEach((elm, id) => {

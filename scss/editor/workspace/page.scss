@@ -15,6 +15,10 @@
   // @import "./page/layout";
 }
 
+.page:not(.visible) {
+  display: none;
+}
+
 .page.selected {
   outline: 1px solid #0095f8;
 
