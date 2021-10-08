@@ -16,6 +16,8 @@ pub struct Workspace {
 
     /// List of all pages in the workspace
     pages: Vec<Page>,
+
+    current_page: Option<Page>,
 }
 
 impl Workspace {
@@ -30,12 +32,29 @@ impl Workspace {
             html_element,
             components: Arena::new(),
             pages: Vec::new(),
+            current_page: None,
         }
     }
 
     pub fn insert_page(&mut self, page: Page) {
         page.append_to(&self.html_element);
-        self.pages.push(page);
+        self.pages.push(page.clone());
+
+        if let Some(mut current_page) = self.current_page.take() {
+            current_page.set_visible(false);
+        }
+
+        self.current_page = Some(page);
+    }
+
+    /// Get currently visible page
+    pub fn current_page(&self) -> Option<&Page> {
+        self.current_page.as_ref()
+    }
+
+    /// Set currently visible page
+    pub fn set_current_page(&mut self, page: Page) {
+        self.current_page = Some(page);
     }
 
     /// Determines whether the workspace contains a given html element
