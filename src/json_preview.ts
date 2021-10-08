@@ -70,10 +70,6 @@ function generate_component_json(
 
   const classes: string[] = [];
 
-  classes.push("flex");
-  classes.push("justify-center");
-  classes.push("items-center");
-
   if (layout_kind == LayoutKind.Free) {
     classes.push("absolute");
 
