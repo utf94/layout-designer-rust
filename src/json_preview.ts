@@ -263,10 +263,22 @@ function download(text: string) {
   a.click();
 }
 
+function download_purs(text: string) {
+  var a = document.createElement("a");
+  var file = new Blob([text], { type: "text/plain" });
+  a.href = URL.createObjectURL(file);
+  a.download = "sample.purs";
+  a.click();
+}
+
 export function connect() {
   document.querySelector("#json-preview-btn").addEventListener("click", () => {
     const json = generate_json();
 
     download(JSON.stringify(json, null, 4));
+  });
+  document.querySelector("#ps-preview-btn").addEventListener("click", async () => {
+    const debug: {[key: string]: any} = require('../debug.json');
+    download_purs(debug.data);
   });
 }

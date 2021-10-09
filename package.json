@@ -4,14 +4,22 @@
   "description": "",
   "scripts": {
     "build": "spack && sass scss/style.scss:dist/css/style.css",
+    "build-ps": "npm run build-purescript && make build && serve",
     "spack": "spack",
     "build-sass": "sass scss/style.scss:dist/css/style.css",
-    "sass-dev": "sass scss/style.scss:dist/css/style.css --watch"
+    "sass-dev": "sass scss/style.scss:dist/css/style.css --watch",
+    "build-purescript": "node purescript.js"
   },
   "devDependencies": {
     "@swc/cli": "^0.1.49",
     "@swc/core": "^1.2.84",
+    "@types/node": "^18.0.0",
     "sass": "^1.41.0",
     "spak": "^0.22.1"
+  },
+  "dependencies": {
+    "@types/html2json": "^1.0.1",
+    "fs": "^0.0.1-security",
+    "html2json": "^1.0.2"
   }
 }
